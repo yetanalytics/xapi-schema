@@ -1,5 +1,5 @@
 (ns xapi-schema.schemata.predicates-spec
-  #+cljs (:require-macros [speclj.core :refer [describe context with it should should= should-not run-specs]])
+  #+cljs (:require-macros [speclj.core :refer [describe context with it should should= should-not run-specs pending]])
   #+cljs (:require [speclj.core]
                    [xapi-schema.schemata.predicates :refer [ifi-count
                                                             no-multi-ifi?
@@ -211,4 +211,13 @@
                                                    "raw" 1}))
                                  (should (s/check ScoreValidations
                                                   {"min" 10
-                                                   "max" 1}))))))
+                                                   "max" 1})))))
+          (describe "StatementValidations"
+                    (it ""))
+          (describe "Substatementvalidations"
+                    (it ""))
+          (describe "OAuthconsumervalidations"
+                    (it ""))
+          (describe "Authoritygroupvalidations"
+                    (it ""))
+          )

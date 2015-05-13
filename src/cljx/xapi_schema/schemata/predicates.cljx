@@ -163,3 +163,25 @@
                         (if (and min max)
                           (< min max)
                           true))) "min cannot be higer than max")))
+
+(def StatementValidations
+  valid-context-pred)
+
+(def SubStatementValidations
+  (s/both StatementValidations
+          (s/pred (fn [{:strs [id stored version authority]}]
+                    (nil? (or id stored version authority))) "SubStatements cannot have the id, stored, version or authority keys")))
+
+
+(def OAuthConsumerValidations
+  (s/pred (fn [x]
+            (if (x "account")
+              true
+              false)) "valid IFI for oauth consumer: Account"))
+
+(def AuthorityGroupValidations
+  (s/pred (fn [x]
+            (if (and (nil? (x "member")) (= (x "objectType") "Group"))
+              false
+              true)) "valid 3 legged OAuth Group: member required")
+  )
