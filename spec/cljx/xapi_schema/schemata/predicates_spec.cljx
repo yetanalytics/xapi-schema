@@ -20,7 +20,8 @@
                                                             DefinitionValidations
                                                             StatementReferenceValidations
                                                             ScoreValidations
-                                                            StatementValidations]]
+                                                            StatementValidations
+                                                            SubStatementValidations]]
                    [schema.core :as s
                     :include-macros true])
   #+clj (:require [speclj.core :refer :all]
@@ -223,8 +224,19 @@
                                          {"object" {"objectType" "Agent"}
                                           "context" {"registration" "whatever"
                                                      "platform" "whatever"}}))))
-          (describe "Substatementvalidations"
-                    (it ""))
+          (describe "SubstatementValidations"
+                    (with mock-substatement {"object" {"objectType" "Activity"}
+                                             "context" {"registration" "whatever"
+                                                        "platform" "whatever"}})
+                    (it "validates statement context (platform and registration) structure"
+                        (should-not (s/check SubStatementValidations
+                                             @mock-substatement))
+                        (should (s/check SubStatementValidations
+                                         (assoc-in @mock-substatement ["object" "objectType"] "Agent"))))
+                    (it "does not allow the id, stored, version or authority keys"
+                        (should (s/check SubStatementValidations (merge
+                                                                  @mock-substatement
+                                                                  {"id" "whatever"})))))
           (describe "OAuthconsumervalidations"
                     (it ""))
           (describe "Authoritygroupvalidations"
