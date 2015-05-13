@@ -15,10 +15,10 @@
                    :plugins [[com.keminglabs/cljx "0.6.0" :exclusions [org.clojure/clojure]]]}}
 
   :cljx {:builds [{:source-paths ["src/cljx"]
-                   :output-path "target/classes"
+                   :output-path "target/classes/clj"
                    :rules :clj}
                   {:source-paths ["src/cljx"]
-                   :output-path "target/classes"
+                   :output-path "target/classes/cljs"
                    :rules :cljs}
                   {:source-paths ["spec/cljx"]
                    :output-path "target/spec/clj"
@@ -28,16 +28,16 @@
                    :rules :cljs}]}
 
   :cljsbuild {:builds [{:id "dev"
-                        :source-paths ["target/classes"]
+                        :source-paths ["target/classes/cljs"]
                         :compiler {:output-to "target/js/xapi_schema.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}
                        {:id "test"
-                        :source-paths ["target/classes" "target/spec/cljs"]
+                        :source-paths ["target/classes/cljs" "target/spec/cljs"]
                         :compiler {:output-to "target/js/xapi_schema_test.js"
                                    :optimizations :whitespace
                                    :pretty-print true}
                         :notify-command ["phantomjs" "bin/speclj" "target/js/xapi_schema_test.js"]}]
               :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_test.js"]}}
-  :test-paths ["target/spec"]
+  :test-paths ["target/classes/clj" "target/spec/clj"]
   :prep-tasks [["cljx" "once"] "javac" "compile"])
