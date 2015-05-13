@@ -19,7 +19,8 @@
                                                             InteractionComponentsValidations
                                                             DefinitionValidations
                                                             StatementReferenceValidations
-                                                            ScoreValidations]]
+                                                            ScoreValidations
+                                                            StatementValidations]]
                    [schema.core :as s
                     :include-macros true])
   #+clj (:require [speclj.core :refer :all]
@@ -213,7 +214,15 @@
                                                   {"min" 10
                                                    "max" 1})))))
           (describe "StatementValidations"
-                    (it ""))
+                    (it "validates statement context (platform and registration) structure"
+                        (should-not (s/check StatementValidations
+                                             {"object" {"objectType" "Activity"}
+                                              "context" {"registration" "whatever"
+                                                         "platform" "whatever"}}))
+                        (should (s/check StatementValidations
+                                         {"object" {"objectType" "Agent"}
+                                          "context" {"registration" "whatever"
+                                                     "platform" "whatever"}}))))
           (describe "Substatementvalidations"
                     (it ""))
           (describe "OAuthconsumervalidations"
