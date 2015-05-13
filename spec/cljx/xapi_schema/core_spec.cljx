@@ -1,4 +1,4 @@
-(ns xapi-schema-spec.core
+(ns xapi-schema.core-spec
   #+cljs (:require-macros [speclj.core :refer [describe it should should= should-not run-specs]])
   #+cljs (:require [speclj.core]
                    [xapi-schema.core :refer [foo]])
