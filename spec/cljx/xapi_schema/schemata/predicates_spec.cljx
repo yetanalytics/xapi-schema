@@ -234,9 +234,10 @@
                         (should (s/check SubStatementValidations
                                          (assoc-in @mock-substatement ["object" "objectType"] "Agent"))))
                     (it "does not allow the id, stored, version or authority keys"
-                        (should (s/check SubStatementValidations (merge
-                                                                  @mock-substatement
-                                                                  {"id" "whatever"})))))
+                        (should (s/check SubStatementValidations
+                                         (merge
+                                          @mock-substatement
+                                          {"id" "whatever"})))))
           (describe "OAuthconsumervalidations"
                     (it ""))
           (describe "Authoritygroupvalidations"
