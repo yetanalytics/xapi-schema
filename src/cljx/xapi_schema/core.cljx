@@ -30,7 +30,7 @@
     (validate-statement sd)
     (validate-statements sd)))
 
-(defn validate-statement-data [sd]
+(defn ^:export validate-statement-data [sd]
   #+clj
   (validate-statement-data* (cond
                               (string? sd) (c/parse-string sd)

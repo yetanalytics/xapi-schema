@@ -15,11 +15,13 @@
                                              statements-checker
                                              validate-statement
                                              validate-statements
-                                             validate-statement-data*]]
+                                             validate-statement-data*
+                                             validate-statement-data]]
                    [xapi-schema.support.data :as d])
   #+clj (:require [speclj.core :refer :all]
                   [xapi-schema.core :refer :all]
-                  [xapi-schema.support.data :as d]))
+                  [xapi-schema.support.data :as d]
+                  [cheshire.core :as c]))
 
 (describe
  "statement-checker"
@@ -76,3 +78,14 @@
           (with statements [d/statement d/statement])
           (it "returns the statements"
               (should= @statements (validate-statement-data* @statements)))))
+
+(describe
+ "validate-statement-data"
+ #+clj (context "with string data"
+                (with statement (c/generate-string d/statement))
+                (it "parses and returns the validated data"
+                    (should= d/statement (validate-statement-data @statement))))
+ #+cljs (context "with js data"
+          (with statement (clj->js d/statement))
+          (it "coerces and returns the data"
+              (should= d/statement (validate-statement-data @statement)))))
