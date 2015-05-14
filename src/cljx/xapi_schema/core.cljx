@@ -1,9 +1,29 @@
 (ns xapi-schema.core
   (:require
+   [xapi-schema.schemata.json :refer [Statement Statements]]
    #+clj [schema.core :as s]
    #+cljs [schema.core :as s
                      :include-macros true]))
 
-(defn foo []
-  #+clj "bar"
-  #+cljs "bar")
+(def statement-checker
+  (s/checker Statement))
+
+(def statements-checker
+  (s/checker Statements))
+
+(defn validate-statement [s]
+  (if-let [error (statement-checker s)]
+    #+clj (throw (Exception. (str error)))
+    #+cljs (throw (js/Error. (str error)))
+    s))
+
+(defn validate-statements [ss]
+  (if-let [error (statements-checker ss)]
+    #+clj (throw (Exception. (str error)))
+    #+cljs (throw (js/Error. (str error)))
+    ss))
+
+(defn validate-statement-data* [sd]
+  (if (map? sd)
+    (validate-statement sd)
+    (validate-statements sd)))
