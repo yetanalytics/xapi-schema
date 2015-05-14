@@ -1,7 +1,9 @@
 (ns xapi-schema.core
   (:require
    [xapi-schema.schemata.json :refer [Statement Statements]]
-   #+clj [schema.core :as s]
+   #+clj
+   [schema.core :as s]
+   #+clj [cheshire.core :as c]
    #+cljs [schema.core :as s
                      :include-macros true]))
 
@@ -27,3 +29,11 @@
   (if (map? sd)
     (validate-statement sd)
     (validate-statements sd)))
+
+(defn validate-statement-data [sd]
+  #+clj
+  (validate-statement-data* (cond
+                              (string? sd) (c/parse-string sd)
+                              :else sd))
+  #+cljs
+  (validate-statement-data* (js->clj sd)))
