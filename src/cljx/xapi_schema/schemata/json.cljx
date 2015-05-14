@@ -28,28 +28,40 @@
 
 ;; Component schema
 
-(s/defschema LanguageTag
-  (s/both (regex-pred LanguageTagRegEx
-                      "a valid language tag")
-          s/Str))
+(s/defschema
+  LanguageTag
+  "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#52-language-map"
+  (s/both
+   (regex-pred LanguageTagRegEx
+               "A valid RFC 5646 Language Tag")
+   s/Str))
 
-(s/defschema LanguageMap
+(s/defschema
+  LanguageMap
+  "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#52-language-map"
   {LanguageTag s/Str})
 
-(s/defschema IRI
-  (s/both (regex-pred AbsoluteIRIRegEx
-                      "a valid IRI")
-          s/Str))
+(s/defschema
+  IRI
+  "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#def-iri"
+  (s/both
+   (regex-pred AbsoluteIRIRegEx
+               "a valid IRI")
+   s/Str))
 
-(s/defschema MailToIRI
-  (s/both (regex-pred MailToIRIRegEx
-                      "a valid MailTo IRI")
-          s/Str))
+(s/defschema
+  MailToIRI
+  "http://xmlns.com/foaf/spec/#term_mbox"
+  (s/both
+   (regex-pred MailToIRIRegEx
+               "a valid MailTo IRI")
+   s/Str))
 
 (s/defschema IRL
-  (s/both (regex-pred AbsoluteIRIRegEx
-                      "a valid IRL")
-          s/Str))
+  (s/both
+   (regex-pred AbsoluteIRIRegEx
+               "a valid IRL")
+   s/Str))
 
 (s/defschema Extensions
   {IRI s/Any})
@@ -94,17 +106,20 @@
 
 ;; Composite schemas
 
+(s/defschema
+  InteractionComponent
+  {(s/required-key "id") s/Str
+   (s/optional-key "description") LanguageMap})
 
 (s/defschema InteractionComponents
   (s/both InteractionComponentsValidations
-          #{{(s/required-key "id") s/Str
-            (s/optional-key "description") LanguageMap}}))
+          [InteractionComponent]))
 
 (s/defschema Definition
   (s/both DefinitionValidations
           {(s/optional-key "name") LanguageMap
            (s/optional-key "description") LanguageMap
-           (s/optional-key "correctResponsesPattern") #{s/Str}
+           (s/optional-key "correctResponsesPattern") [s/Str]
            (s/optional-key "interactionType") (s/both s/Str (s/enum "true-false" "choice" "fill-in" "long-fill-in" "matching" "performance" "sequencing" "likert" "numeric" "other"))
            (s/optional-key "type") IRI
            (s/optional-key "moreInfo") IRL
@@ -141,9 +156,8 @@
            (s/optional-key "mbox") MailToIRI
            (s/optional-key "mbox_sha1sum") Sha1Sum
            (s/optional-key "openid") OpenID
-           (s/optional-key "account") {(s/required-key "homePage") IRL
-                                       (s/required-key "name") s/Str}
-           (s/optional-key "member") #{Agent}}
+           (s/optional-key "account") Account
+           (s/optional-key "member") [(s/one Agent "at least one Agent") Agent]}
           GroupValidations))
 
 (s/defschema Actor
@@ -161,7 +175,7 @@
                     (s/optional-key "raw") s/Num ; Decimal number between min and max (if present, otherwise unrestricted), inclusive
                     (s/optional-key "min") s/Num ; Decimal number less than max (if present)
                     (s/optional-key "max") s/Num}) ; Decimal number greater than min (if present)
-  )
+)
 
 (s/defschema Result
   {(s/optional-key "score") Score
@@ -180,7 +194,7 @@
    (s/optional-key "objectType") (s/eq "StatementRef")})
 
 
-(s/defschema ContextActivitiesArray #{Activity})
+(s/defschema ContextActivitiesArray [(s/one Activity "at least one Activity") Activity])
 
 (s/defschema ContextActivities
   {(s/optional-key "parent") ContextActivitiesArray
@@ -218,7 +232,7 @@
    (s/required-key "fileUrl") IRL})
 
 (s/defschema Attachments
-  #{Attachment})
+  [(s/one Attachment "at least one attachment") Attachment])
 
 (s/defschema SubStatement
   (s/both {(s/required-key "actor") Actor
@@ -282,4 +296,5 @@
           StatementValidations))
 
 (s/defschema Statements
-  #{Statement})
+  [(s/one Statement "at least one statement")
+   Statement])
