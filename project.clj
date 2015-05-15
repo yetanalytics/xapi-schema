@@ -38,6 +38,10 @@
                                    :optimizations :whitespace
                                    :pretty-print true}
                         :notify-command ["phantomjs" "bin/speclj" "target/js/xapi_schema_test.js"]}
+                       {:id "test-browser"
+                        :source-paths ["target/classes/cljs"]
+                        :compiler {:output-to "resources/public/xapi_schema.js"
+                                   :optimizations :advanced}}
                        {:id "release"
                         :source-paths ["target/classes/cljs"]
                         :compiler {:output-to "target/js/xapi_schema.js"
