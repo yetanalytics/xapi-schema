@@ -16,7 +16,8 @@
                                              validate-statement
                                              validate-statements
                                              validate-statement-data*
-                                             validate-statement-data]]
+                                             validate-statement-data
+                                             validate-statement-data-js]]
                    [xapi-schema.support.data :as d :refer [long-statement]])
   #+clj (:require [speclj.core :refer :all]
                   [xapi-schema.core :refer :all]
@@ -91,3 +92,11 @@
           (with statement (clj->js long-statement))
           (it "coerces and returns the data"
               (should= long-statement (validate-statement-data @statement)))))
+
+#+cljs (describe
+        "validate-statement-data-js"
+        (with js-statement (clj->js long-statement))
+        (it "returns js data"
+            (should (aget @js-statement "id")) ;;assert it is a js obj to begin
+            (should= (long-statement "id")
+                     (aget (validate-statement-data-js @js-statement) "id"))))

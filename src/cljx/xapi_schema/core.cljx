@@ -30,10 +30,15 @@
     (validate-statement sd)
     (validate-statements sd)))
 
-(defn ^:export validate-statement-data [sd]
+(defn validate-statement-data [sd]
   #+clj
   (validate-statement-data* (cond
                               (string? sd) (c/parse-string sd)
                               :else sd))
   #+cljs
   (validate-statement-data* (js->clj sd)))
+
+#+cljs
+(defn ^:export validate-statement-data-js
+  [sd]
+   (clj->js (validate-statement-data sd)))

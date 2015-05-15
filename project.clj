@@ -29,7 +29,7 @@
 
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["target/classes/cljs"]
-                        :compiler {:output-to "target/js/xapi_schema.js"
+                        :compiler {:output-to "target/js/xapi_schema_dev.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}
                        {:id "test"
@@ -37,7 +37,11 @@
                         :compiler {:output-to "target/js/xapi_schema_test.js"
                                    :optimizations :whitespace
                                    :pretty-print true}
-                        :notify-command ["phantomjs" "bin/speclj" "target/js/xapi_schema_test.js"]}]
+                        :notify-command ["phantomjs" "bin/speclj" "target/js/xapi_schema_test.js"]}
+                       {:id "release"
+                        :source-paths ["target/classes/cljs"]
+                        :compiler {:output-to "target/js/xapi_schema.js"
+                                   :optimizations :advanced}}]
               :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_test.js"]}}
   :test-paths ["target/classes/clj" "target/spec/clj" "spec/clj"]
   :prep-tasks [["cljx" "once"] "javac" "compile"])
