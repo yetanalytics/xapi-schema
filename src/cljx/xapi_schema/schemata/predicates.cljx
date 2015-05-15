@@ -132,31 +132,26 @@
 (def DefinitionValidations
   (s/pred valid-component-keys? "valid Interaction Component List key(s)"))
 
-(def StatementReferenceValidations
-  (s/pred (fn [{:strs [id]}]
-            (not (nil? (re-matches UuidRegEx id)))) "valid Uuid: Statement Reference id"))
 
-
-
-  (def ScoreValidations
-    (s/both (s/pred (fn
-                      [x]
-                      (let [{:strs [raw max]} x]
-                        (if (and raw max)
-                          (<= raw max)
-                          true))) "raw cannot be higher than max")
-            (s/pred (fn
-                      [x]
+(def ScoreValidations
+  (s/both (s/pred (fn
+                    [x]
+                    (let [{:strs [raw max]} x]
+                      (if (and raw max)
+                        (<= raw max)
+                        true))) "raw cannot be higher than max")
+          (s/pred (fn
+                    [x]
                       (let [{:strs [raw min]} x]
                         (if (and raw min)
                           (>= raw min)
                           true))) "raw cannot be lower than min")
-            (s/pred (fn
-                      [x]
-                      (let [{:strs [min max]} x]
-                        (if (and min max)
-                          (< min max)
-                          true))) "min cannot be higer than max")))
+          (s/pred (fn
+                    [x]
+                    (let [{:strs [min max]} x]
+                      (if (and min max)
+                        (< min max)
+                        true))) "min cannot be higer than max")))
 
 (def StatementValidations
   valid-context-pred)

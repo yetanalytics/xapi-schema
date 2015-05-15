@@ -17,7 +17,6 @@
                                                             GroupValidations
                                                             InteractionComponentsValidations
                                                             DefinitionValidations
-                                                            StatementReferenceValidations
                                                             ScoreValidations
                                                             StatementValidations
                                                             SubStatementValidations]]
@@ -227,16 +226,6 @@
        :bad
        {"interactionType" "choice"
         "steps" "foo"})))
-          ;;TODO: get rid of this
- (describe
-  "StatementReferenceValidations"
-  (it "ensures that statement reference ID is present and is a valid UUID"
-      (should-satisfy+
-       StatementReferenceValidations
-       {"id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}
-       :bad
-       {}
-       {"id" "foobar"})))
  (describe
   "ScoreValidations"
   (context
