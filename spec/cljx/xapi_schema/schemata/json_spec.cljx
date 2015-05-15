@@ -570,8 +570,8 @@
  (context
   "context"
   (context "when the statement object is an activity"
-           (with statement long-statement) ;; has reg and platform
-           (it "can have the platform and registration properties"
+           (with statement (assoc-in long-statement ["context" "revision"] "whatevs")) ;; has revision and platform
+           (it "can have the platform and revision properties"
                (should-satisfy Statement @statement)))
   (context "when the statement object is not an activity"
            (with statement d/void-statement)
