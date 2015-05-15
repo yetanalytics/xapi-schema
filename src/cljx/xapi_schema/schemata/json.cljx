@@ -93,13 +93,10 @@
                       "a valid SHA-2 sum")
           s/Str))
 
-;; (s/defschema Sha1Sum ;; TODO: fix this regex
-;;   (s/both (v/regex-pred v/Sha1RegEx
-;;                         "a valid mbox_sha1sum")
-;;           s/Str))
-
 (def Sha1Sum
-  s/Str)
+  (s/both (regex-pred Sha1RegEx
+                      "a valid SHA-1 sum")
+          s/Str))
 
 ;; Composite schemas
 

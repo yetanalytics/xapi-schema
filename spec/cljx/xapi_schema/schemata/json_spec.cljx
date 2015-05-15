@@ -154,8 +154,15 @@
                       123)))
 (describe
  "Sha1Sum"
- (it "might not need validation"
-     ))
+ (it "is a SHA-1 string of 40 hex chars"
+     (should-satisfy+
+      Sha1Sum
+      "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12"
+      :bad
+      "2fd4e1c67a2d28fced849ee1bb76e7391" ;; >40
+      "12345"
+      "wat"
+      2)))
 
 (describe
  "InteractionComponent"
