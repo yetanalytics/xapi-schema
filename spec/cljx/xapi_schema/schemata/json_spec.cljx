@@ -45,11 +45,13 @@
                                                        should-not-satisfy
                                                        should-satisfy+
                                                        key-should-satisfy+]]
-                   [xapi-schema.support.data :as d])
+                   [xapi-schema.support.data :as d :refer [simple-statement
+                                                           long-statement]])
   #+clj (:require [speclj.core :refer :all]
                   [schema.core :as s]
                   [xapi-schema.schemata.json :refer :all]
-                  [xapi-schema.support.data :as d]
+                  [xapi-schema.support.data :as d :refer [simple-statement
+                                                          long-statement]]
                   [xapi-schema.support.schema :refer [should-satisfy
                                                       should-not-satisfy
                                                       should-satisfy+
@@ -184,24 +186,6 @@
  (it "should be satisfied by a valid definition"
      (should-satisfy+ Definition
                       @definition))
-
- (context
-  "name"
-  (it "is a language map"
-      (key-should-satisfy+ Definition
-                           @definition
-                           "name"
-                           {"en-US" "foo"}
-                           :bad
-                           "foo")))
- (context
-  "description"
-  (it "is a language map"
-      (key-should-satisfy+ Definition @definition
-                           "name"
-                           {"en-US" "foo"}
-                           :bad
-                           "foo")))
  (context
   "correctResponsesPattern"
   (it "is an array of strings"
@@ -220,26 +204,11 @@
                            "true-false" "choice" "fill-in" "long-fill-in" "matching"
                            "performance" "sequencing" "likert" "numeric" "other"
                            :bad "foo")))
- (context
-  "type"
-  (it "is an IRI"
-      (key-should-satisfy+
-       Definition
-       @definition
-       "type"
-       "http://foo.com/bar"
-       :bad
-       "foo.com")))
- (context
-  "moreInfo"
-  (it "is an IRL"
-      (key-should-satisfy+
-       Definition
-       @definition
-       "moreInfo"
-       "www.foo.com"
-       :bad
-       "foo bar"))))
+
+ (context "when the activity is an interaction activity"
+          (it "is satisfied by all interaction types"
+              (apply should-satisfy+ Definition
+                     (vals d/interaction-activity-defs)))))
 
 (describe
  "Activity"
@@ -249,12 +218,7 @@
       (should-satisfy+ Activity
                        {"id" "http://foo.com/bar"}
                        :bad
-                       {}))
-  (it "must be an IRI"
-      (should-satisfy+ Activity
-                       {"id" "http://foo.com/bar"}
-                       :bad
-                       {"id" "foo"})))
+                       {})))
  (context
   "objectType"
   (it "must be Activity if present"
@@ -283,14 +247,7 @@
                        {"name" "bob"
                         "homePage" "http://foo.com/bar"}
                        :bad
-                       {"name" "bob"}))
-  (it "is a valid URI"
-      (key-should-satisfy+ Account
-                           {"name" "bob"}
-                           "homePage"
-                           "http://foo.com/bar"
-                           :bad
-                           "foobar"))))
+                       {"name" "bob"}))))
 
 (describe
  "Agent"
@@ -343,21 +300,11 @@
 (describe
  "Verb"
  (context "id"
-          (it "must be an IRI"
-              (key-should-satisfy+ Verb
-                                   {}
-                                   "id"
-                                   "http://foo.bar/baz"
-                                   :bad
-                                   "foo")))
- (context "display"
-          (it "must be a language map"
-              (key-should-satisfy+ Verb
-                                   {"id" "http://foo.bar/baz"}
-                                   "display"
-                                   {"en-US" "foo"}
-                                   :bad
-                                   "foo"))))
+          (it "is required"
+              (should-satisfy+ Verb
+                               {"id" "http://foo.bar/baz"}
+                               :bad
+                               {}))))
 
 (describe
  "Score"
@@ -540,44 +487,6 @@
                            []
                            {})))
  (context
-  "result"
-  (it "is a result object"
-      (key-should-satisfy+ SubStatement
-                           @minimal-sub-statement
-                           "result"
-                           d/result
-                           {}
-                           :bad
-                           []
-                           "good jorb")))
- (context
-  "context"
-  (it "is a context object"
-      (key-should-satisfy+ SubStatement
-                           @minimal-sub-statement
-                           "context"
-                           d/context
-                           :bad
-                           [])))
- (context
-  "attachments"
-  (it "is an array of attachments"
-      (key-should-satisfy+ SubStatement
-                           @minimal-sub-statement
-                           "attachments"
-                           [d/attachment d/attachment]
-                           :bad
-                           [])))
- (context
-  "timestamp"
-  (it "is a valid ISO 8601 timestamp"
-      (key-should-satisfy+ SubStatement
-                           @minimal-sub-statement
-                           "timestamp"
-                           d/timestamp
-                           :bad
-                           "four past ten")))
- (context
   "objectType"
   (it "is required"
       (should-not-satisfy SubStatement (dissoc @minimal-sub-statement "objectType")))))
@@ -609,25 +518,13 @@
 
 (describe
  "Statement"
- (with minimal-statement
-       d/statement)
- (context
-  "id"
-  (it "is a UUID"
-      (key-should-satisfy+ Statement
-                           @minimal-statement
-                           "id"
-                           d/uuid
-                           :bad
-                           "foo"
-                           {})))
  (context
   "actor"
   (it "is required"
-      (should-not-satisfy Statement (dissoc @minimal-statement "actor")))
+      (should-not-satisfy Statement (dissoc long-statement "actor")))
   (it "is an agent or group"
       (key-should-satisfy+ Statement
-                           @minimal-statement
+                           long-statement
                            "actor"
                            d/agent
                            d/group
@@ -638,10 +535,10 @@
  (context
   "verb"
   (it "is required"
-      (should-not-satisfy Statement (dissoc @minimal-statement "verb")))
+      (should-not-satisfy Statement (dissoc long-statement "verb")))
   (it "is a Verb"
       (key-should-satisfy+ Statement
-                           @minimal-statement
+                           long-statement
                            "verb"
                            d/verb
                            :bad
@@ -653,10 +550,11 @@
   "object"
   (it "is required"
       (should-not-satisfy Statement
-                          (dissoc @minimal-statement "object")))
+                          (dissoc long-statement "object")))
   (it "is an Activity, Agent, Group, StatementRef, or sub-statement"
       (key-should-satisfy+ Statement
-                           @minimal-statement
+                           ;; use one without context so we can swap non-activity objects
+                           (dissoc long-statement "context")
                            "object"
                            ;; Activity is the default
                            (dissoc d/activity "objectType")
@@ -670,63 +568,23 @@
                            []
                            {})))
  (context
-  "result"
-  (it "is a result object"
-      (key-should-satisfy+ Statement
-                           @minimal-statement
-                           "result"
-                           d/result
-                           {}
-                           :bad
-                           []
-                           "good jorb")))
- (context
   "context"
-  (it "is a context object"
-      (key-should-satisfy+ Statement
-                           @minimal-statement
-                           "context"
-                           d/context
-                           :bad
-                           [])))
- (context
-  "attachments"
-  (it "is an array of attachments"
-      (key-should-satisfy+ Statement
-                           @minimal-statement
-                           "attachments"
-                           [d/attachment d/attachment]
-                           :bad
-                           [])))
- (context
-  "timestamp"
-  (it "is a valid ISO 8601 timestamp"
-      (key-should-satisfy+ Statement
-                           @minimal-statement
-                           "timestamp"
-                           d/timestamp
-                           :bad
-                           "four past ten")))
- (context
-  "stored"
-  (it "is a Timestamp"
-      (key-should-satisfy+ Statement
-                           @minimal-statement
-                           "stored"
-                           d/timestamp
-                           :bad
-                           "foo"
-                           {})))
- (context
-  "authority"
-  (it "is an agent or group"
-      (pending "proper authority handling")
-      #_(key-should-satisfy+ Statement
-                           @minimal-statement
-                           "authority"
-                           d/agent
-                           d/group
-                           :bad
-                           "me"
-                           []
-                           {}))))
+  (context "when the statement object is an activity"
+           (with statement long-statement) ;; has reg and platform
+           (it "can have the platform and registration properties"
+               (should-satisfy Statement @statement)))
+  (context "when the statement object is not an activity"
+           (with statement d/void-statement)
+           (it "cannot have the platform and revision properties"
+               (should-satisfy+ Statement
+                                @statement
+                                :bad
+                                (assoc @statement "context" {"platform" "Apple Newton"})
+                                (assoc @statement "context" {"revision" "whatevs"})))))
+
+ (it "is satisfied by all ADL example statements"
+     (should-satisfy+ Statement
+                      simple-statement
+                      long-statement
+                      d/completion-statement
+                      d/void-statement)))
