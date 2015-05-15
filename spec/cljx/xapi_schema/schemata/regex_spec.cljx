@@ -22,12 +22,18 @@
 (describe "URIRegex"
           (it "matches valid URIs"
               (should (re-matches URIRegEx "www.foo.com"))
-              (should-not (re-matches URIRegEx "hey dude wat"))))
+              (should (re-matches URIRegEx "foo.com"))
+              (should-not (re-matches URIRegEx "hey dude wat")))
+          (it "matches URIs with fragments"
+              (should (re-matches URIRegEx "http://example.com/xapi/verbs#sent-a-statement"))))
 
 (describe "AbsoluteIRIRegEx"
           (it "matches valid absolute IRIs"
               (should (re-matches AbsoluteIRIRegEx "http://foo.com"))
-              (should-not (re-matches AbsoluteIRIRegEx "foo.com"))))
+              (should-not (re-matches AbsoluteIRIRegEx "foo.com"))
+              (should-not (re-matches AbsoluteIRIRegEx "www.foo.com")))
+          (it "matches IRIs with fragments"
+              (should (re-matches AbsoluteIRIRegEx "http://example.com/xapi/verbs#sent-a-statement"))))
 
 (describe "MailtToIRIRegEx"
           (it "matches valid mailto IRIs"
