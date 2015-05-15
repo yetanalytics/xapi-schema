@@ -1,0 +1,10 @@
+{
+    "description": {
+        "en-US": "On this map, please mark Franklin, TN"
+    },
+    "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+    "interactionType": "other",
+    "correctResponsesPattern": [
+        "(35.937432,-86.868896)"
+    ]
+}

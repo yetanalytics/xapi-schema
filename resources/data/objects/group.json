@@ -1,0 +1,20 @@
+{
+    "name": "Example Group",
+    "account" : {
+        "homePage" : "http://example.com/homePage",
+        "name" : "GroupAccount"
+    },
+    "objectType": "Group",
+    "member": [
+        {
+            "name": "Andrew Downes",
+            "mbox": "mailto:andrew@example.com",
+            "objectType": "Agent"
+        },
+        {
+            "name": "Aaron Silvers",
+            "openid": "http://aaron.openid.example.org",
+            "objectType": "Agent"
+        }
+    ]
+}

@@ -1,0 +1,30 @@
+{
+    "description": {
+        "en-US": "This interaction measures performance over a day of RS sports:"
+    },
+    "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+    "interactionType": "performance",
+    "correctResponsesPattern": [
+        "pong[.]1:[,]dg[.]:10[,]lunch[.]"
+    ],
+    "steps": [
+        {
+            "id": "pong",
+            "description": {
+                "en-US": "Net pong matches won"
+            }
+        },
+        {
+            "id": "dg",
+            "description": {
+                "en-US": "Strokes over par in disc golf at Liberty"
+                }
+            },
+        {
+            "id": "lunch",
+            "description": {
+                "en-US": "Lunch having been eaten"
+            }
+        }
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "description": {
+        "en-US": "What is the purpose of the xAPI?"
+    },
+    "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+    "interactionType": "long-fill-in",
+    "correctResponsesPattern": [
+        "{case_matters=false}{lang=en}To store and provide access to learning experiences."
+    ]
+}

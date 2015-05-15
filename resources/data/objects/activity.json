@@ -1,0 +1,15 @@
+{
+    "id": "http://www.example.co.uk/exampleactivity",
+    "definition": {
+        "name": {
+            "en-GB": "example activity",
+            "en-US": "example activity"
+        },
+        "description": {
+            "en-GB": "An example of an activity",
+            "en-US": "An example of an activity"
+        },
+        "type": "http://www.example.co.uk/types/exampleactivitytype"
+    },
+    "objectType": "Activity"
+}

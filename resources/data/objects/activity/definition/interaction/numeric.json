@@ -1,0 +1,10 @@
+{
+    "description": {
+        "en-US": "How many jokes is Chris the butt of each day?"
+    },
+    "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+    "interactionType": "numeric",
+    "correctResponsesPattern": [
+        "4[:]"
+    ]
+}
