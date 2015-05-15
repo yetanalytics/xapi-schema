@@ -156,10 +156,6 @@
 (def StatementValidations
   valid-context-pred)
 
-(def SubStatementValidations
-  (s/both StatementValidations
-          (s/pred (fn [{:strs [id stored version authority]}]
-                    (nil? (or id stored version authority))) "SubStatements cannot have the id, stored, version or authority keys")))
 
 
 (def OAuthConsumerValidations

@@ -7,7 +7,6 @@
                                             GroupValidations
                                             ScoreValidations
                                             StatementValidations
-                                            SubStatementValidations
                                             AuthorityGroupValidations]]
    [xapi-schema.schemata.regex :refer [LanguageTagRegEx
                                        URIRegEx
@@ -233,18 +232,17 @@
   [(s/one Attachment "at least one attachment") Attachment])
 
 (s/defschema SubStatement
-  (s/both {(s/required-key "actor") Actor
-           (s/required-key "verb") Verb
-           (s/required-key "object") (object-type-dispatch "Agent" Agent
-                                                           "Group" Group
-                                                           "StatementRef" StatementRef
-                                                           :else Activity)
-           (s/optional-key "result") Result
-           (s/optional-key "context") Context
-           (s/optional-key "attachments") Attachments
-           (s/optional-key "timestamp") Timestamp
-           (s/required-key "objectType") (s/both s/Str (s/eq "SubStatement"))}
-          SubStatementValidations))
+  {(s/required-key "actor") Actor
+   (s/required-key "verb") Verb
+   (s/required-key "object") (object-type-dispatch "Agent" Agent
+                                                   "Group" Group
+                                                   "StatementRef" StatementRef
+                                                   :else Activity)
+   (s/optional-key "result") Result
+   (s/optional-key "context") Context
+   (s/optional-key "attachments") Attachments
+   (s/optional-key "timestamp") Timestamp
+   (s/required-key "objectType") (s/both s/Str (s/eq "SubStatement"))})
 
 ;; (s/defschema OAuthConsumer
 ;;   (s/both
