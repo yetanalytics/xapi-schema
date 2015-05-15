@@ -261,12 +261,4 @@
        :bad
        {"object" {"objectType" "Agent"}
         "context" {"registration" "whatever"
-                   "platform" "whatever"}})))
-
- (describe
-  "OAuthconsumervalidations"
-  (it ""))
- (describe
-  "Authoritygroupvalidations"
-  (it ""))
- )
+                   "platform" "whatever"}}))))

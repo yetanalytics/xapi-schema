@@ -34,7 +34,8 @@
                                                       UrlAttachment
                                                       Attachments
                                                       SubStatement
-                                                      ;; OAuthConsumer
+                                                      OAuthConsumer
+                                                      ThreeLeggedOAuthGroup
                                                       Authority
                                                       StatementObject
                                                       Statement
@@ -493,11 +494,41 @@
 
 (describe
  "OAuthConsumer"
- (it "should do something"))
+ (it "must be identified by account"
+     (should-satisfy+
+      OAuthConsumer
+      {"account" {"name" "oauth_consumer_x75db"
+                  "homePage" "http://example.com/xAPI/OAuth/Token"}}
+      :bad
+      {"mbox" "mailto:milt@yetanalytics.com"})))
+
+(describe
+ "ThreeLeggedOAuthGroup"
+ (it "must be a group with two agents"
+     (should-satisfy+
+      ThreeLeggedOAuthGroup
+      d/authority-group
+      :bad
+      (update-in d/authority-group ["member"] (comp vector first))))
+ (it "must have an OAuthConsumer for the first member"
+     (should-satisfy+
+      ThreeLeggedOAuthGroup
+      d/authority-group
+      :bad
+      (assoc d/authority-group "member" [d/agent d/agent]))))
 
 (describe
  "Authority"
- (it "should validate"))
+ (it "must be an agent"
+     (should-satisfy
+      Authority
+      d/agent))
+ (context
+  "except in the case of three-legged-oauth, when"
+  (it "can be a group with two agents"
+      (should-satisfy
+       Authority
+       d/authority-group))))
 
 (describe
  "StatementObject"

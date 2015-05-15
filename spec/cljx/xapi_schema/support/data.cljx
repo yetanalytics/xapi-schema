@@ -160,3 +160,7 @@
 (def adl-sub-statement
   (load-json
    "resources/data/objects/sub-statement.json"))
+
+(def authority-group
+  (load-json
+   "resources/data/objects/authority.json"))

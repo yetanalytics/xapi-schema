@@ -6,8 +6,7 @@
                                             AgentValidations
                                             GroupValidations
                                             ScoreValidations
-                                            StatementValidations
-                                            AuthorityGroupValidations]]
+                                            StatementValidations]]
    [xapi-schema.schemata.regex :refer [LanguageTagRegEx
                                        URIRegEx
                                        AbsoluteIRIRegEx
@@ -244,24 +243,30 @@
    (s/optional-key "timestamp") Timestamp
    (s/required-key "objectType") (s/both s/Str (s/eq "SubStatement"))})
 
-;; (s/defschema OAuthConsumer
-;;   (s/both
-;;    Agent
-;;    v/OAuthConsumerValidations))
+(s/defschema OAuthConsumer
+  {(s/optional-key "objectType") (s/both s/Str (s/eq "Agent")) ;; Agent
+   (s/optional-key "name") s/Str
+   (s/required-key "account") Account})
 
-;; (s/defschema Authority
-;;   (object-type-dispatch "Group" (s/both v/AuthorityGroupValidations
-;;                                         {(s/optional-key "objectType") (s/both s/Str (s/enum "Agent" "Group")) ;; Agent or Group
-;;                                          (s/optional-key "name") s/Str
-;;                                          (s/optional-key "mbox") MailToIRI
-;;                                          (s/optional-key "mbox_sha1sum") Sha1Sum
-;;                                          (s/optional-key "openid") OpenID
-;;                                          (s/optional-key "account") Account
-;;                                          (s/optional-key "member") [(s/one OAuthConsumer :oauth-consumer) Agent]})
-;;                         :else OAuthConsumer))
+(s/defschema ThreeLeggedOAuthGroup
+  (s/both {(s/optional-key "objectType") (s/both s/Str (s/eq "Group")) ;; Group
+           (s/optional-key "name") s/Str
+           (s/optional-key "mbox") MailToIRI
+           (s/optional-key "mbox_sha1sum") Sha1Sum
+           (s/optional-key "openid") OpenID
+           (s/optional-key "account") Account
+           (s/required-key "member") (s/both
+                                      (s/pred (fn [m]
+                                                (= 2 (count m))) "Exactly 2 Members")
+                                      [(s/one OAuthConsumer
+                                              "one OAuth Consumer") Agent])}
+          GroupValidations))
 
 (s/defschema Authority
-  {s/Any s/Any})
+  (object-type-dispatch
+   "Agent" Agent
+   "Group" ThreeLeggedOAuthGroup
+   :else Agent))
 
 (s/defschema StatementObject
   (object-type-dispatch "Agent" Agent
