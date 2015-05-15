@@ -126,12 +126,6 @@
                  :else (s/pred (fn [{:strs [member]}]
                                  (not (nil? member))) "present: member key on anonymous group")))
 
-(def ActivityValidations
-  (s/both (s/pred (fn [{:strs [id]}]
-                    (not (nil? id))) "present: activity id")
-          (s/pred (fn [{:strs [id]}]
-                    (not (nil? (re-matches AbsoluteIRIRegEx id)))) "valid IRI: activity id")))
-
 (def InteractionComponentsValidations
   (s/pred unique-ids? "distinct: interaction component IDs"))
 

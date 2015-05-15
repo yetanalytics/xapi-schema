@@ -3,7 +3,6 @@
    [xapi-schema.schemata.predicates :refer [regex-pred
                                             InteractionComponentsValidations
                                             DefinitionValidations
-                                            ActivityValidations
                                             AgentValidations
                                             GroupValidations
                                             ScoreValidations
@@ -131,10 +130,9 @@
            (s/optional-key "extensions") Extensions}))
 
 (s/defschema Activity
-  (s/both ActivityValidations
-          {(s/optional-key "objectType") (s/both s/Str (s/eq "Activity"))
-           (s/required-key "id") IRI
-           (s/optional-key "definition") Definition}))
+  {(s/optional-key "objectType") (s/both s/Str (s/eq "Activity"))
+   (s/required-key "id") IRI
+   (s/optional-key "definition") Definition})
 
 (s/defschema Account
   {(s/required-key "homePage") IRL
