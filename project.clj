@@ -33,11 +33,11 @@
                                    :optimizations :whitespace
                                    :pretty-print true}}
                        {:id "test"
-                        :source-paths ["target/classes/cljs" "target/spec/cljs"]
+                        :source-paths ["target/classes/cljs" "target/spec/cljs" "spec/clj"]
                         :compiler {:output-to "target/js/xapi_schema_test.js"
                                    :optimizations :whitespace
                                    :pretty-print true}
                         :notify-command ["phantomjs" "bin/speclj" "target/js/xapi_schema_test.js"]}]
               :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_test.js"]}}
-  :test-paths ["target/classes/clj" "target/spec/clj"]
+  :test-paths ["target/classes/clj" "target/spec/clj" "spec/clj"]
   :prep-tasks [["cljx" "once"] "javac" "compile"])
