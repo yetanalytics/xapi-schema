@@ -147,9 +147,16 @@
 (def completion-statement
   (load-json "resources/data/statements/completion.json"))
 
+(def void-statement
+  (load-json "resources/data/statements/void.json"))
+
 (def interaction-activity-defs
   (load-json-map
    "resources/data/objects/activity/definition/interaction/"
    ["choice" "fill-in" "likert" "long-fill-in"
     "matching" "numeric" "other" "performance"
     "sequencing" "true-false"]))
+
+(def adl-sub-statement
+  (load-json
+   "resources/data/objects/sub-statement.json"))
