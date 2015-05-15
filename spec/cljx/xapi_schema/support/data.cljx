@@ -1,4 +1,8 @@
-(ns xapi-schema.support.data)
+(ns xapi-schema.support.data
+  #+cljs (:require-macros [xapi-schema.support.macros :refer [load-json
+                                                              load-json-map]])
+  #+clj (:require [xapi-schema.support.macros :refer [load-json
+                                                      load-json-map]]))
 
 (def language-tag
   "en-US")
@@ -133,3 +137,19 @@
    "stored" timestamp
    "authority" agent
    "version" version})
+
+(def simple-statement
+  (load-json "resources/data/statements/simple.json"))
+
+(def long-statement
+  (load-json "resources/data/statements/long.json"))
+
+(def completion-statement
+  (load-json "resources/data/statements/completion.json"))
+
+(def interaction-activity-defs
+  (load-json-map
+   "resources/data/objects/activity/definition/interaction/"
+   ["choice" "fill-in" "likert" "long-fill-in"
+    "matching" "numeric" "other" "performance"
+    "sequencing" "true-false"]))
