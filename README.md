@@ -1,6 +1,6 @@
-![Clojars Project](http://clojars.org/com.yetanalytics/xapi-schema/latest-version.svg)
+[![Build Status](https://travis-ci.org/yetanalytics/xapi-schema.svg?branch=master)](https://travis-ci.org/yetanalytics/xapi-schema)
 
-t-
+![Clojars Project](http://clojars.org/com.yetanalytics/xapi-schema/latest-version.svg)
 
 # xapi-schema
 
