@@ -88,8 +88,8 @@
                 (with statement (c/generate-string long-statement))
                 (it "parses and returns the validated data"
                     (should= long-statement (validate-statement-data @statement))))
- #+cljs (context "with js data"
-          (with statement (clj->js long-statement))
+ #+cljs (context "with nested data"
+                 (with statement long-statement)
           (it "coerces and returns the data"
               (should= long-statement (validate-statement-data @statement)))))
 

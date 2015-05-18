@@ -36,9 +36,12 @@
                               (string? sd) (c/parse-string sd)
                               :else sd))
   #+cljs
-  (validate-statement-data* (js->clj sd)))
+  (validate-statement-data*
+   (cond
+     (string? sd) (.parse js/JSON sd)
+     :else sd)))
 
 #+cljs
 (defn ^:export validate-statement-data-js
   [sd]
-   (clj->js (validate-statement-data sd)))
+  (clj->js (validate-statement-data (js->clj sd))))
