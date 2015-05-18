@@ -1,4 +1,4 @@
-[![Clojars Project](http://clojars.org/com.yetanalytics/xapi-schema/latest-version.svg)]
+![Clojars Project](http://clojars.org/com.yetanalytics/xapi-schema/latest-version.svg)
 
 # xapi-schema
 
