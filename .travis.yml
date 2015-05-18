@@ -2,4 +2,6 @@ language: clojure
 
 before_script: lein cljx
 
-script: lein spec
+script:
+  - lein spec
+  - lein cljsbuild once test
