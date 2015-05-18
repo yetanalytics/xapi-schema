@@ -73,7 +73,6 @@
 
 (s/defschema
   UuidId
-  "funkytown"
   (s/both s/Str
           (regex-pred UuidRegEx
                       "a valid UUID")))
