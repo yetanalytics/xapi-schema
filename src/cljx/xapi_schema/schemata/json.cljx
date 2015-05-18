@@ -72,10 +72,11 @@
           s/Str))
 
 (s/defschema
-  Uuid
-  (s/both (regex-pred UuidRegEx
-                      "a valid UUID")
-          s/Str))
+  UuidId
+  "funkytown"
+  (s/both (s/named s/Str "BOB")
+          (regex-pred UuidRegEx
+                      "a valid UUID")))
 
 (s/defschema
   Timestamp
@@ -215,12 +216,12 @@
 
 (s/defschema
   StatementRef
-  {(s/required-key "id") Uuid
+  {(s/required-key "id") UuidId
    (s/required-key "objectType") (s/eq "StatementRef")})
 
 (s/defschema
   ContextStatementRef
-  {(s/required-key "id") Uuid
+  {(s/required-key "id") UuidId
    (s/optional-key "objectType") (s/eq "StatementRef")})
 
 
@@ -237,7 +238,7 @@
 
 (s/defschema
   Context
-  {(s/optional-key "registration") Uuid
+  {(s/optional-key "registration") UuidId
    (s/optional-key "instructor") Actor
    (s/optional-key "team") Group
    (s/optional-key "contextActivities") ContextActivities
@@ -329,7 +330,7 @@
 (s/defschema
   Statement
   (s/both
-   {(s/optional-key "id") Uuid
+   {(s/optional-key "id") UuidId
     (s/required-key "actor") Actor
     (s/required-key "verb") Verb
     (s/required-key "object") StatementObject

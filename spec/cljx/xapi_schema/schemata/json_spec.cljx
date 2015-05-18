@@ -8,7 +8,7 @@
                                                       IRL
                                                       Extensions
                                                       OpenID
-                                                      Uuid
+                                                      UuidId
                                                       Timestamp
                                                       Duration
                                                       Version
@@ -112,9 +112,9 @@
                       "some other crap")))
 
 (describe
- "Uuid"
+ "UuidId"
  (it "is a valid v4 UUID"
-     (should-satisfy+ Uuid
+     (should-satisfy+ UuidId
                       "f47ac10b-58cc-4372-a567-0e02b2c3d479"
                       :bad
                       "12345678-1234-1234-1234-123456789012")))
