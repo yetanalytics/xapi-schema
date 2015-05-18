@@ -28,72 +28,94 @@
 (s/defschema
   LanguageTag
   "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#52-language-map"
-  (s/both
-   (regex-pred LanguageTagRegEx
-               "A valid RFC 5646 Language Tag")
-   s/Str))
+  (s/named
+   (s/both
+    s/Str
+    (regex-pred LanguageTagRegEx
+                "A valid RFC 5646 Language Tag"))
+   "Language Tag"))
 
 (s/defschema
   LanguageMap
   "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#52-language-map"
-  {LanguageTag s/Str})
+  (s/named
+   {LanguageTag s/Str}
+   "Language Map"))
 
 (s/defschema
   IRI
   "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#def-iri"
-  (s/both
-   (regex-pred AbsoluteIRIRegEx
-               "a valid IRI")
-   s/Str))
+  (s/named
+   (s/both
+    s/Str
+    (regex-pred AbsoluteIRIRegEx
+                "a valid IRI address"))
+   "Internationalized Resource Locator"))
 
 (s/defschema
   MailToIRI
   "http://xmlns.com/foaf/spec/#term_mbox"
-  (s/both
-   (regex-pred MailToIRIRegEx
-               "a valid MailTo IRI")
-   s/Str))
+  (s/named
+   (s/both
+    s/Str
+    (regex-pred MailToIRIRegEx
+                "a valid MailTo IRI address"))
+   "Mailto IRI"))
 
 (s/defschema
   IRL
-  (s/both
-   (regex-pred AbsoluteIRIRegEx
-               "a valid IRL")
-   s/Str))
+  (s/named
+   (s/both
+    (regex-pred AbsoluteIRIRegEx
+                "a valid IRL")
+    s/Str)
+   "IRL"))
 
 (s/defschema
   Extensions
-  {IRI s/Any})
+  (s/named
+   {IRI s/Any}
+   "Extensions Map"))
 
 (s/defschema
   OpenID
-  (s/both (regex-pred URIRegEx
-                      "a valid OpenID URL")
-          s/Str))
+  (s/named
+   (s/both s/Str
+           (regex-pred URIRegEx
+                       "a valid OpenID URL"))
+   "OpenId URL"))
 
 (s/defschema
   UuidId
-  (s/both s/Str
-          (regex-pred UuidRegEx
-                      "a valid UUID")))
+  (s/named
+   (s/both s/Str
+           (regex-pred UuidRegEx
+                       "a valid UUID"))
+   "Uuid"))
 
 (s/defschema
   Timestamp
-  (s/both (regex-pred TimestampRegEx
-                      "a valid ISO 8601 timestamp")
-          s/Str))
+  (s/named
+   (s/both s/Str
+           (regex-pred TimestampRegEx
+                       "a valid ISO 8601 timestamp"))
+   "Timestamp"))
 
 (s/defschema
   Duration
-  (s/both (regex-pred DurationRegEx
-                      "a valid ISO 8601 duration")
-          s/Str))
+  (s/named
+   (s/both s/Str
+           (regex-pred DurationRegEx
+                       "a valid ISO 8601 duration"))
+   "Duration"))
 
 (s/defschema
   Version
-  (s/both (regex-pred xAPIVersionRegEx
-                      "a valid xAPI 1.x.x version")
-          s/Str))
+  (s/named
+   (s/both s/Str
+           (regex-pred xAPIVersionRegEx
+                       "a valid xAPI 1.x.x version"))
+   "Version"))
 
 (s/defschema
   Sha2
@@ -103,248 +125,307 @@
 
 (def
   Sha1Sum
-  (s/both (regex-pred Sha1RegEx
-                      "a valid SHA-1 sum")
-          s/Str))
+  (s/named
+   (s/both s/Str
+           (regex-pred Sha1RegEx
+                       "a valid SHA-1 sum"))
+   "SHA-1 Sum"))
 
 ;; Composite schemas
 
 (s/defschema
   InteractionComponent
-  {(s/required-key "id") s/Str
-   (s/optional-key "description") LanguageMap})
+  (s/named
+   {(s/required-key "id") s/Str
+    (s/optional-key "description") LanguageMap}
+   "Interaction Component"))
 
 (s/defschema
   InteractionComponents
-  (s/both InteractionComponentsValidations
-          [InteractionComponent]))
+  (s/named
+   (s/both [InteractionComponent]
+           InteractionComponentsValidations)
+   "Interaction Components Array"))
 
 (s/defschema
   Definition
-  (s/both
-   DefinitionValidations
-   {(s/optional-key "name") LanguageMap
-    (s/optional-key "description") LanguageMap
-    (s/optional-key "correctResponsesPattern") [s/Str]
-    (s/optional-key "interactionType")
-    (s/both s/Str
-            (s/enum "true-false"
-                    "choice"
-                    "fill-in"
-                    "long-fill-in"
-                    "matching"
-                    "performance"
-                    "sequencing"
-                    "likert"
-                    "numeric"
-                    "other"))
-    (s/optional-key "type") IRI
-    (s/optional-key "moreInfo") IRL
-    (s/optional-key "choices") InteractionComponents
-    (s/optional-key "scale") InteractionComponents
-    (s/optional-key "source") InteractionComponents
-    (s/optional-key "target") InteractionComponents
-    (s/optional-key "steps") InteractionComponents
-    (s/optional-key "extensions") Extensions}))
+  (s/named
+   (s/both
+    {(s/optional-key "name") LanguageMap
+     (s/optional-key "description") LanguageMap
+     (s/optional-key "correctResponsesPattern") [s/Str]
+     (s/optional-key "interactionType")
+     (s/both s/Str
+             (s/enum "true-false"
+                     "choice"
+                     "fill-in"
+                     "long-fill-in"
+                     "matching"
+                     "performance"
+                     "sequencing"
+                     "likert"
+                     "numeric"
+                     "other"))
+     (s/optional-key "type") IRI
+     (s/optional-key "moreInfo") IRL
+     (s/optional-key "choices") InteractionComponents
+     (s/optional-key "scale") InteractionComponents
+     (s/optional-key "source") InteractionComponents
+     (s/optional-key "target") InteractionComponents
+     (s/optional-key "steps") InteractionComponents
+     (s/optional-key "extensions") Extensions}
+    DefinitionValidations)
+   "Activity Definition"))
 
 (s/defschema
   Activity
-  {(s/optional-key "objectType") (s/both s/Str (s/eq "Activity"))
-   (s/required-key "id") IRI
-   (s/optional-key "definition") Definition})
+  (s/named
+   {(s/optional-key "objectType") (s/both s/Str (s/eq "Activity"))
+    (s/required-key "id") IRI
+    (s/optional-key "definition") Definition}
+   "Activity Definition"))
 
 (s/defschema
   Account
-  {(s/required-key "homePage") IRL
-   (s/required-key "name") s/Str})
+  (s/named
+   {(s/required-key "homePage") IRL
+    (s/required-key "name") s/Str}
+   "Account"))
 
 
 (s/defschema
   Agent
-  (s/both
-   AgentValidations
-   {(s/optional-key "objectType")
-    (s/both s/Str (s/eq "Agent")) ;; Agent
-    (s/optional-key "name") s/Str
-    (s/optional-key "mbox") MailToIRI
-    (s/optional-key "mbox_sha1sum") Sha1Sum
-    (s/optional-key "openid") OpenID
-    (s/optional-key "account") Account}))
+  (s/named
+   (s/both
+    {(s/optional-key "objectType")
+     (s/both s/Str (s/both
+                    s/Str
+                    (s/eq "Agent"))) ;; Agent
+     (s/optional-key "name") s/Str
+     (s/optional-key "mbox") MailToIRI
+     (s/optional-key "mbox_sha1sum") Sha1Sum
+     (s/optional-key "openid") OpenID
+     (s/optional-key "account") Account}
+    AgentValidations)
+   "Agent"))
 
 (s/defschema
   Group
-  (s/both
-   {(s/optional-key "objectType") (s/both s/Str (s/eq "Group")) ;; Group
-    (s/optional-key "name") s/Str
-    (s/optional-key "mbox") MailToIRI
-    (s/optional-key "mbox_sha1sum") Sha1Sum
-    (s/optional-key "openid") OpenID
-    (s/optional-key "account") Account
-    (s/optional-key "member") [(s/one Agent "at least one Agent") Agent]}
-   GroupValidations))
+  (s/named
+   (s/both
+    {(s/optional-key "objectType") (s/both s/Str (s/eq "Group")) ;; Group
+     (s/optional-key "name") s/Str
+     (s/optional-key "mbox") MailToIRI
+     (s/optional-key "mbox_sha1sum") Sha1Sum
+     (s/optional-key "openid") OpenID
+     (s/optional-key "account") Account
+     (s/optional-key "member") [(s/one Agent "at least one Agent") Agent]}
+    GroupValidations)
+   "Group"))
 
 (s/defschema
   Actor
-  (object-type-dispatch "Group" Group
-                        :else Agent))
+  (s/named
+   (object-type-dispatch "Group" Group
+                         :else Agent)
+   "Actor"))
 
 
 (s/defschema
   Verb
-  {(s/required-key "id") IRI
-   (s/optional-key "display") LanguageMap})
+  (s/named
+   {(s/required-key "id") IRI
+    (s/optional-key "display") LanguageMap}
+   "Verb"))
 
 
 (s/defschema
   Score
-  (s/both ScoreValidations
-          {(s/optional-key "scaled") s/Num ; Decimal number between -1 and 1, inclusive
-           (s/optional-key "raw") s/Num ; Decimal number between min and max (if present, otherwise unrestricted), inclusive
-           (s/optional-key "min") s/Num ; Decimal number less than max (if present)
-           (s/optional-key "max") s/Num}) ; Decimal number greater than min (if present)
-  )
+  (s/named
+   (s/both {(s/optional-key "scaled") s/Num ; Decimal number between -1 and 1, inclusive
+            (s/optional-key "raw") s/Num ; Decimal number between min and max (if present, otherwise unrestricted), inclusive
+            (s/optional-key "min") s/Num ; Decimal number less than max (if present)
+            (s/optional-key "max") s/Num}  ; Decimal number greater than min (if present)
+           ScoreValidations)
+   "Score"))
 
 (s/defschema
   Result
-  {(s/optional-key "score") Score
-   (s/optional-key "success") s/Bool
-   (s/optional-key "completion") s/Bool
-   (s/optional-key "response") s/Str
-   (s/optional-key "duration") Duration
-   (s/optional-key "extensions") Extensions})
+  (s/named
+   {(s/optional-key "score") Score
+    (s/optional-key "success") s/Bool
+    (s/optional-key "completion") s/Bool
+    (s/optional-key "response") s/Str
+    (s/optional-key "duration") Duration
+    (s/optional-key "extensions") Extensions}
+   "Result"))
 
 (s/defschema
   StatementRef
-  {(s/required-key "id") UuidId
-   (s/required-key "objectType") (s/eq "StatementRef")})
+  (s/named
+   {(s/required-key "id") UuidId
+    (s/required-key "objectType") (s/both
+                                   s/Str
+                                   (s/eq "StatementRef"))}
+   "Statement Reference"))
 
 (s/defschema
   ContextStatementRef
-  {(s/required-key "id") UuidId
-   (s/optional-key "objectType") (s/eq "StatementRef")})
+  (s/named
+   {(s/required-key "id") UuidId
+    (s/optional-key "objectType") (s/both
+                                   s/Str
+                                   (s/eq "StatementRef"))}
+   "Context Statement Reference"))
 
 
 (s/defschema
   ContextActivitiesArray
-  [(s/one Activity "at least one Activity") Activity])
+  (s/named
+   [(s/one Activity "at least one Activity") Activity]
+   "Context Activities Array"))
 
 (s/defschema
   ContextActivities
-  {(s/optional-key "parent") ContextActivitiesArray
-   (s/optional-key "grouping") ContextActivitiesArray
-   (s/optional-key "category") ContextActivitiesArray
-   (s/optional-key "other") ContextActivitiesArray})
+  (s/named
+   {(s/optional-key "parent") ContextActivitiesArray
+    (s/optional-key "grouping") ContextActivitiesArray
+    (s/optional-key "category") ContextActivitiesArray
+    (s/optional-key "other") ContextActivitiesArray}
+   "Context Activities Object"))
 
 (s/defschema
   Context
-  {(s/optional-key "registration") UuidId
-   (s/optional-key "instructor") Actor
-   (s/optional-key "team") Group
-   (s/optional-key "contextActivities") ContextActivities
-   (s/optional-key "revision") s/Str
-   (s/optional-key "platform") s/Str
-   (s/optional-key "language") LanguageTag
-   (s/optional-key "statement") ContextStatementRef
-   (s/optional-key "extensions") Extensions})
+  (s/named
+   {(s/optional-key "registration") UuidId
+    (s/optional-key "instructor") Actor
+    (s/optional-key "team") Group
+    (s/optional-key "contextActivities") ContextActivities
+    (s/optional-key "revision") s/Str
+    (s/optional-key "platform") s/Str
+    (s/optional-key "language") LanguageTag
+    (s/optional-key "statement") ContextStatementRef
+    (s/optional-key "extensions") Extensions}
+   "Context"))
 
 (s/defschema
   Attachment
-  {(s/required-key "usageType") IRI
-   (s/required-key "display") LanguageMap
-   (s/optional-key "description") LanguageMap
-   (s/required-key "contentType") s/Str ; Internet Media Type
-   (s/required-key "length") s/Int ; The length of the attachment data in octets.
-   (s/required-key "sha2") Sha2 ; The SHA-2 (SHA-256, SHA-384, SHA-512) hash of the attachment data.
-   (s/optional-key "fileUrl") IRL})
+  (s/named
+   {(s/required-key "usageType") IRI
+    (s/required-key "display") LanguageMap
+    (s/optional-key "description") LanguageMap
+    (s/required-key "contentType") s/Str ; Internet Media Type
+    (s/required-key "length") s/Int ; The length of the attachment data in octets.
+    (s/required-key "sha2") Sha2 ; The SHA-2 (SHA-256, SHA-384, SHA-512) hash of the attachment data.
+    (s/optional-key "fileUrl") IRL}
+   "File Attachment"))
 
 (s/defschema
   UrlAttachment
-  {(s/required-key "usageType") IRI
-   (s/required-key "display") LanguageMap
-   (s/optional-key "description") LanguageMap
-   (s/required-key "contentType") s/Str ; Internet Media Type
-   (s/required-key "length") s/Int ; The length of the attachment data in octets.
-   (s/required-key "sha2") Sha2 ; The SHA-2 (SHA-256, SHA-384, SHA-512) hash of the attachment data.
-   (s/required-key "fileUrl") IRL})
+  (s/named
+   {(s/required-key "usageType") IRI
+    (s/required-key "display") LanguageMap
+    (s/optional-key "description") LanguageMap
+    (s/required-key "contentType") s/Str ; Internet Media Type
+    (s/required-key "length") s/Int ; The length of the attachment data in octets.
+    (s/required-key "sha2") Sha2 ; The SHA-2 (SHA-256, SHA-384, SHA-512) hash of the attachment data.
+    (s/required-key "fileUrl") IRL}
+   "URL Attachment"))
 
 (s/defschema
   Attachments
-  [(s/one Attachment "at least one attachment") Attachment])
+  (s/named
+   [(s/one Attachment "at least one attachment") Attachment]
+   "Attachments Array"))
 
 (s/defschema
   SubStatement
-  {(s/required-key "actor") Actor
-   (s/required-key "verb") Verb
-   (s/required-key "object")
-   (object-type-dispatch "Agent" Agent
-                         "Group" Group
-                         "StatementRef" StatementRef
-                         :else Activity)
-   (s/optional-key "result") Result
-   (s/optional-key "context") Context
-   (s/optional-key "attachments") Attachments
-   (s/optional-key "timestamp") Timestamp
-   (s/required-key "objectType") (s/both s/Str (s/eq "SubStatement"))})
+  (s/named
+   {(s/required-key "actor") Actor
+    (s/required-key "verb") Verb
+    (s/required-key "object")
+    (object-type-dispatch "Agent" Agent
+                          "Group" Group
+                          "StatementRef" StatementRef
+                          :else Activity)
+    (s/optional-key "result") Result
+    (s/optional-key "context") Context
+    (s/optional-key "attachments") Attachments
+    (s/optional-key "timestamp") Timestamp
+    (s/required-key "objectType") (s/both s/Str (s/eq "SubStatement"))}
+   "SubStatement"))
 
 (s/defschema
   OAuthConsumer
-  {(s/optional-key "objectType") (s/both s/Str (s/eq "Agent")) ;; Agent
-   (s/optional-key "name") s/Str
-   (s/required-key "account") Account})
+  (s/named
+   {(s/optional-key "objectType") (s/both s/Str (s/eq "Agent")) ;; Agent
+    (s/optional-key "name") s/Str
+    (s/required-key "account") Account}
+   "OAuth Consumer Agent"))
 
 (s/defschema
   ThreeLeggedOAuthGroup
-  (s/both
-   {(s/optional-key "objectType") (s/both s/Str (s/eq "Group")) ;; Group
-    (s/optional-key "name") s/Str
-    (s/optional-key "mbox") MailToIRI
-    (s/optional-key "mbox_sha1sum") Sha1Sum
-    (s/optional-key "openid") OpenID
-    (s/optional-key "account") Account
-    (s/required-key "member") (s/both
-                               (s/pred (fn [m]
-                                         (= 2 (count m))) "Exactly 2 Members")
-                               [(s/one OAuthConsumer
-                                       "one OAuth Consumer") Agent])}
-   GroupValidations))
+  (s/named
+   (s/both
+    GroupValidations
+    {(s/optional-key "objectType") (s/both s/Str (s/eq "Group")) ;; Group
+     (s/optional-key "name") s/Str
+     (s/optional-key "mbox") MailToIRI
+     (s/optional-key "mbox_sha1sum") Sha1Sum
+     (s/optional-key "openid") OpenID
+     (s/optional-key "account") Account
+     (s/required-key "member") (s/both
+                                (s/pred (fn [m]
+                                          (= 2 (count m))) "Exactly 2 Members")
+                                [(s/one OAuthConsumer
+                                        "one OAuth Consumer") Agent])})
+   "Three-Legged OAuth Group"))
 
 (s/defschema
   Authority
-  (object-type-dispatch
-   "Agent" Agent
-   "Group" ThreeLeggedOAuthGroup
-   :else Agent))
+  (s/named
+   (object-type-dispatch
+    "Agent" Agent
+    "Group" ThreeLeggedOAuthGroup
+    :else Agent)
+   "Authority"))
 
 (s/defschema
   StatementObject
-  (object-type-dispatch
-   "Agent" Agent
-   "Group" Group
-   "SubStatement" SubStatement
-   "StatementRef" StatementRef
-   "Activity" Activity
-   :else Activity))
+  (s/named
+   (object-type-dispatch
+    "Agent" Agent
+    "Group" Group
+    "SubStatement" SubStatement
+    "StatementRef" StatementRef
+    "Activity" Activity
+    :else Activity)
+   "Statement Object"))
 
 
 (s/defschema
   Statement
-  (s/both
-   {(s/optional-key "id") UuidId
-    (s/required-key "actor") Actor
-    (s/required-key "verb") Verb
-    (s/required-key "object") StatementObject
-    (s/optional-key "result") Result
-    (s/optional-key "context") Context
-    (s/optional-key "timestamp") Timestamp
-    (s/optional-key "stored") Timestamp
-    (s/optional-key "authority") Authority
-    (s/optional-key "version") Version
-    (s/optional-key "attachments") Attachments
-    (s/optional-key "objectType") s/Str ;; necessary for validating substatements as statements!
-    }
-   StatementValidations))
+  (s/named
+   (s/both
+    {(s/optional-key "id") UuidId
+     (s/required-key "actor") Actor
+     (s/required-key "verb") Verb
+     (s/required-key "object") StatementObject
+     (s/optional-key "result") Result
+     (s/optional-key "context") Context
+     (s/optional-key "timestamp") Timestamp
+     (s/optional-key "stored") Timestamp
+     (s/optional-key "authority") Authority
+     (s/optional-key "version") Version
+     (s/optional-key "attachments") Attachments
+     (s/optional-key "objectType") s/Str ;; necessary for validating substatements as statements!
+     }
+    StatementValidations)
+   "Statement"))
 
 (s/defschema
   Statements
-  [(s/one Statement "at least one statement")
-   Statement])
+  (s/named
+   [(s/one Statement "at least one statement")
+    Statement]
+   "Statements"))
