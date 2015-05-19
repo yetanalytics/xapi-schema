@@ -5,7 +5,9 @@
    [schema.core :as s]
    #+clj [cheshire.core :as c]
    #+cljs [schema.core :as s
-           :include-macros true]))
+           :include-macros true]
+   [schema.utils :as su]
+   [xapi-schema.schemata.util :as u]))
 
 (def statement-checker
   (s/checker Statement))
