@@ -53,4 +53,6 @@
   :test-paths ["target/classes/clj" "target/spec/clj" "spec/clj"]
   :prep-tasks [["cljx" "once"] "javac" "compile"]
   :aliases {"build-once" ["do" "clean," "cljx" "once"]
-            "deploy-lib" ["do" "build-once," "deploy" "clojars"]})
+            "deploy-lib" ["do" "build-once," "deploy" "clojars"]
+            "spec-clj" ["do" "clean," "spec"]
+            "spec-cljs" ["do" "clean," "cljx," "cljsbuild" "once" "test"]})
