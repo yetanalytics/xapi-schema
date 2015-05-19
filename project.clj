@@ -48,6 +48,8 @@
                         :compiler {:output-to "target/js/xapi_schema.js"
                                    :optimizations :advanced}}]
               :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_test.js"]}}
+  :source-paths ["target/classes/clj"]
+  :resource-paths ["target/classes/cljs"]
   :test-paths ["target/classes/clj" "target/spec/clj" "spec/clj"]
   :prep-tasks [["cljx" "once"] "javac" "compile"]
   :aliases {"build-once" ["do" "clean," "cljx" "once"]
