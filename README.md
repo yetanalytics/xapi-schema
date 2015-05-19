@@ -4,7 +4,7 @@
 
 # xapi-schema
 
-Clojure(script) schema for Experience API 1.0.3
+Clojure(script) schema for Experience API 1.0.3. Provides validation of Statements and other xAPI objects.
 
 ## Getting Started
 1. Add to your project dependencies: `[[com.yetanalytics/xapi-schema "0.1.0-SNAPSHOT"]]`
