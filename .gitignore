@@ -8,3 +8,4 @@ pom.xml.asc
 /.lein-*
 /.nrepl-port
 .DS_Store
+/resources/public/xapi_schema.js
