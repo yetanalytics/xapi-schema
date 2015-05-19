@@ -50,5 +50,5 @@
               :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_test.js"]}}
   :test-paths ["target/classes/clj" "target/spec/clj" "spec/clj"]
   :prep-tasks [["cljx" "once"] "javac" "compile"]
-  :aliases {"build-once" ["do" "clean," "cljx" "once," "cljsbuild" "once"]
+  :aliases {"build-once" ["do" "clean," "cljx" "once"]
             "deploy-lib" ["do" "build-once," "deploy" "clojars"]})
