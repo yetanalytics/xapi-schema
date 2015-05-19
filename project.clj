@@ -1,6 +1,6 @@
-(defproject xapi-schema "0.1.0-SNAPSHOT"
+(defproject com.yetanalytics/xapi-schema "0.1.0-SNAPSHOT"
   :description "Clojure(script) Schema for the Experience API v1.0.3"
-  :url "http://example.com/FIXME"
+  :url "https://github.com/yetanalytics/xapi-schema"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0-alpha5"]
