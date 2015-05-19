@@ -45,8 +45,10 @@
                                    :optimizations :advanced}}
                        {:id "release"
                         :source-paths ["target/classes/cljs"]
-                        :compiler {:output-to "target/js/xapi_schema.js"
+                        :compiler {:output-to "target/xapi_schema.js"
                                    :optimizations :advanced}}]
               :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_test.js"]}}
   :test-paths ["target/classes/clj" "target/spec/clj" "spec/clj"]
-  :prep-tasks [["cljx" "once"] "javac" "compile"])
+  :prep-tasks [["cljx" "once"] "javac" "compile"]
+  :aliases {"build-once" ["do" "clean," "cljx" "once," "cljsbuild" "once" "release"]
+            "deploy-lib" ["do" "build-once," "deploy" "clojars"]})
