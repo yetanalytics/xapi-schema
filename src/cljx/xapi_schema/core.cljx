@@ -15,6 +15,9 @@
 (def statements-checker
   (s/checker Statements))
 
+(def errors->data
+  u/errors->data)
+
 (defn validate-statement [s]
   (if-let [error (statement-checker s)]
     #+clj (throw (Exception. (str error)))
