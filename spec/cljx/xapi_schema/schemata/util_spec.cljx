@@ -170,7 +170,8 @@
                   (s/required-key "string-seq") [s/Str]
                   (s/required-key "not-there") s/Any
                   (s/required-key "equals") (s/eq "foo")
-                  (s/required-key "enum") (s/enum "foo" "bar" "baz")}
+                  (s/required-key "enum") (s/enum "foo" "bar" "baz")
+                  (s/required-key "one") [(s/one s/Str "at least one string")]}
                  "bob"))
    (with err (s/check @schema {"foo" 1
                                "bar" true
@@ -181,6 +182,7 @@
                                "unknown-key" "hey"
                                "equals" "bar"
                                "enum" "quxx"
+                               "one" []
                                }))
    (it "converts all error objects to data"
        (should-not-throw
@@ -202,7 +204,8 @@
                  "bar" "Not a number: true"
                  "foo" "Not a string: 1"
                  "equals" "Not foo: bar"
-                 "enum" "Not in #{\"foo\" \"bar\" \"baz\"}: quxx"}
+                 "enum" "Not in #{\"foo\" \"bar\" \"baz\"}: quxx"
+                 "one" ["Not present: at least one string"]}
                 (errors->data @err))))
   (context "given some xapi validation cases"
            (it "parses an agent objectType error"

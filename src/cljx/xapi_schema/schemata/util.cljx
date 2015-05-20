@@ -60,6 +60,9 @@
 
          [([(in :guard set?) value] :seq)]
          (str "in " in ": " value)
+
+         [(['present? required] :seq)]
+         (str "present: " required)
          :else (throw
                 (#+clj Exception. #+cljs js/Error.
                        (str "Couldn't parse validation error: " e)))))
