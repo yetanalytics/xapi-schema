@@ -51,9 +51,7 @@
                 #+cljs (= klass s/Bool)
                 "a boolean: "
                 :else
-                (throw
-                 (#+clj Exception. #+cljs js/Error.
-                       (str "Couldn't parse instance? predicate:" e))))
+                "unknown instance? predicate: ")
               value)
          [(['= what value]:seq)]
          (str what ": " value)
@@ -63,9 +61,7 @@
 
          [(['present? required] :seq)]
          (str "present: " required)
-         :else (throw
-                (#+clj Exception. #+cljs js/Error.
-                       (str "Couldn't parse validation error: " e)))))
+         :else e))
 
 (defn error->string [e]
   (match [e]
