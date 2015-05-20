@@ -15,15 +15,19 @@
                                                       errors->data
                                                       named-error?
                                                       validation-error?]]
+                   [xapi-schema.schemata.json :as json]
                    [schema.core :as s
                     :include-macros true]
                    [schema.utils :as su]
-                   [clojure.walk :refer [postwalk]])
+                   [clojure.walk :refer [postwalk]]
+                   [xapi-schema.support.data :as d])
   #+clj (:require [speclj.core :refer :all]
                   [schema.core :as s]
                   [schema.utils :as su]
                   [xapi-schema.schemata.util :refer :all]
-                  [clojure.walk :refer [postwalk]]))
+                  [xapi-schema.schemata.json :as json]
+                  [clojure.walk :refer [postwalk]]
+                  [xapi-schema.support.data :as d]))
 
 (describe "check-type"
           (with pred (check-type "Activity"))
@@ -158,15 +162,15 @@
   (context
    "with nested named and validation errors"
    (with schema (s/named
-                 {(s/required-key "foo") (s/both
-                                          s/Str
-                                          (s/eq "wat"))
+                 {(s/required-key "foo") s/Str
                   (s/required-key "bar") s/Num
                   (s/required-key "baz") s/Int
                   (s/required-key "quxx") s/Bool
                   (s/required-key "map") {}
                   (s/required-key "string-seq") [s/Str]
-                  (s/required-key "not-there") s/Any}
+                  (s/required-key "not-there") s/Any
+                  (s/required-key "equals") (s/eq "foo")
+                  (s/required-key "enum") (s/enum "foo" "bar" "baz")}
                  "bob"))
    (with err (s/check @schema {"foo" 1
                                "bar" true
@@ -175,6 +179,8 @@
                                "map" []
                                "string-seq" {}
                                "unknown-key" "hey"
+                               "equals" "bar"
+                               "enum" "quxx"
                                }))
    (it "converts all error objects to data"
        (should-not-throw
@@ -194,5 +200,16 @@
                  "quxx" "Not a boolean: foo"
                  "baz" "Not an integer: 1.1"
                  "bar" "Not a number: true"
-                 "foo" "Not a string: 1"}
-                (errors->data @err))))))
+                 "foo" "Not a string: 1"
+                 "equals" "Not foo: bar"
+                 "enum" "Not in #{\"foo\" \"bar\" \"baz\"}: quxx"}
+                (errors->data @err))))
+  (context "given some xapi validation cases"
+           (it "parses an agent objectType error"
+               (should-not-throw
+                (errors->data
+                 (s/check json/Statement
+                          (assoc d/long-statement
+                                 "actor"
+                                 {"mbox" "mailto:milt@yetanalytics.com"
+                                  "objectType" "NotAnAgent"}))))))))

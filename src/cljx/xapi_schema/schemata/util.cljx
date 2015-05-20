@@ -53,11 +53,16 @@
                 :else
                 (throw
                  (#+clj Exception. #+cljs js/Error.
-                        "Couldn't parse instance? predicate.")))
+                       (str "Couldn't parse instance? predicate:" e))))
               value)
+         [(['= what value]:seq)]
+         (str what ": " value)
+
+         [([(in :guard set?) value] :seq)]
+         (str "in " in ": " value)
          :else (throw
                 (#+clj Exception. #+cljs js/Error.
-                       "Couldn't parse validation error."))))
+                       (str "Couldn't parse validation error: " e)))))
 
 (defn error->string [e]
   (match [e]
