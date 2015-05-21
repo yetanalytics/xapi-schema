@@ -6,6 +6,10 @@
 
 Clojure(script) schema for Experience API 1.0.3. Provides validation of Statements and other xAPI objects.
 
+## Demo
+
+You can use xapi-schema to validate statements in real time [with this demo.](http://yetanalytics.github.io/xapi-schema-demo/)
+
 ## Getting Started
 1. Add to your project dependencies: `[[com.yetanalytics/xapi-schema "0.1.0-SNAPSHOT"]]`
 2. Require:
