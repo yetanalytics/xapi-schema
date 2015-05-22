@@ -6,9 +6,7 @@
 [[http://www.jarkeeper.com/yetanalytics/xapi-schema][http://jarkeeper.com/yetanalytics/xapi-schema/status.svg]]
 [[https://www.eclipse.org/legal/epl-v10.html][https://img.shields.io/badge/license-Eclipse-blue.svg]]
 [[https://github.com/yetanalytics/xapi-schema/issues][https://img.shields.io/github/issues/yetanalytics/xapi-schema.svg]]
-
-#+CAPTION: Clojars Project
-[[http://clojars.org/com.yetanalytics/xapi-schema][http://clojars.org/com.yetanalytics/xapi-schema/latest-version.svg]]
+[[http://clojars.org/com.yetanalytics/xapi-schema][https://img.shields.io/clojars/v/com.yetanalytics/xapi-schema.svg]]
 
 Clojure(script) schema for Experience API 1.0.3. Provides validation of Statments and other xAPI objects.
 
