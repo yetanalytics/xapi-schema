@@ -2,9 +2,7 @@
 #+AUTHOR: Milt Reder, Jason Lewis
 #+EMAIL: milt@yetanalytics.com, jason@yetanalytics.com
 
-#+CAPTION: Build Status
 [[https://travis-ci.org/yetanalytics/xapi-schema][https://travis-ci.org/yetanalytics/xapi-schema.svg?branch=master]]
-#+CAPTION: Dependencies Status
 [[http://www.jarkeeper.com/yetanalytics/xapi-schema][http://jarkeeper.com/yetanalytics/xapi-schema/status.svg]]
 
 #+CAPTION: Clojars Project
