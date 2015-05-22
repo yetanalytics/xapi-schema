@@ -4,6 +4,8 @@
 
 #+CAPTION: Build Status
 [[https://travis-ci.org/yetanalytics/xapi-schema][https://travis-ci.org/yetanalytics/xapi-schema.svg?branch=master]]
+#+CAPTION: Dependencies Status
+[[http://www.jarkeeper.com/yetanalytics/xapi-schema][http://jarkeeper.com/yetanalytics/xapi-schema/status.svg]]
 
 #+CAPTION: Clojars Project
 [[http://clojars.org/com.yetanalytics/xapi-schema][http://clojars.org/com.yetanalytics/xapi-schema/latest-version.svg]]
