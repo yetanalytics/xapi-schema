@@ -18,6 +18,9 @@
 (def errors->data
   u/errors->data)
 
+(def errors->paths
+  u/errors->paths)
+
 (defn validate-statement [s]
   (if-let [error (statement-checker s)]
     #+clj (throw (Exception. (str error)))

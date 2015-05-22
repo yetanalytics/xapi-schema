@@ -3,12 +3,61 @@
          [schema.core :as s]
          [schema.utils :as su]
          [clojure.core.match :refer [match]]
-         [clojure.walk :refer [prewalk postwalk]])
+         [clojure.walk :refer [prewalk postwalk]]
+         [clojure.zip :as zip])
   #+cljs (:require
           [schema.core :as s :include-macros true]
           [schema.utils :as su]
           [cljs.core.match :refer-macros [match]]
-          [clojure.walk :refer [prewalk postwalk]]))
+          [clojure.walk :refer [prewalk postwalk]]
+          [clojure.zip :as zip]))
+
+
+
+
+(defn map-zipper [m]
+  (zip/zipper
+   (fn [x] (or (map? x) (map? (nth x 1))))
+   (fn [x] (seq (if (map? x) x (nth x 1))))
+   (fn [x children]
+     (if (map? x)
+       (into {} children)
+       (assoc x 1 (into {} children))))
+   m))
+
+(defn vec-map [data]
+  (into {}
+        (map-indexed
+         (fn [idx item]
+           [idx item])
+         data)))
+
+(defn leaves-and-paths [data]
+  (loop [mzip (map-zipper (if (vector? data)
+                            (vec-map data)
+                            data))
+           l-p-map {}]
+      (cond
+        (nil? mzip) l-p-map
+        (zip/branch? mzip) (recur
+                            (if (= {} (second (zip/node mzip)))
+                              (zip/remove mzip)
+                              (zip/down mzip))
+                            l-p-map)
+        (vector? (second (zip/node mzip)))
+        (recur (zip/edit mzip (fn [[k v]]
+                                [k (vec-map v)]))
+               l-p-map)
+        :else
+        (let [[k v] (zip/node mzip)
+              path (conj
+                    (mapv first (rest (zip/path mzip)))
+                    k)]
+          (recur
+           (zip/remove mzip)
+           (assoc l-p-map
+                  v path))))))
+
 
 (defn check-type
   "make a predicate to check for a given object type"
@@ -95,3 +144,7 @@
    (prewalk
     error->data
     e)))
+
+(defn errors->paths [e]
+  (leaves-and-paths
+   (errors->data e)))

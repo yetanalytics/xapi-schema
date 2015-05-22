@@ -14,7 +14,9 @@
                                                       error->string
                                                       errors->data
                                                       named-error?
-                                                      validation-error?]]
+                                                      validation-error?
+                                                      leaves-and-paths
+                                                      errors->paths]]
                    [xapi-schema.schemata.json :as json]
                    [schema.core :as s
                     :include-macros true]
@@ -28,6 +30,31 @@
                   [xapi-schema.schemata.json :as json]
                   [clojure.walk :refer [postwalk]]
                   [xapi-schema.support.data :as d]))
+
+(describe
+ "leaves-and-paths"
+ (it "returns a map of leaves to paths"
+     (should= {"h" ["a" "e" "f" "g"]
+               "m" ["a" "e" "f" "l"]
+               "d" ["a" "b" "c"]
+               "j" ["i"]}
+              (leaves-and-paths {"a"{"e" {"f" {"g" "h"
+                                               "l" "m"}}
+                                     "b" {"c" "d"}}
+                                 "i" "j"})))
+ (it "consumes all nested data"
+     (should= {"h" [0 "a" "e" "f" "g"]
+               "m" [0 "a" "e" "f" "l"]
+               "d" [0 "a" "b" "c"]
+               "j" [0 "i"]
+               "n" [0 "a" "b" "k" 0]
+               "o" [0 "a" "b" "k" 1]
+               "q" [0 "a" "b" "k" 2 "p"]}
+              (leaves-and-paths [{"a"{"e" {"f" {"g" "h"
+                                                "l" "m"}}
+                                      "b" {"c" "d"
+                                           "k" ["n" "o" {"p" "q"}]}}
+                                  "i" "j"}]))))
 
 (describe "check-type"
           (with pred (check-type "Activity"))
@@ -147,72 +174,94 @@
         (should= "Not a boolean: foo"
                  (error->string @err))))))
 
- (describe
-  "named-error?"
-  (it "returns true if the error is a named error"
-      (should (named-error? (s/check (s/named s/Str "foo") 1)))))
+ (context
+  "error processing"
 
- (describe
-  "validation-error?"
-  (it "returns true if the error is a validation error"
-      (should (validation-error? (s/check s/Str 1)))))
+  (with schema (s/named
+                {(s/required-key "foo") s/Str
+                 (s/required-key "bar") s/Num
+                 (s/required-key "baz") s/Int
+                 (s/required-key "quxx") s/Bool
+                 (s/required-key "map") {}
+                 (s/required-key "string-seq") [s/Str]
+                 (s/required-key "not-there") s/Any
+                 (s/required-key "equals") (s/eq "foo")
+                 (s/required-key "enum") (s/enum "foo" "bar" "baz")
+                 (s/required-key "one") [(s/one s/Str "at least one string")]}
+                "bob"))
 
- (describe
-  "errors->data"
-  (context
-   "with nested named and validation errors"
-   (with schema (s/named
-                 {(s/required-key "foo") s/Str
-                  (s/required-key "bar") s/Num
-                  (s/required-key "baz") s/Int
-                  (s/required-key "quxx") s/Bool
-                  (s/required-key "map") {}
-                  (s/required-key "string-seq") [s/Str]
-                  (s/required-key "not-there") s/Any
-                  (s/required-key "equals") (s/eq "foo")
-                  (s/required-key "enum") (s/enum "foo" "bar" "baz")
-                  (s/required-key "one") [(s/one s/Str "at least one string")]}
-                 "bob"))
-   (with err (s/check @schema {"foo" 1
-                               "bar" true
-                               "baz" 1.1
-                               "quxx" "foo"
-                               "map" []
-                               "string-seq" {}
-                               "unknown-key" "hey"
-                               "equals" "bar"
-                               "enum" "quxx"
-                               "one" []
-                               }))
-   (it "converts all error objects to data"
-       (should-not-throw
-        (postwalk
-         (fn [node]
-           (if (or (named-error? node)
-                   (validation-error? node))
-             (throw (#+clj Exception.
-                    #+cljs js/Error. "error obj found!"))
-             node))
-         (errors->data @err))))
-   (it "converts all predicate and scalar errors to strings"
-       (should= {"unknown-key" "Not Allowed"
-                 "not-there" "Missing"
-                 "string-seq" "Not sequential: {}"
-                 "map" "Not map: []"
-                 "quxx" "Not a boolean: foo"
-                 "baz" "Not an integer: 1.1"
-                 "bar" "Not a number: true"
-                 "foo" "Not a string: 1"
-                 "equals" "Not foo: bar"
-                 "enum" "Not in #{\"foo\" \"bar\" \"baz\"}: quxx"
-                 "one" ["Not present: at least one string"]}
-                (errors->data @err))))
-  (context "given some xapi validation cases"
-           (it "parses an agent objectType error"
-               (should-not-throw
-                (errors->data
-                 (s/check json/Statement
-                          (assoc d/long-statement
-                                 "actor"
-                                 {"mbox" "mailto:milt@yetanalytics.com"
-                                  "objectType" "NotAnAgent"}))))))))
+  (with err (s/check @schema {"foo" 1
+                              "bar" true
+                              "baz" 1.1
+                              "quxx" "foo"
+                              "map" []
+                              "string-seq" {}
+                              "unknown-key" "hey"
+                              "equals" "bar"
+                              "enum" "quxx"
+                              "one" []
+                              }))
+
+  (describe
+   "named-error?"
+   (it "returns true if the error is a named error"
+       (should (named-error? (s/check (s/named s/Str "foo") 1)))))
+
+  (describe
+   "validation-error?"
+   (it "returns true if the error is a validation error"
+       (should (validation-error? (s/check s/Str 1)))))
+
+  (describe
+   "errors->data"
+   (context
+     "with nested named and validation errors"
+     (it "converts all error objects to data"
+         (should-not-throw
+          (postwalk
+           (fn [node]
+             (if (or (named-error? node)
+                     (validation-error? node))
+               (throw (#+clj Exception.
+                             #+cljs js/Error. "error obj found!"))
+               node))
+           (errors->data @err))))
+     (it "converts all predicate and scalar errors to strings"
+         (should= {"unknown-key" "Not Allowed"
+                   "not-there" "Missing"
+                   "string-seq" "Not sequential: {}"
+                   "map" "Not map: []"
+                   "quxx" "Not a boolean: foo"
+                   "baz" "Not an integer: 1.1"
+                   "bar" "Not a number: true"
+                   "foo" "Not a string: 1"
+                   "equals" "Not foo: bar"
+                   "enum" "Not in #{\"foo\" \"bar\" \"baz\"}: quxx"
+                   "one" ["Not present: at least one string"]}
+                  (errors->data @err))))
+    (context "given some xapi validation cases"
+             (it "parses an agent objectType error"
+                 (should-not-throw
+                  (errors->data
+                   (s/check json/Statement
+                            (assoc d/long-statement
+                                   "actor"
+                                   {"mbox" "mailto:milt@yetanalytics.com"
+                                    "objectType" "NotAnAgent"})))))))
+  (describe
+   "errors->paths"
+   (it "returns a map"
+       (should (map? (errors->paths @err))))
+   (it "maps errors to their paths"
+       (should= (errors->paths @err)
+                {"Not Allowed" ["unknown-key"]
+                 "Missing" ["not-there"]
+                 "Not sequential: {}" ["string-seq"]
+                 "Not map: []" ["map"]
+                 "Not a boolean: foo" ["quxx"]
+                 "Not an integer: 1.1" ["baz"]
+                 "Not a number: true" ["bar"]
+                 "Not a string: 1" ["foo"]
+                 "Not foo: bar" ["equals"]
+                 "Not in #{\"foo\" \"bar\" \"baz\"}: quxx" ["enum"]
+                 "Not present: at least one string" ["one" 0]})))))
