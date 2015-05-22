@@ -1,5 +1,13 @@
 language: clojure
-
 script:
-  - lein spec
-  - lein cljsbuild once test
+- lein spec
+- lein cljsbuild once test
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/7fc950df542cce183d37
+    on_success: change
+    on_failure: always
+    on_start: false
+  slack:
+    secure: QQfmxe1JUnOjfCOa8syk34MF0k0g6bOIHu68p9YZJh393efuEG94VovV7T6l6wpoL5NEWzgzqsnt0YJoqqpsJg17q56bjFOIA58vk0DqcF/UClTDx+VQbj3ipWbAifUHU3/erbiml0KAiGP7N8GwBzTa2pQJ3ageDltluF4Rn4NHu7srQArzB8TalT8yAG1LC9nQeprk5b8YR0b52RyO8+OZRjOsArtRIX++R3chshad0TlfT/t352Qc2ZctB9Chkyc7LlSPjP+HM9uZjrbRRzaREHVuntAmglfN5wg9SO7TwyXhgzCQzeO2kg6X+0uGfTYOMtm2XnNNKEScthcFajbWR2h9cQeJKcaGKDC4Vi4zQtCKV087YpuC9I6M4g5cidudIneIiP3y47SKHB5PoLrkvzLOPUm0ZWJxCoG4JPnHjtuhfOJqIH+qtOt3Z5mJJhio/Clg1iNpvIN3ndv0x90cv3xk3mQma5EauYXQDFadp4EBV1yt+TPejG17h/F4ZEmUh1k1qhZwwRyN34qD4BqVdHYjX/K8jew7367cUzL4cXlfJB4de/iaF70/h6Qa/+SxXAIPdIGDqHaMDG2PJEbYWlqSh8XNjSWJK5odTwlZEVmElkUtdWBfvxm0payHLpeMQxBZhD11HnD069l+3xw+GIirtOGrVPgD8eqRHIY=
