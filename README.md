@@ -55,13 +55,13 @@ You can use xapi-schema to validate statements in real time [with this demo.](ht
 (def statement-str
   "{\"object\":{\"id\":\"http://example.com/xapi/activity/simplestatement\",
   \"definition\":{\"name\":{\"en-US\":\"simple statement\"},\"description\":
-  {\"en-US\":\"A simple Experience API statement. Note that the LRS\\n      
+  {\"en-US\":\"A simple Experience API statement. Note that the LRS\\n
   does not need to have any prior information about the Actor (learner), the\\n
   verb, or the Activity/object.\"}}},\"verb\":{\"id\":\"http://example.com/xapi
   /verbs#sent-a-statement\",\"display\":{\"en-US\":\"sent\"}},\"id\":\"fd41c918-
   b88b-4b20-a0a5-a4c32391aaa0\",\"actor\":{\"mbox\":\"mailto:user@example.com\"
   ,\"name\":\"Project Tin Can API\",\"objectType\":\"Agent\"}}")
-  
+
 (xs/validate-statement-data statement-str) ;; => returns statement edn
 ```
 
