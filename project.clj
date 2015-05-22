@@ -3,14 +3,14 @@
   :url "https://github.com/yetanalytics/xapi-schema"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.7.0-alpha5"]
-                 [org.clojure/clojurescript "0.0-3211"]
+  :dependencies [[org.clojure/clojure "1.7.0-RC1"]
+                 [org.clojure/clojurescript "0.0-3291"]
                  [prismatic/schema "0.4.2"]
                  [cheshire "5.4.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]]
   :exclusions [[org.clojure/clojure]
                [org.clojure/clojurescript]]
-  :plugins [[lein-cljsbuild "1.0.6-SNAPSHOT"]
+  :plugins [[lein-cljsbuild "1.0.6"]
             [speclj "3.2.0"]]
   :profiles {:dev {:dependencies [[speclj "3.2.0"]]
                    :plugins [[com.keminglabs/cljx "0.6.0" :exclusions [org.clojure/clojure]]]}}
