@@ -3,12 +3,65 @@
          [schema.core :as s]
          [schema.utils :as su]
          [clojure.core.match :refer [match]]
-         [clojure.walk :refer [prewalk postwalk]])
+         [clojure.walk :refer [prewalk]]
+         [clojure.zip :as zip]
+         [xapi-schema.schemata.i18n :refer [t]]
+         [clojure.string :as string])
   #+cljs (:require
           [schema.core :as s :include-macros true]
           [schema.utils :as su]
           [cljs.core.match :refer-macros [match]]
-          [clojure.walk :refer [prewalk postwalk]]))
+          [clojure.walk :refer [prewalk]]
+          [clojure.zip :as zip]
+          [xapi-schema.schemata.i18n :refer [t]]
+          [clojure.string :as string]))
+
+
+
+
+(defn map-zipper [m]
+  (zip/zipper
+   (fn [x] (or (map? x) (map? (nth x 1))))
+   (fn [x] (seq (if (map? x) x (nth x 1))))
+   (fn [x children]
+     (if (map? x)
+       (into {} children)
+       (assoc x 1 (into {} children))))
+   m))
+
+(defn vec-map [data]
+  (into {}
+        (map-indexed
+         (fn [idx item]
+           [idx item])
+         data)))
+
+(defn leaves-and-paths [data]
+  (loop [mzip (map-zipper (if (vector? data)
+                            (vec-map data)
+                            data))
+           l-p-map {}]
+      (cond
+        (nil? mzip) l-p-map
+        (zip/branch? mzip) (recur
+                            (if (= {} (second (zip/node mzip)))
+                              (zip/remove mzip)
+                              (zip/down mzip))
+                            l-p-map)
+        (vector? (second (zip/node mzip)))
+        (recur (zip/edit mzip (fn [[k v]]
+                                [k (vec-map v)]))
+               l-p-map)
+        :else
+        (let [[k v] (zip/node mzip)
+              path (conj
+                    (mapv first (rest (zip/path mzip)))
+                    k)]
+          (recur
+           (zip/remove mzip)
+           (assoc l-p-map
+                  v path))))))
+
 
 (defn check-type
   "make a predicate to check for a given object type"
@@ -26,50 +79,47 @@
                                          [(check-type obj-type) schema]))
                                      (partition 2 types-and-schemas)))))
 
-(defn- value-error [e]
+(defn- value-error [e & [ltag]]
   (match [e]
-         [([(what :guard string?) value] :seq)] (str what ": " value)
-         [(['sequential? value] :seq)] (str "sequential: " value)
-         [(['map? value] :seq)] (str "map: " value)
-         [(['integer? value] :seq)] (str "an integer: " value)
+         [([(what :guard keyword?) value] :seq)] (str (t ltag what) ": " value)
+         [(['sequential? value] :seq)] (str (t ltag :sequential) ": " value)
+         [(['map? value] :seq)] (str (t ltag :map) ": " value)
+         [(['integer? value] :seq)] (str (t ltag :integer) ": " value)
 
          ;; catch cljs string schema, as it is just string?
          #+cljs
          [([(what :guard (partial = string?)) value] :seq)]
          #+cljs
-         (str "a string: " value)
+         (str (t ltag :string) ": " value)
 
          [(['instance? klass value] :seq)]
          (str (cond
                 #+clj (= klass java.lang.String)
-                #+clj "a string: "
+                #+clj (str (t ltag :string) ": ")
 
                 #+clj (= klass java.lang.Number)
                 #+cljs (= klass s/Num)
-                "a number: "
+                (str (t ltag :number) ": ")
                 #+clj (= klass java.lang.Boolean)
                 #+cljs (= klass s/Bool)
-                "a boolean: "
+                (str (t ltag :boolean) ": ")
                 :else
                 "unknown instance? predicate: ")
               value)
-         [(['= what value]:seq)]
+         [(['= what value] :seq)]
          (str what ": " value)
 
          [([(in :guard set?) value] :seq)]
-         (str "in " in ": " value)
+         (str (t ltag :in) " " in ": " value)
 
          [(['present? required] :seq)]
-         (str "present: " required)
-         :else e))
+         (str (t ltag :present) ": " required)
 
-(defn error->string [e]
-  (match [e]
-         ['missing-required-key] "Missing"
-         ['disallowed-key] "Not Allowed"
-         [(['not what] :seq)] (str "Not " (value-error what))
-         [(['throws? what]:seq)] (str "Not " (value-error what) " (threw)")
-         :else e))
+         ;; predicate with string message
+         [([(pred-msg :guard string?) value] :seq)]
+         (str pred-msg ": " value)
+         :else
+         e))
 
 (defn named-error? [object]
   (instance? schema.utils.NamedError object))
@@ -77,21 +127,40 @@
 (defn validation-error? [object]
   (instance? schema.utils.ValidationError object))
 
+(defn error->string [e & [ltag]]
+  (let [e (if (validation-error? e)
+            (su/validation-error-explain e)
+            e)
+        ltag (or ltag :en)
+        not-x (fn [x] (str (string/capitalize (t ltag :not)) " " x))]
+    (match [e]
+           ['missing-required-key] (t ltag :missing-required-key)
+           ['disallowed-key] (t ltag :disallowed-key)
+           [(['not what] :seq)]
+           (not-x (value-error what ltag))
+           [(['throws? what]:seq)]
+           (str (not-x (value-error what ltag)) " (" (t ltag :threw) ")")
+           :else
+           e)))
 
-(defn- error->data [node]
-  (cond
-    (named-error? node)
+
+(defn- strip-named [node]
+  (if (named-error? node)
     (let [name #+clj (.name node) #+cljs (.-name node)
           error #+clj (.error node) #+cljs (.-error node)]
-      (error->data error))
-    (validation-error? node)
-    (su/validation-error-explain node)
-          :else node))
+      error)
+    node))
 
-(defn errors->data [e]
-  (postwalk
-   (fn [node]
-     (error->string node))
-   (prewalk
-    error->data
-    e)))
+(defn errors->data [e & [ltag]]
+  (let [ltag (or ltag
+                 :en)]
+    (prewalk
+     (fn [node]
+       (error->string
+        (strip-named node)
+        ltag))
+     e)))
+
+(defn errors->paths [e & [ltag]]
+  (leaves-and-paths
+   (errors->data e ltag)))

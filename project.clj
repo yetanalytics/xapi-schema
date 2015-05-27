@@ -7,7 +7,8 @@
                  [org.clojure/clojurescript "0.0-3291"]
                  [prismatic/schema "0.4.2"]
                  [cheshire "5.4.0"]
-                 [org.clojure/core.match "0.3.0-alpha4"]]
+                 [org.clojure/core.match "0.3.0-alpha4"]
+                 [com.taoensso/tower "3.1.0-beta3"]]
   :exclusions [[org.clojure/clojure]
                [org.clojure/clojurescript]]
   :plugins [[lein-cljsbuild "1.0.6"]
@@ -49,7 +50,7 @@
                                    :optimizations :advanced}}]
               :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_test.js"]}}
   :source-paths ["target/classes/clj"]
-  :resource-paths ["target/classes/cljs"]
+  :resource-paths ["resources" "target/classes/cljs"]
   :test-paths ["target/classes/clj" "target/spec/clj" "spec/clj"]
   :prep-tasks [["cljx" "once"] "javac" "compile"]
   :aliases {"build-once" ["do" "clean," "cljx" "once"]

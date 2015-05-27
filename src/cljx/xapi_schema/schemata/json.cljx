@@ -32,7 +32,7 @@
    (s/both
     s/Str
     (regex-pred LanguageTagRegEx
-                "A valid RFC 5646 Language Tag"))
+                :predicates/valid-ltag))
    "Language Tag"))
 
 (s/defschema
@@ -49,7 +49,7 @@
    (s/both
     s/Str
     (regex-pred AbsoluteIRIRegEx
-                "a valid IRI address"))
+                :predicates/valid-iri))
    "Internationalized Resource Locator"))
 
 (s/defschema
@@ -59,7 +59,7 @@
    (s/both
     s/Str
     (regex-pred MailToIRIRegEx
-                "a valid MailTo IRI address"))
+                :predicates/valid-mailto-iri))
    "Mailto IRI"))
 
 (s/defschema
@@ -67,7 +67,7 @@
   (s/named
    (s/both
     (regex-pred AbsoluteIRIRegEx
-                "a valid IRL")
+                :predicates/valid-irl)
     s/Str)
    "IRL"))
 
@@ -82,7 +82,7 @@
   (s/named
    (s/both s/Str
            (regex-pred URIRegEx
-                       "a valid OpenID URL"))
+                       :predicates/valid-openid))
    "OpenId URL"))
 
 (s/defschema
@@ -90,7 +90,7 @@
   (s/named
    (s/both s/Str
            (regex-pred UuidRegEx
-                       "a valid UUID"))
+                       :predicates/valid-uuid))
    "Uuid"))
 
 (s/defschema
@@ -98,7 +98,7 @@
   (s/named
    (s/both s/Str
            (regex-pred TimestampRegEx
-                       "a valid ISO 8601 timestamp"))
+                       :predicates/valid-timestamp))
    "Timestamp"))
 
 (s/defschema
@@ -106,7 +106,7 @@
   (s/named
    (s/both s/Str
            (regex-pred DurationRegEx
-                       "a valid ISO 8601 duration"))
+                       :predicates/valid-duration))
    "Duration"))
 
 (s/defschema
@@ -114,13 +114,13 @@
   (s/named
    (s/both s/Str
            (regex-pred xAPIVersionRegEx
-                       "a valid xAPI 1.x.x version"))
+                       :predicates/valid-xapi-version))
    "Version"))
 
 (s/defschema
   Sha2
   (s/both (regex-pred Base64RegEx
-                      "a valid SHA-2 sum")
+                      :predicates/valid-sha-2-sum)
           s/Str))
 
 (def
@@ -128,7 +128,7 @@
   (s/named
    (s/both s/Str
            (regex-pred Sha1RegEx
-                       "a valid SHA-1 sum"))
+                       :predicates/valid-sha-1-sum))
    "SHA-1 Sum"))
 
 ;; Composite schemas
@@ -219,7 +219,7 @@
      (s/optional-key "mbox_sha1sum") Sha1Sum
      (s/optional-key "openid") OpenID
      (s/optional-key "account") Account
-     (s/optional-key "member") [(s/one Agent "at least one Agent") Agent]}
+     (s/optional-key "member") [(s/one Agent :predicates/at-least-one-agent) Agent]}
     GroupValidations)
    "Group"))
 
@@ -282,7 +282,7 @@
 (s/defschema
   ContextActivitiesArray
   (s/named
-   [(s/one Activity "at least one Activity") Activity]
+   [(s/one Activity :predicates/at-least-one-activity) Activity]
    "Context Activities Array"))
 
 (s/defschema
@@ -335,7 +335,7 @@
 (s/defschema
   Attachments
   (s/named
-   [(s/one Attachment "at least one attachment") Attachment]
+   [(s/one Attachment :predicates/at-least-one-attachement) Attachment]
    "Attachments Array"))
 
 (s/defschema
@@ -376,9 +376,9 @@
      (s/optional-key "account") Account
      (s/required-key "member") (s/both
                                 (s/pred (fn [m]
-                                          (= 2 (count m))) "Exactly 2 Members")
+                                          (= 2 (count m))) :predicates/exactly-2-members)
                                 [(s/one OAuthConsumer
-                                        "one OAuth Consumer") Agent])})
+                                        :predicates/one-oauth-consument) Agent])})
    "Three-Legged OAuth Group"))
 
 (s/defschema
@@ -426,6 +426,6 @@
 (s/defschema
   Statements
   (s/named
-   [(s/one Statement "at least one statement")
+   [(s/one Statement :predicates/at-least-one-statement)
     Statement]
    "Statements"))
