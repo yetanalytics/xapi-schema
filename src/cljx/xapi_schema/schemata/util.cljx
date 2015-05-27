@@ -163,4 +163,4 @@
 
 (defn errors->paths [e & [ltag]]
   (leaves-and-paths
-   (errors->data e)))
+   (errors->data e ltag)))
