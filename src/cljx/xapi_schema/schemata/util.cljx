@@ -3,7 +3,7 @@
          [schema.core :as s]
          [schema.utils :as su]
          [clojure.core.match :refer [match]]
-         [clojure.walk :refer [walk prewalk postwalk]]
+         [clojure.walk :refer [prewalk]]
          [clojure.zip :as zip]
          [xapi-schema.schemata.i18n :refer [t]]
          [clojure.string :as string])
@@ -11,7 +11,7 @@
           [schema.core :as s :include-macros true]
           [schema.utils :as su]
           [cljs.core.match :refer-macros [match]]
-          [clojure.walk :refer [walk prewalk postwalk]]
+          [clojure.walk :refer [prewalk]]
           [clojure.zip :as zip]
           [xapi-schema.schemata.i18n :refer [t]]
           [clojure.string :as string]))
