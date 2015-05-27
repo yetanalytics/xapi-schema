@@ -100,8 +100,18 @@ You can use the =errors->data= fn to coerce errors into nested data that looks l
 (let [bad-statement (-> statement
                         (dissoc "actor")
                         (assoc "id" 123)]
-  (xs/errors->data (xs/statement-checker bad-statement))))
-  ;; => {"actor" "Missing", "id" "Not a string: 123"}
+  (xs/errors->data (xs/statement-checker bad-statement :en)))) ;; ltag is optional, defaults to :en
+  ;; => {"actor" "Missing required key", "id" "Not a string: 123"}
+#+END_SRC
+
+If you want a map of errors to their paths in the nested data, use =errors->paths=:
+
+#+BEGIN_SRC clojure
+(let [bad-statement (-> statement
+                        (dissoc "actor")
+                        (assoc "id" 123)]
+  (xs/errors->paths (xs/statement-checker bad-statement :en))))
+  ;; => {"Missing required key" ["actor"], "Not a string: 123" ["id"]}
 #+END_SRC
 
 **** Use SubSchemata
