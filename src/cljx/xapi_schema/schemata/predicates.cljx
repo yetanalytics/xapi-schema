@@ -101,8 +101,8 @@
 ;; Predicate schemata, builders
 
 (def valid-context-pred
-  (s/both (s/pred valid-revision? "Context revision only valid if Statement object is an Activity.")
-          (s/pred valid-platform? "Context platform only valid if Statement object is an Activity.")))
+  (s/both (s/pred valid-revision? :predicates/revision-not-allowed)
+          (s/pred valid-platform? :predicates/platform-not-allowed)))
 
 (defn regex-pred
   [regex message]
@@ -110,11 +110,11 @@
           message))
 
 (def no-multi-ifi-pred
-  (s/pred no-multi-ifi? "valid number: of IFI's (one)"))
+  (s/pred no-multi-ifi? :predicates/no-multi-ifi))
 
 (def one-ifi-required-pred
   (s/both no-multi-ifi-pred
-          (s/pred ifi-present? "ifi present")))
+          (s/pred ifi-present? :predicates/no-ifi)))
 
 ;; validation predicate schemata
 
@@ -124,13 +124,13 @@
 (def GroupValidations
   (s/conditional ifi-present? no-multi-ifi-pred ;; identified group, only one IFI
                  :else (s/pred (fn [{:strs [member]}]
-                                 (not (nil? member))) "present: member key on anonymous group")))
+                                 (not (nil? member))) :predicates/no-anon-group-member)))
 
 (def InteractionComponentsValidations
-  (s/pred unique-ids? "distinct: interaction component IDs"))
+  (s/pred unique-ids? :predicates/distinct-ic-ids))
 
 (def DefinitionValidations
-  (s/pred valid-component-keys? "valid Interaction Component List key(s)"))
+  (s/pred valid-component-keys? :predicates/valid-component-keys))
 
 
 (def ScoreValidations
@@ -139,19 +139,19 @@
                     (let [{:strs [raw max]} x]
                       (if (and raw max)
                         (<= raw max)
-                        true))) "raw cannot be higher than max")
+                        true))) :predicates/score-lt-max)
           (s/pred (fn
                     [x]
                       (let [{:strs [raw min]} x]
                         (if (and raw min)
                           (>= raw min)
-                          true))) "raw cannot be lower than min")
+                          true))) :predicates/score-gt-min)
           (s/pred (fn
                     [x]
                     (let [{:strs [min max]} x]
                       (if (and min max)
                         (< min max)
-                        true))) "min cannot be higer than max")))
+                        true))) :predicates/score-lt-max)))
 
 (def StatementValidations
   valid-context-pred)
