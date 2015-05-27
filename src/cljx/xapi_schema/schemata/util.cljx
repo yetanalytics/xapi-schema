@@ -148,7 +148,7 @@
   (if (named-error? node)
     (let [name #+clj (.name node) #+cljs (.-name node)
           error #+clj (.error node) #+cljs (.-error node)]
-      error)
+      (strip-named error))
     node))
 
 (defn errors->data [e & [ltag]]

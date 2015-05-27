@@ -239,15 +239,19 @@
                    "enum" "Not in #{\"foo\" \"bar\" \"baz\"}: quxx"
                    "one" ["Not present: at least one string"]}
                   (errors->data @err))))
-    (context "given some xapi validation cases"
+   (context "given some xapi validation cases"
+            (with bad-xapi (errors->data
+                            (s/check json/Statement
+                                     (assoc d/long-statement
+                                            "actor"
+                                            {"mbox" "mailto:milt@yetanalytics.com"
+                                             "objectType" "NotAnAgent"}))))
              (it "parses an agent objectType error"
                  (should-not-throw
-                  (errors->data
-                   (s/check json/Statement
-                            (assoc d/long-statement
-                                   "actor"
-                                   {"mbox" "mailto:milt@yetanalytics.com"
-                                    "objectType" "NotAnAgent"})))))))
+                  @bad-xapi))
+             (it "coerces the errors to strings"
+                 (should= {"actor" {"objectType" "Not Agent: NotAnAgent"}}
+                          @bad-xapi))))
   (describe
    "errors->paths"
    (it "returns a map"
