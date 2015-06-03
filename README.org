@@ -9,7 +9,7 @@
 
 [[https://gitter.im/yetanalytics/xapi-schema?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge][https://badges.gitter.im/Join%20Chat.svg]]
 
-Clojure(script) schema for Experience API 1.0.3. Provides validation of Statments and other xAPI objects.
+Clojure(script) schema for Experience API 1.0.3. Provides validation of Statements and other xAPI objects.
 
 ** Demo
 
