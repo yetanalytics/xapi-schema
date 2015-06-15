@@ -116,6 +116,14 @@
   (s/both no-multi-ifi-pred
           (s/pred ifi-present? :predicates/no-ifi)))
 
+(def void-statement-ref-pred
+  (s/pred (fn [{:strs [verb object]}]
+            (if (= (get verb "id") "http://adlnet.gov/expapi/verbs/voided")
+              (= (get object "objectType") "StatementRef")
+              true))
+          :predicates/void-statement-ref))
+
+
 ;; validation predicate schemata
 
 (def AgentValidations
@@ -154,4 +162,6 @@
                         true))) :predicates/score-lt-max)))
 
 (def StatementValidations
-  valid-context-pred)
+  (s/both
+   valid-context-pred
+   void-statement-ref-pred))
