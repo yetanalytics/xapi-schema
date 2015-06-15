@@ -123,8 +123,11 @@
  (it "is a valid ISO 8601 DateTime"
      (should-satisfy+ Timestamp
                       "2014-09-10T14:12:05Z"
+                      "2015-06-30T23:59:60Z" ;; leap second
                       :bad
-                      "09-10-2014T14:12:00+500")))
+                      "09-10-2014T14:12:00+500"
+                      "2014-09-12T03:47:40" ;; no time zone
+                      )))
 (describe
  "Duration"
  (it "is a valid ISO 8601 Duration"
