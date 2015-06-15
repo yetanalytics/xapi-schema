@@ -625,4 +625,14 @@
                       simple-statement
                       long-statement
                       d/completion-statement
-                      d/void-statement)))
+                      d/void-statement))
+ (it "checks for the proper object objectType on voiding statements"
+     (should-satisfy+ Statement
+                      d/void-statement
+                      :bad
+                      {"actor" {"objectType" "Agent"
+                                "name" "Example Admin"
+                                "mbox" "mailto:admin@example.adlnet.gov"}
+                       "verb" {"id" "http://adlnet.gov/expapi/verbs/voided"
+                               "display" {"en-US" "voided"}}
+                       "object" {"id" "http://example.com/activities/1"}})))

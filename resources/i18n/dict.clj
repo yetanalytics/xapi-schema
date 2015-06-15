@@ -36,4 +36,5 @@
        :at-least-one-activity "at least one Activity"
        :at-least-one-attachment "at least one Attachment"
        :one-oauth-consumer "one OAuth Consumer"
-       :at-least-one-statement "at least one statement"}}}
+       :at-least-one-statement "at least one statement"
+       :void-statement-ref "a valid voiding statement with objectType StatementRef"}}}
