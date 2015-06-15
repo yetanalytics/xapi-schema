@@ -13,6 +13,7 @@
                                                             regex-pred
                                                             no-multi-ifi-pred
                                                             one-ifi-required-pred
+                                                            void-statement-ref-pred
                                                             AgentValidations
                                                             GroupValidations
                                                             InteractionComponentsValidations
@@ -172,7 +173,17 @@
         "mbox" "mailto:milt@yetanalytics.com"
         "account" {"homePage" "http://www.foo.com"
                    "name" "foobar"}}
-       {}))))
+       {})))
+ (describe
+  "void-statement-ref-pred"
+  (it "checks that voiding statements have an object with the type StatementRef"
+      (should-satisfy+
+       void-statement-ref-pred
+       {"verb" {"id" "http://adlnet.gov/expapi/verbs/voided"}
+        "object" {"objectType" "StatementRef"}}
+       :bad
+       {"verb" {"id" "http://adlnet.gov/expapi/verbs/voided"}
+        "object" {"id" "http://example.com/some/ambiguous/id"}}))))
 
 (describe
  "validation predicate schemata"
@@ -261,4 +272,12 @@
        :bad
        {"object" {"objectType" "Agent"}
         "context" {"registration" "whatever"
-                   "platform" "whatever"}}))))
+                   "platform" "whatever"}}))
+  (it "validates the objectType of voiding statements"
+      (should-satisfy+
+       StatementValidations
+       {"verb" {"id" "http://adlnet.gov/expapi/verbs/voided"}
+        "object" {"objectType" "StatementRef"}}
+       :bad
+       {"verb" {"id" "http://adlnet.gov/expapi/verbs/voided"}
+        "object" {"id" "http://example.com/some/ambiguous/id"}}))))
