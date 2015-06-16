@@ -1,0 +1,63 @@
+mailtoURI    = "mailto:" [ to ] [ hfields ]
+
+atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
+                       "!" / "#" /        ;  characters not including
+                       "$" / "%" /        ;  specials.  Used for atoms.
+                       "&" / "'" /
+                       "*" / "+" /
+                       "-" / "/" /
+                       "=" / "?" /
+                       "^" / "_" /
+                       "`" / "{" /
+                       "|" / "}" /
+                       "~"
+
+dot-atom-text   =   1*atext *("." 1*atext)
+
+qtext           =   "!" /             ; Printable US-ASCII
+                       %x23-5B /          ;  characters not including
+                       %x5D-7E         ;  "\" or the quote character
+
+obs-qp          =   "\" ("" / LF / CR)
+
+quoted-pair     =   ("\" (VCHAR / WSP)) / obs-qp
+
+qcontent        =   qtext / quoted-pair
+
+obs-FWS         =   1*WSP *(CRLF 1*WSP)
+
+FWS             =   ([*WSP CRLF] 1*WSP) /  obs-FWS
+                                          ; Folding white space
+
+ctext           =   %x21-27 /          ; Printable US-ASCII
+                    %x2A-5B /          ;  characters not including
+                    %x5D-7E          ;  "(", ")", or "\"
+
+ccontent        =   ctext / quoted-pair / comment
+
+comment         =   "(" *([FWS] ccontent) [FWS] ")"
+
+CFWS            =   (1*([FWS] comment) [FWS]) / FWS
+
+quoted-string   =   [CFWS]
+                    DQUOTE *([FWS] qcontent) [FWS] DQUOTE
+                    [CFWS]
+
+unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+
+pct-encoded = "%" HEXDIG HEXDIG
+
+to           = addr-spec *("," addr-spec )
+hfields      = "?" hfield *( "&" hfield )
+hfield       = hfname "=" hfvalue
+hfname       = *qchar
+hfvalue      = *qchar
+addr-spec    = local-part "@" domain
+local-part   = dot-atom-text / quoted-string
+domain       = dot-atom-text / "[" *dtext-no-obs "]"
+dtext-no-obs = %x21-5A / ; Printable US-ASCII
+               %x5E-7E  ; characters not including
+                         ; "[", "]", or "\"
+qchar        = unreserved / pct-encoded / some-delims
+some-delims  = "!" / "$" / "'" / "(" / ")" / "*"
+                   / "+" / "," / ";" / ":" / "@"

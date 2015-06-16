@@ -8,7 +8,8 @@
                  [prismatic/schema "0.4.3"]
                  [cheshire "5.4.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
-                 [com.taoensso/tower "3.1.0-beta3"]]
+                 [com.taoensso/tower "3.1.0-beta3"]
+                 [com.lucasbradstreet/instaparse-cljs "1.4.0.0-SNAPSHOT"]]
   :exclusions [[org.clojure/clojure]
                [org.clojure/clojurescript]]
   :plugins [[lein-cljsbuild "1.0.6"]
@@ -30,22 +31,22 @@
                    :rules :cljs}]}
 
   :cljsbuild {:builds [{:id "dev"
-                        :source-paths ["target/classes/cljs"]
+                        :source-paths ["target/classes/cljs" "target/classes/clj"]
                         :compiler {:output-to "target/js/xapi_schema_dev.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}
                        {:id "test"
-                        :source-paths ["target/classes/cljs" "target/spec/cljs" "spec/clj"]
+                        :source-paths ["target/classes/cljs" "target/classes/clj" "target/spec/cljs" "spec/clj"]
                         :compiler {:output-to "target/js/xapi_schema_test.js"
                                    :optimizations :whitespace
                                    :pretty-print true}
                         :notify-command ["phantomjs" "bin/speclj" "target/js/xapi_schema_test.js"]}
                        {:id "test-browser"
-                        :source-paths ["target/classes/cljs"]
+                        :source-paths ["target/classes/cljs" "target/classes/clj"]
                         :compiler {:output-to "resources/public/xapi_schema.js"
                                    :optimizations :advanced}}
                        {:id "release"
-                        :source-paths ["target/classes/cljs"]
+                        :source-paths ["target/classes/cljs" "target/classes/clj"]
                         :compiler {:output-to "target/js/xapi_schema.js"
                                    :optimizations :advanced}}]
               :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_test.js"]}}
