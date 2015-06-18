@@ -134,8 +134,13 @@
  (it "is a valid ISO 8601 Duration"
      (should-satisfy+ Duration
                       "P3Y6M4DT12H30M5S"
+                      "P3Y6M4DT12H30M5.2S" ;; good fractional
                       :bad
-                      "2 hours")))
+                      "2 hours"
+                      "P"
+                      "PT"
+                      "P3Y6M4DT12H30.1M5S" ;; bad fractional
+                      )))
 
 (describe
  "Version"
