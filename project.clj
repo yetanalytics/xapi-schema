@@ -9,7 +9,7 @@
                  [cheshire "5.4.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [com.taoensso/tower "3.1.0-beta3"]
-                 [com.lucasbradstreet/instaparse-cljs "1.4.0.0-SNAPSHOT"]]
+                 [com.yetanalytics/instaparse-cljs "1.4.0.0-SNAPSHOT"]]
   :exclusions [[org.clojure/clojure]
                [org.clojure/clojurescript]]
   :plugins [[lein-cljsbuild "1.0.6"]

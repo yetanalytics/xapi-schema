@@ -6,8 +6,8 @@
                                                                  rfc-3339-iso-date-time-abnf
                                                                  rfc-3339-duration-abnf
                                                                  rfc-4122-uuid-abnf]])
-  (:require [instaparse.core :as insta]))
-
+  (:require [instaparse.core :as insta]
+            [instaparse.abnf :as abnf]))
 
 (defmacro rfc-6068-mailto-abnf []
   (slurp "resources/grammars/rfc_6068.abnf"))
@@ -19,8 +19,6 @@
 
 (defn rfc-6068-mailto? [maybe-mailto]
         (not (insta/failure? (rfc-6068-mailto maybe-mailto))))
-
-
 
 
 (defmacro std-66-uri-abnf []
@@ -58,13 +56,13 @@
 (defmacro rfc-5646-ltag-abnf []
   (slurp "resources/grammars/rfc_5646.abnf"))
 
-#+clj (def rfc-5646-ltag
-        (insta/parser
-         (rfc-5646-ltag-abnf)
-         :input-format :abnf))
+(def rfc-5646-ltag
+  (insta/parser
+   (rfc-5646-ltag-abnf)
+   :input-format :abnf))
 
-#+clj (defn rfc-5646-ltag? [maybe-ltag]
-        (not (insta/failure? (rfc-5646-ltag maybe-ltag))))
+(defn rfc-5646-ltag? [maybe-ltag]
+  (not (insta/failure? (rfc-5646-ltag maybe-ltag))))
 
 
 
