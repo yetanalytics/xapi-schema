@@ -133,10 +133,10 @@ If you want to use validations from JavaScript, first build the js:
 =target/js/xapi_schema.js= and invoke:
 
 #+BEGIN_SRC javascript
-var statement-str = '{"id":"fd41c918-b88b-4b20-a0a5-a4c32391aaa0", "actor":{"objectType": "Agent","name":"Project Tin Can API","mbox":"mailto:user@example.com"},"verb":{"id":"http://example.com/xapi/verbs#sent-a-statement","display":{ "en-US":"sent" }},"object":{"id":"http://example.com/xapi/activity/simplestatement","definition":{"name":{ "en-US":"simple statement" },"description":{ "en-US":"A simple Experience API statement. Note that the LRS does not need to have any prior information about the Actor (learner), the verb, or the Activity/object." }}}}';
-var statement-json = JSON.parse(s);
-xapi_schema.core.validate_statement_data_js(statement-str); // => statement JSON
-xapi_schema.core.validate_statement_data_js(statement-json); // => statement JSON
+var statement_str = '{"id":"fd41c918-b88b-4b20-a0a5-a4c32391aaa0", "actor":{"objectType": "Agent","name":"Project Tin Can API","mbox":"mailto:user@example.com"},"verb":{"id":"http://example.com/xapi/verbs#sent-a-statement","display":{ "en-US":"sent" }},"object":{"id":"http://example.com/xapi/activity/simplestatement","definition":{"name":{ "en-US":"simple statement" },"description":{ "en-US":"A simple Experience API statement. Note that the LRS does not need to have any prior information about the Actor (learner), the verb, or the Activity/object." }}}}';
+var statement_json = JSON.parse(s);
+xapi_schema.core.validate_statement_data_js(statement_str); // => statement JSON
+xapi_schema.core.validate_statement_data_js(statement_json); // => statement JSON
 #+END_SRC
 
 ** Testing

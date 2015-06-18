@@ -124,8 +124,11 @@
  (it "is a valid ISO 8601 DateTime"
      (should-satisfy+ Timestamp
                       "2014-09-10T14:12:05Z"
+                      "2015-06-30T23:59:60Z" ;; leap second
                       :bad
-                      "09-10-2014T14:12:00+500")))
+                      "09-10-2014T14:12:00+500"
+                      "2014-09-12T03:47:40" ;; no time zone
+                      )))
 (describe
  "Duration"
  (it "is a valid ISO 8601 Duration"
@@ -142,8 +145,20 @@
                       "1.0.1"
                       "1.0.2"
                       "1.0.3"
+                      "1.0.3-rc1"
+                      "1.0.0-alpha"
+                      "1.0.0-alpha.1"
+                      "1.0.0-0.3.7"
+                      "1.0.0-x.7.z.92"
                       :bad
                       "0.9.5"
+                      "1.0." ;; bad semver
+                      "1.0.0-.123"
+                      "1.0.0-..."
+                      "1.0.0-123."
+                      "1.0.0-+"
+                      "1.0.0-+123"
+                      "1.0.0-"
                       "what's going on?")))
 
 (describe
