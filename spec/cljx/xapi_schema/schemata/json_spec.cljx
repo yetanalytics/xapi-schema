@@ -134,7 +134,9 @@
      (should-satisfy+ Duration
                       "P3Y6M4DT12H30M5S"
                       :bad
-                      "2 hours")))
+                      "2 hours"
+                      "P"
+                      "PT")))
 
 (describe
  "Version"
