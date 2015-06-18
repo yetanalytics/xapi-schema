@@ -39,7 +39,9 @@
           (it "matches valid mailto IRIs"
               (should (re-matches MailToIRIRegEx "mailto:milt@yetanalytics.com"))
               (should-not (re-matches MailToIRIRegEx "http://foo.com"))
-              (should-not (re-matches MailToIRIRegEx "milt@yetanalytics.com"))))
+              (should-not (re-matches MailToIRIRegEx "milt@yetanalytics.com"))
+              (should-not (re-matches MailToIRIRegEx "mi%lt@yetanalytics.com"))
+              (should (re-matches MailToIRIRegEx "mailto:mi%0Alt@yetanalytics.com"))))
 
 (describe "UuidRegEx"
           (it "matches valid 4.0 UUIDs"

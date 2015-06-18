@@ -86,6 +86,7 @@
      (should-satisfy+ MailToIRI
                       "mailto:milt@yetanalytics.com"
                       :bad
+                      "mailto:user%@example.com"
                       "milt@yetanalytics.com")))
 
 (describe
