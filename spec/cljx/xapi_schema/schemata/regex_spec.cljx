@@ -62,7 +62,10 @@
 
 (describe "DurationRegEx"
           (it "matches ISO durations"
-              (should (re-matches DurationRegEx "P3Y6M4DT12H30M5S"))))
+              (should (re-matches DurationRegEx "P3Y6M4DT12H30M5S"))
+              (should (re-matches DurationRegEx "P23DT122.34S"))
+              (should-not (re-matches DurationRegEx "PT"))
+              (should-not (re-matches DurationRegEx "P10.3DT1.7S"))))
 
 (describe "Base64RegEx"
           (it "matches Base64 encoded stuff"
