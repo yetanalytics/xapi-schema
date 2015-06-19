@@ -30,28 +30,28 @@
                    :rules :cljs}]}
 
   :cljsbuild {:builds [{:id "dev"
-                        :source-paths ["target/classes/cljs"]
+                        :source-paths ["src/cljc" "target/classes/cljs"]
                         :compiler {:output-to "target/js/xapi_schema_dev.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}
                        {:id "test"
-                        :source-paths ["target/classes/cljs" "target/spec/cljs" "spec/clj"]
+                        :source-paths ["src/cljc" "spec/cljc" "target/classes/cljs" "target/spec/cljs" "spec/clj"]
                         :compiler {:output-to "target/js/xapi_schema_test.js"
                                    :optimizations :whitespace
                                    :pretty-print true}
                         :notify-command ["phantomjs" "bin/speclj" "target/js/xapi_schema_test.js"]}
                        {:id "test-browser"
-                        :source-paths ["target/classes/cljs"]
+                        :source-paths ["src/cljc" "target/classes/cljs"]
                         :compiler {:output-to "resources/public/xapi_schema.js"
                                    :optimizations :advanced}}
                        {:id "release"
-                        :source-paths ["target/classes/cljs"]
+                        :source-paths ["src/cljc" "target/classes/cljs"]
                         :compiler {:output-to "target/js/xapi_schema.js"
                                    :optimizations :advanced}}]
               :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_test.js"]}}
-  :source-paths ["target/classes/clj"]
+  :source-paths ["src/cljc" "target/classes/clj"]
   :resource-paths ["resources" "target/classes/cljs"]
-  :test-paths ["target/classes/clj" "target/spec/clj" "spec/clj"]
+  :test-paths ["spec/cljc" "target/classes/clj" "target/spec/clj" "spec/clj"]
   :prep-tasks [["cljx" "once"] "javac" "compile"]
   :aliases {"build-once" ["do" "clean," "cljx" "once"]
             "deploy-lib" ["do" "build-once," "deploy" "clojars"]
