@@ -13,47 +13,31 @@
                [org.clojure/clojurescript]]
   :plugins [[lein-cljsbuild "1.0.6"]
             [speclj "3.2.0"]]
-  :profiles {:dev {:dependencies [[speclj "3.2.0"]]
-                   :plugins [[com.keminglabs/cljx "0.6.0" :exclusions [org.clojure/clojure]]]}}
-
-  :cljx {:builds [{:source-paths ["src/cljx"]
-                   :output-path "target/classes/clj"
-                   :rules :clj}
-                  {:source-paths ["src/cljx"]
-                   :output-path "target/classes/cljs"
-                   :rules :cljs}
-                  {:source-paths ["spec/cljx"]
-                   :output-path "target/spec/clj"
-                   :rules :clj}
-                  {:source-paths ["spec/cljx"]
-                   :output-path "target/spec/cljs"
-                   :rules :cljs}]}
+  :profiles {:dev {:dependencies [[speclj "3.2.0"]]}}
 
   :cljsbuild {:builds [{:id "dev"
-                        :source-paths ["src/cljc" "target/classes/cljs"]
+                        :source-paths ["src/cljc"]
                         :compiler {:output-to "target/js/xapi_schema_dev.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}
                        {:id "test"
-                        :source-paths ["src/cljc" "spec/cljc" "target/classes/cljs" "target/spec/cljs" "spec/clj"]
+                        :source-paths ["src/cljc" "spec/cljc" "spec/clj"]
                         :compiler {:output-to "target/js/xapi_schema_test.js"
                                    :optimizations :whitespace
                                    :pretty-print true}
                         :notify-command ["phantomjs" "bin/speclj" "target/js/xapi_schema_test.js"]}
                        {:id "test-browser"
-                        :source-paths ["src/cljc" "target/classes/cljs"]
+                        :source-paths ["src/cljc"]
                         :compiler {:output-to "resources/public/xapi_schema.js"
                                    :optimizations :advanced}}
                        {:id "release"
-                        :source-paths ["src/cljc" "target/classes/cljs"]
+                        :source-paths ["src/cljc"]
                         :compiler {:output-to "target/js/xapi_schema.js"
                                    :optimizations :advanced}}]
               :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_test.js"]}}
-  :source-paths ["src/cljc" "target/classes/clj"]
-  :resource-paths ["resources" "target/classes/cljs"]
-  :test-paths ["spec/cljc" "target/classes/clj" "target/spec/clj" "spec/clj"]
-  :prep-tasks [["cljx" "once"] "javac" "compile"]
-  :aliases {"build-once" ["do" "clean," "cljx" "once"]
-            "deploy-lib" ["do" "build-once," "deploy" "clojars"]
+  :source-paths ["src/cljc"]
+  :resource-paths ["resources"]
+  :test-paths ["spec/cljc" "spec/clj"]
+  :aliases {"deploy-lib" ["deploy" "clojars"]
             "spec-clj" ["do" "clean," "spec"]
-            "spec-cljs" ["do" "clean," "cljx," "cljsbuild" "once" "test"]})
+            "spec-cljs" ["do" "clean," "cljsbuild" "once" "test"]})
