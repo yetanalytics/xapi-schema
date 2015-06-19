@@ -1,8 +1,8 @@
 (ns xapi-schema.support.data
-  #+cljs (:require-macros [xapi-schema.support.macros :refer [load-json
+  #?(:cljs (:require-macros [xapi-schema.support.macros :refer [load-json
                                                               load-json-map]])
-  #+clj (:require [xapi-schema.support.macros :refer [load-json
-                                                      load-json-map]]))
+     :clj (:require [xapi-schema.support.macros :refer [load-json
+                                                      load-json-map]])))
 
 (def language-tag
   "en-US")

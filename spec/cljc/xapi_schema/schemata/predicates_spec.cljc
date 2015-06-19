@@ -1,36 +1,36 @@
 (ns xapi-schema.schemata.predicates-spec
-  #+cljs (:require-macros [speclj.core :refer [describe context with it should should= should-not run-specs pending]])
-  #+cljs (:require [speclj.core]
-                   [xapi-schema.schemata.predicates :refer [ifi-count
-                                                            no-multi-ifi?
-                                                            ifi-present?
-                                                            no-ifi?
-                                                            unique-ids?
-                                                            valid-component-keys?
-                                                            valid-revision?
-                                                            valid-platform?
-                                                            valid-context-pred
-                                                            regex-pred
-                                                            no-multi-ifi-pred
-                                                            one-ifi-required-pred
-                                                            void-statement-ref-pred
-                                                            AgentValidations
-                                                            GroupValidations
-                                                            InteractionComponentsValidations
-                                                            DefinitionValidations
-                                                            ScoreValidations
-                                                            StatementValidations]]
-                   [schema.core :as s
-                    :include-macros true]
-                   [xapi-schema.support.schema :refer [should-satisfy
-                                                       should-not-satisfy
-                                                       should-satisfy+]])
-  #+clj (:require [speclj.core :refer :all]
-                  [schema.core :as s]
-                  [xapi-schema.schemata.predicates :refer :all]
-                  [xapi-schema.support.schema :refer [should-satisfy
-                                                      should-not-satisfy
-                                                      should-satisfy+]]))
+  #?@(:cljs [(:require-macros [speclj.core :refer [describe context with it should should= should-not run-specs pending]])
+             (:require [speclj.core]
+                       [xapi-schema.schemata.predicates :refer [ifi-count
+                                                                no-multi-ifi?
+                                                                ifi-present?
+                                                                no-ifi?
+                                                                unique-ids?
+                                                                valid-component-keys?
+                                                                valid-revision?
+                                                                valid-platform?
+                                                                valid-context-pred
+                                                                regex-pred
+                                                                no-multi-ifi-pred
+                                                                one-ifi-required-pred
+                                                                void-statement-ref-pred
+                                                                AgentValidations
+                                                                GroupValidations
+                                                                InteractionComponentsValidations
+                                                                DefinitionValidations
+                                                                ScoreValidations
+                                                                StatementValidations]]
+                       [schema.core :as s
+                        :include-macros true]
+                       [xapi-schema.support.schema :refer [should-satisfy
+                                                           should-not-satisfy
+                                                           should-satisfy+]])])
+  #?(:clj (:require [speclj.core :refer :all]
+                    [schema.core :as s]
+                    [xapi-schema.schemata.predicates :refer :all]
+                    [xapi-schema.support.schema :refer [should-satisfy
+                                                        should-not-satisfy
+                                                        should-satisfy+]])))
 
 (describe
  "ifi predicates"

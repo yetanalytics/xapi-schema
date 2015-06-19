@@ -1,35 +1,35 @@
 (ns xapi-schema.schemata.util-spec
-  #+cljs (:require-macros [speclj.core :refer [describe
-                                               context
-                                               with
-                                               it
-                                               should
-                                               should=
-                                               should-not
-                                               run-specs
-                                               should-not-throw]])
-  #+cljs (:require [speclj.core]
-                   [xapi-schema.schemata.util :refer [check-type
-                                                      object-type-dispatch
-                                                      error->string
-                                                      errors->data
-                                                      named-error?
-                                                      validation-error?
-                                                      leaves-and-paths
-                                                      errors->paths]]
-                   [xapi-schema.schemata.json :as json]
-                   [schema.core :as s
-                    :include-macros true]
-                   [schema.utils :as su]
-                   [clojure.walk :refer [postwalk]]
-                   [xapi-schema.support.data :as d])
-  #+clj (:require [speclj.core :refer :all]
-                  [schema.core :as s]
-                  [schema.utils :as su]
-                  [xapi-schema.schemata.util :refer :all]
-                  [xapi-schema.schemata.json :as json]
-                  [clojure.walk :refer [postwalk]]
-                  [xapi-schema.support.data :as d]))
+  #?@(:cljs [(:require-macros [speclj.core :refer [describe
+                                                   context
+                                                   with
+                                                   it
+                                                   should
+                                                   should=
+                                                   should-not
+                                                   run-specs
+                                                   should-not-throw]])
+             (:require [speclj.core]
+                       [xapi-schema.schemata.util :refer [check-type
+                                                          object-type-dispatch
+                                                          error->string
+                                                          errors->data
+                                                          named-error?
+                                                          validation-error?
+                                                          leaves-and-paths
+                                                          errors->paths]]
+                       [xapi-schema.schemata.json :as json]
+                       [schema.core :as s
+                        :include-macros true]
+                       [schema.utils :as su]
+                       [clojure.walk :refer [postwalk]]
+                       [xapi-schema.support.data :as d])])
+  #?(:clj (:require [speclj.core :refer :all]
+                    [schema.core :as s]
+                    [schema.utils :as su]
+                    [xapi-schema.schemata.util :refer :all]
+                    [xapi-schema.schemata.json :as json]
+                    [clojure.walk :refer [postwalk]]
+                    [xapi-schema.support.data :as d])))
 
 (describe
  "leaves-and-paths"
@@ -222,8 +222,8 @@
            (fn [node]
              (if (or (named-error? node)
                      (validation-error? node))
-               (throw (#+clj Exception.
-                             #+cljs js/Error. "error obj found!"))
+               (throw (#?(:clj Exception.
+                          :cljs js/Error.) "error obj found!"))
                node))
            (errors->data @err))))
      (it "converts all predicate and scalar errors to strings"

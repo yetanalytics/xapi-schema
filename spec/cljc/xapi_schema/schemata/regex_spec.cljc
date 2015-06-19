@@ -1,18 +1,18 @@
 (ns xapi-schema.schemata.regex-spec
-  #+cljs (:require-macros [speclj.core :refer [describe it should should= should-not run-specs]])
-  #+cljs (:require [speclj.core]
-                   [xapi-schema.schemata.regex :refer [LanguageTagRegEx
-                                                       URIRegEx
-                                                       AbsoluteIRIRegEx
-                                                       MailToIRIRegEx
-                                                       UuidRegEx
-                                                       TimestampRegEx
-                                                       xAPIVersionRegEx
-                                                       DurationRegEx
-                                                       Base64RegEx
-                                                       Sha1RegEx]])
-  #+clj (:require [speclj.core :refer :all]
-                  [xapi-schema.schemata.regex :refer :all]))
+  #?@(:cljs [(:require-macros [speclj.core :refer [describe it should should= should-not run-specs]])
+             (:require [speclj.core]
+                       [xapi-schema.schemata.regex :refer [LanguageTagRegEx
+                                                           URIRegEx
+                                                           AbsoluteIRIRegEx
+                                                           MailToIRIRegEx
+                                                           UuidRegEx
+                                                           TimestampRegEx
+                                                           xAPIVersionRegEx
+                                                           DurationRegEx
+                                                           Base64RegEx
+                                                           Sha1RegEx]])])
+  #?(:clj (:require [speclj.core :refer :all]
+                    [xapi-schema.schemata.regex :refer :all])))
 
 (describe "LanguageTagRegex"
           (it "matches valid Language Tags"
