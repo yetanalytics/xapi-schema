@@ -1,9 +1,9 @@
-(defproject com.yetanalytics/xapi-schema "0.1.2"
+(defproject com.yetanalytics/xapi-schema "0.1.3-SNAPSHOT"
   :description "Clojure(script) Schema for the Experience API v1.0.3"
   :url "https://github.com/yetanalytics/xapi-schema"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.7.0-RC1"]
+  :dependencies [[org.clojure/clojure "1.7.0-RC2"]
                  [org.clojure/clojurescript "0.0-3308"]
                  [prismatic/schema "0.4.3"]
                  [cheshire "5.5.0"]
