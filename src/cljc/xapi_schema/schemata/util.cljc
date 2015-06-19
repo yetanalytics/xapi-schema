@@ -1,20 +1,20 @@
 (ns xapi-schema.schemata.util
-  #+clj (:require
-         [schema.core :as s]
-         [schema.utils :as su]
-         [clojure.core.match :refer [match]]
-         [clojure.walk :refer [prewalk]]
-         [clojure.zip :as zip]
-         [xapi-schema.schemata.i18n :refer [t]]
-         [clojure.string :as string])
-  #+cljs (:require
-          [schema.core :as s :include-macros true]
-          [schema.utils :as su]
-          [cljs.core.match :refer-macros [match]]
-          [clojure.walk :refer [prewalk]]
-          [clojure.zip :as zip]
-          [xapi-schema.schemata.i18n :refer [t]]
-          [clojure.string :as string]))
+  #?(:clj (:require
+           [schema.core :as s]
+           [schema.utils :as su]
+           [clojure.core.match :refer [match]]
+           [clojure.walk :refer [prewalk]]
+           [clojure.zip :as zip]
+           [xapi-schema.schemata.i18n :refer [t]]
+           [clojure.string :as string])
+     :cljs (:require
+            [schema.core :as s :include-macros true]
+            [schema.utils :as su]
+            [cljs.core.match :refer-macros [match]]
+            [clojure.walk :refer [prewalk]]
+            [clojure.zip :as zip]
+            [xapi-schema.schemata.i18n :refer [t]]
+            [clojure.string :as string])))
 
 
 
@@ -87,24 +87,27 @@
          [(['integer? value] :seq)] (str (t ltag :integer) ": " value)
 
          ;; catch cljs string schema, as it is just string?
-         #+cljs
-         [([(what :guard (partial = string?)) value] :seq)]
-         #+cljs
-         (str (t ltag :string) ": " value)
+         #?@(:cljs
+             [[([(what :guard (partial = string?)) value] :seq)]
+              (str (t ltag :string) ": " value)])
 
          [(['instance? klass value] :seq)]
-         (str (cond
-                #+clj (= klass java.lang.String)
-                #+clj (str (t ltag :string) ": ")
-
-                #+clj (= klass java.lang.Number)
-                #+cljs (= klass s/Num)
-                (str (t ltag :number) ": ")
-                #+clj (= klass java.lang.Boolean)
-                #+cljs (= klass s/Bool)
-                (str (t ltag :boolean) ": ")
-                :else
-                "unknown instance? predicate: ")
+         (str #?(:clj (cond
+                        (= klass java.lang.String)
+                        (str (t ltag :string) ": ")
+                        (= klass java.lang.Number)
+                        (str (t ltag :number) ": ")
+                        (= klass java.lang.Boolean)
+                        (str (t ltag :boolean) ": ")
+                        :else
+                        "unknown instance? predicate: ")
+              :cljs (cond
+                      (= klass s/Num)
+                      (str (t ltag :number) ": ")
+                      (= klass s/Bool)
+                      (str (t ltag :boolean) ": ")
+                      :else
+                      "unknown instance? predicate : "))
               value)
          [(['= what value] :seq)]
          (str what ": " value)
@@ -146,8 +149,8 @@
 
 (defn- strip-named [node]
   (if (named-error? node)
-    (let [name #+clj (.name node) #+cljs (.-name node)
-          error #+clj (.error node) #+cljs (.-error node)]
+    (let [name #?(:clj (.name node) :cljs (.-name node))
+          error #?(:clj (.error node) :cljs (.-error node))]
       (strip-named error))
     node))
 

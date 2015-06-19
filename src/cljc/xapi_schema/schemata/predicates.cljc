@@ -4,9 +4,9 @@
                         difference]]
    [xapi-schema.schemata.regex :refer [AbsoluteIRIRegEx
                                        UuidRegEx]]
-   #+clj [schema.core :as s]
-   #+cljs [schema.core :as s
-           :include-macros true]))
+   #?(:clj [schema.core :as s]
+      :cljs [schema.core :as s
+             :include-macros true])))
 
 ;; IFI predicates
 (defn ifi-count
