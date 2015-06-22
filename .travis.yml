@@ -1,7 +1,6 @@
 language: clojure
 script:
-- lein spec
-- lein cljsbuild once test
+- lein ci
 notifications:
   webhooks:
     urls:

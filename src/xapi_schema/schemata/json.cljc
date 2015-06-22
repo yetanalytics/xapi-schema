@@ -18,9 +18,9 @@
                                        Base64RegEx
                                        Sha1RegEx]]
    [xapi-schema.schemata.util :refer [check-type object-type-dispatch]]
-   #+clj [schema.core :as s]
-   #+cljs [schema.core :as s
-           :include-macros true]))
+   #?(:clj [schema.core :as s]
+      :cljs [schema.core :as s
+             :include-macros true])))
 
 
 ;; Component schema

@@ -1,62 +1,62 @@
 (ns xapi-schema.schemata.json-spec
-  #+cljs (:require-macros [speclj.core :refer [describe context with it should should= should-not run-specs pending]])
-  #+cljs (:require [speclj.core]
-                   [xapi-schema.schemata.json :refer [LanguageTag
-                                                      LanguageMap
-                                                      IRI
-                                                      MailToIRI
-                                                      IRL
-                                                      Extensions
-                                                      OpenID
-                                                      UuidId
-                                                      Timestamp
-                                                      Duration
-                                                      Version
-                                                      Sha2
-                                                      Sha1Sum
-                                                      InteractionComponent
-                                                      InteractionComponents
-                                                      Definition
-                                                      Activity
-                                                      Account
-                                                      Agent
-                                                      Group
-                                                      Actor
-                                                      Verb
-                                                      Score
-                                                      Result
-                                                      StatementRef
-                                                      ContextStatementRef
-                                                      ContextActivitiesArray
-                                                      ContextActivities
-                                                      Context
-                                                      Attachment
-                                                      UrlAttachment
-                                                      Attachments
-                                                      SubStatement
-                                                      OAuthConsumer
-                                                      ThreeLeggedOAuthGroup
-                                                      Authority
-                                                      StatementObject
-                                                      Statement
-                                                      Statements]]
-                   [schema.core :as s
-                    :include-macros true]
-                   [xapi-schema.support.schema :refer [should-satisfy
-                                                       should-not-satisfy
-                                                       should-satisfy+
-                                                       key-should-satisfy+]]
-                   [xapi-schema.support.data :as d :refer [simple-statement
-                                                           long-statement]])
-  #+clj (:require [speclj.core :refer :all]
-                  [schema.core :as s]
-                  [xapi-schema.schemata.json :refer :all]
-                  [xapi-schema.support.data :as d :refer [simple-statement
-                                                          long-statement]]
-                  [xapi-schema.support.schema :refer [should-satisfy
-                                                      should-not-satisfy
-                                                      should-satisfy+
-                                                      key-should-satisfy+]]))
+  #?@(:cljs [(:require-macros [speclj.core :refer [describe context with it should should= should-not run-specs pending]])
+             (:require [speclj.core]
+                       [xapi-schema.schemata.json :refer [LanguageTag
+                                                          LanguageMap
+                                                          IRI
+                                                          MailToIRI
+                                                          IRL
+                                                          Extensions
+                                                          OpenID
+                                                          UuidId
+                                                          Timestamp
+                                                          Duration
+                                                          Version
+                                                          Sha2
+                                                          Sha1Sum
+                                                          InteractionComponent
+                                                          InteractionComponents
+                                                          Definition
+                                                          Activity
+                                                          Account
+                                                          Agent
+                                                          Group
+                                                          Actor
+                                                          Verb
+                                                          Score
+                                                          Result
+                                                          StatementRef
+                                                          ContextStatementRef
+                                                          ContextActivitiesArray
+                                                          ContextActivities
+                                                          Context
+                                                          Attachment
+                                                          UrlAttachment
+                                                          Attachments
+                                                          SubStatement
+                                                          OAuthConsumer
+                                                          ThreeLeggedOAuthGroup
+                                                          Authority
+                                                          StatementObject
+                                                          Statement
+                                                          Statements]]
+                       [schema.core :as s
+                        :include-macros true]
+                       [xapi-schema.support.schema :refer [should-satisfy
+                                                           should-not-satisfy
+                                                           should-satisfy+
+                                                           key-should-satisfy+]]
+                       [xapi-schema.support.data :as d :refer [simple-statement
+                                                               long-statement]])])
+  #?(:clj (:require [speclj.core :refer :all]
+                    [schema.core :as s]
+                    [xapi-schema.schemata.json :refer :all]
+                    [xapi-schema.support.data :as d :refer [simple-statement
+                                                            long-statement]]
+                    [xapi-schema.support.schema :refer [should-satisfy
+                                                        should-not-satisfy
+                                                        should-satisfy+
+                                                        key-should-satisfy+]])))
 
 (describe
  "LanguageTag"
