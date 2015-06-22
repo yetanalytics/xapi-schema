@@ -16,28 +16,27 @@
   :profiles {:dev {:dependencies [[speclj "3.3.0"]]}}
 
   :cljsbuild {:builds [{:id "dev"
-                        :source-paths ["src/cljc"]
+                        :source-paths ["src" "spec"]
                         :compiler {:output-to "target/js/xapi_schema_dev.js"
                                    :optimizations :whitespace
-                                   :pretty-print true}}
-                       {:id "test"
-                        :source-paths ["src/cljc" "spec/cljc" "spec/clj"]
-                        :compiler {:output-to "target/js/xapi_schema_test.js"
-                                   :optimizations :whitespace
                                    :pretty-print true}
-                        :notify-command ["phantomjs" "bin/speclj" "target/js/xapi_schema_test.js"]}
+                        :notify-command ["phantomjs" "bin/speclj" "target/js/xapi_schema_dev.js"]
+                        }
                        {:id "test-browser"
-                        :source-paths ["src/cljc"]
+                        :source-paths ["src"]
                         :compiler {:output-to "resources/public/xapi_schema.js"
                                    :optimizations :advanced}}
                        {:id "release"
-                        :source-paths ["src/cljc"]
+                        :source-paths ["src"]
                         :compiler {:output-to "target/js/xapi_schema.js"
                                    :optimizations :advanced}}]
-              :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_test.js"]}}
-  :source-paths ["src/cljc"]
+              :test-commands {"test" ["phantomjs"  "bin/speclj" "target/js/xapi_schema_dev.js"]}}
   :resource-paths ["resources"]
-  :test-paths ["spec/cljc" "spec/clj"]
-  :aliases {"deploy-lib" ["deploy" "clojars"]
-            "spec-clj" ["do" "clean," "spec"]
-            "spec-cljs" ["do" "clean," "cljsbuild" "once" "test"]})
+  :test-paths ["spec" "dev"]
+  :aliases {"cljs" ["do" "clean," "run" "-m" "xapi-schema.dev.cljs"]
+            "spec" ["do" "run" "-m" "xapi-schema.dev.spec"]
+            "ci"   ["do" "spec," "cljs"]}
+  ;; :aliases {"deploy-lib" ["deploy" "clojars"]
+  ;;           "spec-clj" ["do" "clean," "spec"]
+  ;;           "spec-cljs" ["do" "clean," "cljsbuild" "once" "test"]}
+  )

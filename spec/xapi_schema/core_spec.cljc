@@ -1,28 +1,43 @@
 (ns xapi-schema.core-spec
+  #?(:clj (:require
+           [speclj.core :refer [describe
+                                it
+                                should
+                                should=
+                                should-not
+                                context
+                                with
+                                should-be-nil
+                                should-not-be-nil
+                                should-throw]]
+           [speclj.platform]
+           [speclj.components]
+           [speclj.run.standard :refer [run-specs]]
+           [xapi-schema.core :refer :all]
+           [xapi-schema.support.data :as d :refer [long-statement]]
+           [cheshire.core :as c]))
   #?@(:cljs [(:require-macros [speclj.core :refer [describe
-                                                  it
-                                                  should
-                                                  should=
-                                                  should-not
-                                                  run-specs
-                                                  context
-                                                  with
-                                                  should-be-nil
-                                                  should-not-be-nil
-                                                  should-throw]])
-            (:require [speclj.core]
-                      [xapi-schema.core :refer [statement-checker
-                                                statements-checker
-                                                validate-statement
-                                                validate-statements
-                                                validate-statement-data*
-                                                validate-statement-data
-                                                validate-statement-data-js]]
-                      [xapi-schema.support.data :as d :refer [long-statement]])])
-  #?(:clj (:require [speclj.core :refer :all]
-                    [xapi-schema.core :refer :all]
-                    [xapi-schema.support.data :as d :refer [long-statement]]
-                    [cheshire.core :as c])))
+                                                   it
+                                                   should
+                                                   should=
+                                                   should-not
+                                                   context
+                                                   with
+                                                   should-be-nil
+                                                   should-not-be-nil
+                                                   should-throw]])
+             (:require [speclj.core]
+                       [speclj.platform]
+                       [speclj.components]
+                       [speclj.run.standard :refer [run-specs]]
+                       [xapi-schema.core :refer [statement-checker
+                                                 statements-checker
+                                                 validate-statement
+                                                 validate-statements
+                                                 validate-statement-data*
+                                                 validate-statement-data
+                                                 validate-statement-data-js]]
+                       [xapi-schema.support.data :as d :refer [long-statement]])]))
 
 (describe
  "statement-checker"
@@ -101,3 +116,5 @@
         (should (aget @js-statement "id")) ;;assert it is a js obj to begin
         (should= (long-statement "id")
                  (aget (validate-statement-data-js @js-statement) "id")))))
+
+(run-specs)
