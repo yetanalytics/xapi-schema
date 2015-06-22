@@ -143,11 +143,11 @@ xapi_schema.core.validate_statement_data_js(statement_json); // => statement JSO
 
 *** Clojure
 
-=$ lein spec= or =$ lein spec-clj= (alias)
+=$ lein spec-clj=
 
 *** ClojureScript
 
-=$lein cljsbuild once test= or =$ lein spec-cljs= (alias)
+=$ lein spec-cljs=
 
 ** License
 
