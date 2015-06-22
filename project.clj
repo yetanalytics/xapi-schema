@@ -12,8 +12,8 @@
   :exclusions [[org.clojure/clojure]
                [org.clojure/clojurescript]]
   :plugins [[lein-cljsbuild "1.0.6"]
-            [speclj "3.2.0"]]
-  :profiles {:dev {:dependencies [[speclj "3.2.0"]]}}
+            [speclj "3.3.0"]]
+  :profiles {:dev {:dependencies [[speclj "3.3.0"]]}}
 
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src/cljc"]
