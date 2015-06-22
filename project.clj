@@ -15,7 +15,7 @@
   :profiles {:dev {:dependencies [[speclj "3.3.0"]]}}
 
   :cljsbuild {:builds [{:id "dev"
-                        :source-paths ["src" "spec"]
+                        :source-paths ["src"]
                         :compiler {:output-to "target/js/xapi_schema_dev.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}
@@ -26,6 +26,6 @@
   :resource-paths ["resources"]
   :test-paths ["spec" "dev"]
   :aliases {"deploy-lib" ["do" "clean," "deploy" "clojars"]
-            "cljs" ["do" "clean," "run" "-m" "xapi-schema.dev.cljs"]
-            "spec" ["do" "run" "-m" "xapi-schema.dev.spec"]
-            "ci"   ["do" "spec," "cljs"]})
+            "spec-cljs" ["do" "clean," "run" "-m" "xapi-schema.dev.cljs"]
+            "spec-clj" ["do" "run" "-m" "xapi-schema.dev.spec"]
+            "ci"   ["do" "spec-clj," "spec-cljs"]})
