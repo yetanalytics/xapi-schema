@@ -303,28 +303,33 @@
   "Anonymous Groups"
   (it "must have a member property"
       (should-satisfy+ Group
-                       {"member" [{"mbox" "mailto:milt@yetanalytics.com"}]}
+                       {"member" [{"mbox" "mailto:milt@yetanalytics.com"}]
+                        "objectType" "Group"}
                        :bad
-                       {}
-                       {"member" []})))
+                       {"objectType" "Group"}
+                       {"member" []
+                        "objectType" "Group"})))
  (context
   "Identified Group"
   (it "must have one or no IFI"
       (should-satisfy+ Group
-                       {"mbox" "mailto:milt@yetanalytics.com"}
-                       :bad
-                       {}
                        {"mbox" "mailto:milt@yetanalytics.com"
-                        "openid" "https://some.site.com/foo"})))
+                        "objectType" "Group"}
+                       :bad
+                       {"objectType" "Group"}
+                       {"mbox" "mailto:milt@yetanalytics.com"
+                        "openid" "https://some.site.com/foo"
+                        "objectType" "Group"})))
  (context
   "objectType"
-  (it "must be Group if provided"
-      (key-should-satisfy+ Group
-                           {"mbox" "mailto:milt@yetanalytics.com"}
-                           "objectType"
-                           "Group"
-                           :bad
-                           "Agent"))))
+  (it "must be present and be Group"
+      (should-satisfy+ Group
+                       {"mbox" "mailto:somegroup@yetanalytics.com"
+                        "objectType" "Group"}
+                       :bad
+                       {"mbox" "mailto:so@yetanalytics.com"}
+                       {"mbox" "mailto:somegroup@yetanalytics.com"
+                        "objectType" "Agent"}))))
 
 (describe
  "Verb"
