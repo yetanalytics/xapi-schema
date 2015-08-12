@@ -280,10 +280,18 @@
 
 
 (s/defschema
-  ContextActivities
+  ContextActivitiesArray
   (s/named
    [(s/one Activity :predicates/at-least-one-activity) Activity]
    "Context Activities Array"))
+
+(s/defschema
+  ContextActivities
+  (s/named
+   (s/if map?
+     Activity
+     ContextActivitiesArray)
+   "Context Activities"))
 
 (s/defschema
   ContextActivitiesMap
