@@ -409,7 +409,17 @@
 (describe
  "Context"
  (it "can be empty"
-     (should-satisfy Context {})))
+     (should-satisfy Context {}))
+ (describe
+  "team"
+  (it "must be a group"
+      (should-satisfy+ Context
+                       {"team" {"mbox" "mailto:a@b.com"
+                                "objectType" "Group"}}
+                       :bad
+                       {"team" {"mbox" "mailto:a@b.com"}}
+                       {"team" {"mbox" "mailto:a@b.com"
+                                "objectType" "Agent"}}))))
 
 (describe
  "Attachment"
