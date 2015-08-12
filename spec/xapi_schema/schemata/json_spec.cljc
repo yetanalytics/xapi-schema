@@ -389,7 +389,7 @@
 
 (describe
  "ContextActivities"
- (it "is an array of activities"
+ (it "is an array of 1+ activities or single activity"
      (should-satisfy+ ContextActivities
                       [{"id" "http://foo.bar/baz"
                         "objectType" "Activity"}]
@@ -397,6 +397,8 @@
                         "objectType" "Activity"}
                        {"id" "http://foo.bar/biz"
                         "objectType" "Activity"}]
+                      {"id" "http://foo.bar/baz"
+                       "objectType" "Activity"}
                       :bad
                       []
                       ["foo"])))
