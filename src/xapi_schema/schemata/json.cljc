@@ -280,19 +280,19 @@
 
 
 (s/defschema
-  ContextActivitiesArray
+  ContextActivities
   (s/named
    [(s/one Activity :predicates/at-least-one-activity) Activity]
    "Context Activities Array"))
 
 (s/defschema
-  ContextActivities
+  ContextActivitiesMap
   (s/named
-   {(s/optional-key "parent") ContextActivitiesArray
-    (s/optional-key "grouping") ContextActivitiesArray
-    (s/optional-key "category") ContextActivitiesArray
-    (s/optional-key "other") ContextActivitiesArray}
-   "Context Activities Object"))
+   {(s/optional-key "parent") ContextActivities
+    (s/optional-key "grouping") ContextActivities
+    (s/optional-key "category") ContextActivities
+    (s/optional-key "other") ContextActivities}
+   "Context Activities Map"))
 
 (s/defschema
   Context
@@ -300,7 +300,7 @@
    {(s/optional-key "registration") UuidId
     (s/optional-key "instructor") Actor
     (s/optional-key "team") Group
-    (s/optional-key "contextActivities") ContextActivities
+    (s/optional-key "contextActivities") ContextActivitiesMap
     (s/optional-key "revision") s/Str
     (s/optional-key "platform") s/Str
     (s/optional-key "language") LanguageTag

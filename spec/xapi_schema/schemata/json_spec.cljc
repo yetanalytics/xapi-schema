@@ -27,8 +27,8 @@
                                                           Result
                                                           StatementRef
                                                           ContextStatementRef
-                                                          ContextActivitiesArray
                                                           ContextActivities
+                                                          ContextActivitiesMap
                                                           Context
                                                           Attachment
                                                           UrlAttachment
@@ -388,9 +388,9 @@
                         "id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}))))
 
 (describe
- "ContextActivitiesArray"
+ "ContextActivities"
  (it "is an array of activities"
-     (should-satisfy+ ContextActivitiesArray
+     (should-satisfy+ ContextActivities
                       [{"id" "http://foo.bar/baz"
                         "objectType" "Activity"}]
                       [{"id" "http://foo.bar/baz"
@@ -402,9 +402,9 @@
                       ["foo"])))
 
 (describe
- "ContextActivities"
+ "ContextActivitiesMap"
  (it "can be empty"
-     (should-satisfy ContextActivities {})))
+     (should-satisfy ContextActivitiesMap {})))
 
 (describe
  "Context"
