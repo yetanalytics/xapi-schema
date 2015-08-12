@@ -31,7 +31,9 @@
           (it "matches valid absolute IRIs"
               (should (re-matches AbsoluteIRIRegEx "http://foo.com"))
               (should-not (re-matches AbsoluteIRIRegEx "foo.com"))
-              (should-not (re-matches AbsoluteIRIRegEx "www.foo.com")))
+              (should-not (re-matches AbsoluteIRIRegEx "www.foo.com"))
+              (should (re-matches AbsoluteIRIRegEx "foo:/a"))
+              (should (re-matches AbsoluteIRIRegEx "foo+bar.baz-quxx:/a")))
           (it "matches IRIs with fragments"
               (should (re-matches AbsoluteIRIRegEx "http://example.com/xapi/verbs#sent-a-statement"))))
 
