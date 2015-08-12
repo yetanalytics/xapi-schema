@@ -213,7 +213,7 @@
   Group
   (s/named
    (s/both
-    {(s/optional-key "objectType") (s/both s/Str (s/eq "Group")) ;; Group
+    {(s/required-key "objectType") (s/both s/Str (s/eq "Group")) ;; Group
      (s/optional-key "name") s/Str
      (s/optional-key "mbox") MailToIRI
      (s/optional-key "mbox_sha1sum") Sha1Sum
