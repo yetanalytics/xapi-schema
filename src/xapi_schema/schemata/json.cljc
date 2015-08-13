@@ -8,7 +8,7 @@
                                             ScoreValidations
                                             StatementValidations]]
    [xapi-schema.schemata.regex :refer [LanguageTagRegEx
-                                       URIRegEx
+                                       OpenIdRegEx
                                        AbsoluteIRIRegEx
                                        MailToIRIRegEx
                                        UuidRegEx
@@ -81,7 +81,7 @@
   OpenID
   (s/named
    (s/both s/Str
-           (regex-pred URIRegEx
+           (regex-pred OpenIdRegEx
                        :predicates/valid-openid))
    "OpenId URL"))
 
