@@ -26,7 +26,6 @@
                                                           Score
                                                           Result
                                                           StatementRef
-                                                          ContextStatementRef
                                                           ContextActivitiesArray
                                                           ContextActivities
                                                           Context
@@ -374,18 +373,6 @@
                         "id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}
                        {"id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}))))
 
-(describe
- "ContextStatementRef"
- (context
-  "objectType"
-  (it "is not required but must be StatementRef"
-      (should-satisfy+ ContextStatementRef
-                       {"objectType" "StatementRef"
-                        "id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}
-                       {"id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}
-                       :bad
-                       {"objectType" "foo"
-                        "id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}))))
 
 (describe
  "ContextActivitiesArray"

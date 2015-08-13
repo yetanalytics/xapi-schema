@@ -269,15 +269,6 @@
                                    (s/eq "StatementRef"))}
    "Statement Reference"))
 
-(s/defschema
-  ContextStatementRef
-  (s/named
-   {(s/required-key "id") UuidId
-    (s/optional-key "objectType") (s/both
-                                   s/Str
-                                   (s/eq "StatementRef"))}
-   "Context Statement Reference"))
-
 
 (s/defschema
   ContextActivitiesArray
@@ -304,7 +295,7 @@
     (s/optional-key "revision") s/Str
     (s/optional-key "platform") s/Str
     (s/optional-key "language") LanguageTag
-    (s/optional-key "statement") ContextStatementRef
+    (s/optional-key "statement") StatementRef
     (s/optional-key "extensions") Extensions}
    "Context"))
 
