@@ -28,6 +28,7 @@
                                                           StatementRef
                                                           ContextActivitiesArray
                                                           ContextActivities
+                                                          ContextActivitiesMap
                                                           Context
                                                           Attachment
                                                           UrlAttachment
@@ -380,23 +381,25 @@
 
 
 (describe
- "ContextActivitiesArray"
- (it "is an array of activities"
-     (should-satisfy+ ContextActivitiesArray
+ "ContextActivities"
+ (it "is an array of 1+ activities or single activity"
+     (should-satisfy+ ContextActivities
                       [{"id" "http://foo.bar/baz"
                         "objectType" "Activity"}]
                       [{"id" "http://foo.bar/baz"
                         "objectType" "Activity"}
                        {"id" "http://foo.bar/biz"
                         "objectType" "Activity"}]
+                      {"id" "http://foo.bar/baz"
+                       "objectType" "Activity"}
                       :bad
                       []
                       ["foo"])))
 
 (describe
- "ContextActivities"
+ "ContextActivitiesMap"
  (it "can be empty"
-     (should-satisfy ContextActivities {})))
+     (should-satisfy ContextActivitiesMap {})))
 
 (describe
  "Context"
