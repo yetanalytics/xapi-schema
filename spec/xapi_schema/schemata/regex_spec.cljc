@@ -2,7 +2,6 @@
   #?@(:cljs [(:require-macros [speclj.core :refer [describe it should should= should-not run-specs]])
              (:require [speclj.core]
                        [xapi-schema.schemata.regex :refer [LanguageTagRegEx
-                                                           URIRegEx
                                                            AbsoluteIRIRegEx
                                                            MailToIRIRegEx
                                                            UuidRegEx
@@ -10,7 +9,8 @@
                                                            xAPIVersionRegEx
                                                            DurationRegEx
                                                            Base64RegEx
-                                                           Sha1RegEx]])])
+                                                           Sha1RegEx
+                                                           OpenIdRegEx]])])
   #?(:clj (:require [speclj.core :refer :all]
                     [xapi-schema.schemata.regex :refer :all])))
 
@@ -19,19 +19,24 @@
               (should (re-matches LanguageTagRegEx "en-US"))
               (should-not (re-matches LanguageTagRegEx "not a language tag"))))
 
-(describe "URIRegex"
+(describe "OpenIdRegEx"
           (it "matches valid URIs"
-              (should (re-matches URIRegEx "www.foo.com"))
-              (should (re-matches URIRegEx "foo.com"))
-              (should-not (re-matches URIRegEx "hey dude wat")))
+              (should (re-matches OpenIdRegEx "http://www.foo.com"))
+              (should-not (re-matches OpenIdRegEx "www.foo.com"))
+              (should-not (re-matches OpenIdRegEx "foo.com"))
+              (should-not (re-matches OpenIdRegEx "hey dude wat")))
           (it "matches URIs with fragments"
-              (should (re-matches URIRegEx "http://example.com/xapi/verbs#sent-a-statement"))))
+              (should (re-matches OpenIdRegEx "http://example.com/xapi/verbs#sent-a-statement"))))
 
 (describe "AbsoluteIRIRegEx"
           (it "matches valid absolute IRIs"
               (should (re-matches AbsoluteIRIRegEx "http://foo.com"))
               (should-not (re-matches AbsoluteIRIRegEx "foo.com"))
-              (should-not (re-matches AbsoluteIRIRegEx "www.foo.com")))
+              (should-not (re-matches AbsoluteIRIRegEx "www.foo.com"))
+              ;; See issue 17 https://github.com/yetanalytics/xapi-schema/issues/17
+              (should (re-matches AbsoluteIRIRegEx "foo:/a"))
+              (should (re-matches AbsoluteIRIRegEx "foo+bar.baz-quxx:/a"))
+              (should (re-matches AbsoluteIRIRegEx "reallydamnlongschemeoverhere://foo.bar")))
           (it "matches IRIs with fragments"
               (should (re-matches AbsoluteIRIRegEx "http://example.com/xapi/verbs#sent-a-statement"))))
 

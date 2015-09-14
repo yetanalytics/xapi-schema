@@ -8,7 +8,7 @@
                                             ScoreValidations
                                             StatementValidations]]
    [xapi-schema.schemata.regex :refer [LanguageTagRegEx
-                                       URIRegEx
+                                       OpenIdRegEx
                                        AbsoluteIRIRegEx
                                        MailToIRIRegEx
                                        UuidRegEx
@@ -81,7 +81,7 @@
   OpenID
   (s/named
    (s/both s/Str
-           (regex-pred URIRegEx
+           (regex-pred OpenIdRegEx
                        :predicates/valid-openid))
    "OpenId URL"))
 
@@ -213,7 +213,7 @@
   Group
   (s/named
    (s/both
-    {(s/optional-key "objectType") (s/both s/Str (s/eq "Group")) ;; Group
+    {(s/required-key "objectType") (s/both s/Str (s/eq "Group")) ;; Group
      (s/optional-key "name") s/Str
      (s/optional-key "mbox") MailToIRI
      (s/optional-key "mbox_sha1sum") Sha1Sum
@@ -269,15 +269,6 @@
                                    (s/eq "StatementRef"))}
    "Statement Reference"))
 
-(s/defschema
-  ContextStatementRef
-  (s/named
-   {(s/required-key "id") UuidId
-    (s/optional-key "objectType") (s/both
-                                   s/Str
-                                   (s/eq "StatementRef"))}
-   "Context Statement Reference"))
-
 
 (s/defschema
   ContextActivitiesArray
@@ -312,7 +303,7 @@
     (s/optional-key "revision") s/Str
     (s/optional-key "platform") s/Str
     (s/optional-key "language") LanguageTag
-    (s/optional-key "statement") ContextStatementRef
+    (s/optional-key "statement") StatementRef
     (s/optional-key "extensions") Extensions}
    "Context"))
 

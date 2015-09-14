@@ -26,7 +26,7 @@
                                                           Score
                                                           Result
                                                           StatementRef
-                                                          ContextStatementRef
+                                                          ContextActivitiesArray
                                                           ContextActivities
                                                           ContextActivitiesMap
                                                           Context
@@ -303,28 +303,33 @@
   "Anonymous Groups"
   (it "must have a member property"
       (should-satisfy+ Group
-                       {"member" [{"mbox" "mailto:milt@yetanalytics.com"}]}
+                       {"member" [{"mbox" "mailto:milt@yetanalytics.com"}]
+                        "objectType" "Group"}
                        :bad
-                       {}
-                       {"member" []})))
+                       {"objectType" "Group"}
+                       {"member" []
+                        "objectType" "Group"})))
  (context
   "Identified Group"
   (it "must have one or no IFI"
       (should-satisfy+ Group
-                       {"mbox" "mailto:milt@yetanalytics.com"}
-                       :bad
-                       {}
                        {"mbox" "mailto:milt@yetanalytics.com"
-                        "openid" "https://some.site.com/foo"})))
+                        "objectType" "Group"}
+                       :bad
+                       {"objectType" "Group"}
+                       {"mbox" "mailto:milt@yetanalytics.com"
+                        "openid" "https://some.site.com/foo"
+                        "objectType" "Group"})))
  (context
   "objectType"
-  (it "must be Group if provided"
-      (key-should-satisfy+ Group
-                           {"mbox" "mailto:milt@yetanalytics.com"}
-                           "objectType"
-                           "Group"
-                           :bad
-                           "Agent"))))
+  (it "must be present and be Group"
+      (should-satisfy+ Group
+                       {"mbox" "mailto:somegroup@yetanalytics.com"
+                        "objectType" "Group"}
+                       :bad
+                       {"mbox" "mailto:so@yetanalytics.com"}
+                       {"mbox" "mailto:somegroup@yetanalytics.com"
+                        "objectType" "Agent"}))))
 
 (describe
  "Verb"
@@ -374,18 +379,6 @@
                         "id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}
                        {"id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}))))
 
-(describe
- "ContextStatementRef"
- (context
-  "objectType"
-  (it "is not required but must be StatementRef"
-      (should-satisfy+ ContextStatementRef
-                       {"objectType" "StatementRef"
-                        "id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}
-                       {"id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}
-                       :bad
-                       {"objectType" "foo"
-                        "id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}))))
 
 (describe
  "ContextActivities"
@@ -411,7 +404,17 @@
 (describe
  "Context"
  (it "can be empty"
-     (should-satisfy Context {})))
+     (should-satisfy Context {}))
+ (describe
+  "team"
+  (it "must be a group"
+      (should-satisfy+ Context
+                       {"team" {"mbox" "mailto:a@b.com"
+                                "objectType" "Group"}}
+                       :bad
+                       {"team" {"mbox" "mailto:a@b.com"}}
+                       {"team" {"mbox" "mailto:a@b.com"
+                                "objectType" "Agent"}}))))
 
 (describe
  "Attachment"
