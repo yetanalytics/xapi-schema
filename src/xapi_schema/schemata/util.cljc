@@ -84,11 +84,13 @@
          [([(what :guard keyword?) value] :seq)] (str (t ltag what) ": " value)
          [(['sequential? value] :seq)] (str (t ltag :sequential) ": " value)
          [(['map? value] :seq)] (str (t ltag :map) ": " value)
-         [(['integer? value] :seq)] (str (t ltag :integer) ": " value)
+         [#?(:clj
+             (['integer? value] :seq)
+             :cljs
+             (['cljs$core$integer? value] :seq))] (str (t ltag :integer) ": " value)
 
-         ;; catch cljs string schema, as it is just string?
          #?@(:cljs
-             [[([(what :guard (partial = string?)) value] :seq)]
+             [[(['cljs$core$string? value] :seq)]
               (str (t ltag :string) ": " value)])
 
          [(['instance? klass value] :seq)]
