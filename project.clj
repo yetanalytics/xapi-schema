@@ -4,14 +4,14 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "1.7.28"]
-                 [prismatic/schema "0.4.3"]
+                 [org.clojure/clojurescript "1.7.122"]
+                 [prismatic/schema "1.0.1"]
                  [cheshire "5.5.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [com.taoensso/tower "3.1.0-beta3"]]
   :exclusions [[org.clojure/clojure]
                [org.clojure/clojurescript]]
-  :plugins [[lein-cljsbuild "1.0.6"]]
+  :plugins [[lein-cljsbuild "1.1.0"]]
   :profiles {:dev {:dependencies [[speclj "3.3.1"]]}}
 
   :cljsbuild {:builds [{:id "dev"
