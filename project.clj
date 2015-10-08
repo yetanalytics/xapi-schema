@@ -1,4 +1,4 @@
-(defproject com.yetanalytics/xapi-schema "0.1.6-SNAPSHOT"
+(defproject com.yetanalytics/xapi-schema "0.1.7-SNAPSHOT"
   :description "Clojure(script) Schema for the Experience API v1.0.3"
   :url "https://github.com/yetanalytics/xapi-schema"
   :license {:name "Eclipse Public License"
@@ -8,7 +8,8 @@
                  [prismatic/schema "1.0.1"]
                  [cheshire "5.5.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
-                 [com.taoensso/tower "3.1.0-beta3"]]
+                 [com.taoensso/tower "3.1.0-beta3"]
+                 [slingshot "0.12.2"]]
   :exclusions [[org.clojure/clojure]
                [org.clojure/clojurescript]]
   :plugins [[lein-cljsbuild "1.1.0"]]
