@@ -4,7 +4,6 @@
            [schema.utils :as su]
            [clojure.core.match :refer [match]]
            [clojure.walk :refer [prewalk]]
-           [clojure.zip :as zip]
            [xapi-schema.schemata.i18n :refer [t]]
            [clojure.string :as string])
      :cljs (:require
@@ -12,55 +11,26 @@
             [schema.utils :as su]
             [cljs.core.match :refer-macros [match]]
             [clojure.walk :refer [prewalk]]
-            [clojure.zip :as zip]
             [xapi-schema.schemata.i18n :refer [t]]
             [clojure.string :as string])))
 
 
+(defn map->flatmap
+  ([map] (map->flatmap [] map))
+  ([path map]
+   (reduce-kv (fn [m k v]
+                (let [prefixed-path (conj path k)]
+                  (merge m (if (or (map? v)
+                                   (vector? v))
+                             (map->flatmap prefixed-path v)
+                             {prefixed-path v}))))
+              {}
+              map)))
 
-
-(defn map-zipper [m]
-  (zip/zipper
-   (fn [x] (or (map? x) (map? (nth x 1))))
-   (fn [x] (seq (if (map? x) x (nth x 1))))
-   (fn [x children]
-     (if (map? x)
-       (into {} children)
-       (assoc x 1 (into {} children))))
-   m))
-
-(defn vec-map [data]
+(defn flipmap [m]
   (into {}
-        (map-indexed
-         (fn [idx item]
-           [idx item])
-         data)))
-
-(defn leaves-and-paths [data]
-  (loop [mzip (map-zipper (if (vector? data)
-                            (vec-map data)
-                            data))
-           l-p-map {}]
-      (cond
-        (nil? mzip) l-p-map
-        (zip/branch? mzip) (recur
-                            (if (= {} (second (zip/node mzip)))
-                              (zip/remove mzip)
-                              (zip/down mzip))
-                            l-p-map)
-        (vector? (second (zip/node mzip)))
-        (recur (zip/edit mzip (fn [[k v]]
-                                [k (vec-map v)]))
-               l-p-map)
-        :else
-        (let [[k v] (zip/node mzip)
-              path (conj
-                    (mapv first (rest (zip/path mzip)))
-                    k)]
-          (recur
-           (zip/remove mzip)
-           (assoc l-p-map
-                  v path))))))
+        (for [[k v] m]
+          [v k])))
 
 
 (defn check-type
@@ -156,7 +126,9 @@
       (strip-named error))
     node))
 
-(defn errors->data [e & [ltag]]
+(defn errors->data
+  "return errors in the shape of validated data"
+  [e & [ltag]]
   (let [ltag (or ltag
                  :en)]
     (prewalk
@@ -166,6 +138,9 @@
         ltag))
      e)))
 
-(defn errors->paths [e & [ltag]]
-  (leaves-and-paths
-   (errors->data e ltag)))
+(defn errors->paths
+  "return a map of errors to their (vector) paths"
+  [e & [ltag]]
+  (-> (errors->data e ltag)
+      map->flatmap
+      flipmap))
