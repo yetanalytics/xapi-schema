@@ -32,6 +32,8 @@
         (for [[k v] m]
           [v k])))
 
+(def leaves-and-paths
+  (comp flipmap map->flatmap))
 
 (defn check-type
   "make a predicate to check for a given object type"
@@ -141,6 +143,4 @@
 (defn errors->paths
   "return a map of errors to their (vector) paths"
   [e & [ltag]]
-  (-> (errors->data e ltag)
-      map->flatmap
-      flipmap))
+  (leaves-and-paths (errors->data e ltag)))
