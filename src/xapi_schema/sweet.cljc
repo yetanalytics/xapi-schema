@@ -3,7 +3,7 @@
 
 (defn valid? [stmt]
   (try
-   (validate-statement-data stmt)
+   (xapi/validate-statement-data stmt)
    true
    #?(:clj (catch Exception)
       false
