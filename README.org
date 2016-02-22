@@ -3,9 +3,9 @@
 #+EMAIL: milt@yetanalytics.com, jason@yetanalytics.com
 
 [[https://travis-ci.org/yetanalytics/xapi-schema][https://travis-ci.org/yetanalytics/xapi-schema.svg?branch=master]]
-[[http://www.jarkeeper.com/yetanalytics/xapi-schema][http://jarkeeper.com/yetanalytics/xapi-schema/status.png]]
+[[https://www.jarkeeper.com/yetanalytics/xapi-schema][http://jarkeeper.com/yetanalytics/xapi-schema/status.png]]
 [[https://www.eclipse.org/legal/epl-v10.html][https://img.shields.io/badge/license-Eclipse-blue.svg]]
-[[http://clojars.org/com.yetanalytics/xapi-schema][https://img.shields.io/clojars/v/com.yetanalytics/xapi-schema.svg]]
+[[https://clojars.org/com.yetanalytics/xapi-schema][https://img.shields.io/clojars/v/com.yetanalytics/xapi-schema.svg]]
 
 [[https://gitter.im/yetanalytics/xapi-schema?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge][https://badges.gitter.im/Join%20Chat.svg]]
 
