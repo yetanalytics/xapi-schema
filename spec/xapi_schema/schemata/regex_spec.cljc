@@ -38,7 +38,8 @@
               (should (re-matches AbsoluteIRIRegEx "foo+bar.baz-quxx:/a"))
               (should (re-matches AbsoluteIRIRegEx "reallydamnlongschemeoverhere://foo.bar")))
           (it "matches IRIs with fragments"
-              (should (re-matches AbsoluteIRIRegEx "http://example.com/xapi/verbs#sent-a-statement"))))
+              (should (re-matches AbsoluteIRIRegEx "http://example.com/xapi/verbs#sent-a-statement"))
+              (should (re-matches AbsoluteIRIRegEx "http://example.com/xapi/foo/#bar?my_jimmies=rustled"))))
 
 (describe "MailtToIRIRegEx"
           (it "matches valid mailto IRIs"
