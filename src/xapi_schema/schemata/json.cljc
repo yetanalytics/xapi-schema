@@ -1,7 +1,6 @@
 (ns xapi-schema.schemata.json
   (:require
-   [xapi-schema.schemata.predicates :refer [regex-pred
-                                            re-pred
+   [xapi-schema.schemata.predicates :refer [re-pred
                                             unique-ids?
                                             valid-component-keys?
                                             no-multi-ifi?
@@ -13,13 +12,7 @@
                                             two-members?
                                             valid-revision?
                                             valid-platform?
-                                            valid-void?
-                                            InteractionComponentsValidations
-                                            DefinitionValidations
-                                            AgentValidations
-                                            GroupValidations
-                                            ScoreValidations
-                                            StatementValidations]]
+                                            valid-void?]]
    [xapi-schema.schemata.regex :refer [LanguageTagRegEx
                                        OpenIdRegEx
                                        AbsoluteIRIRegEx

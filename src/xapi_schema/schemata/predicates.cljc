@@ -1,12 +1,7 @@
 (ns xapi-schema.schemata.predicates
   (:require
    [clojure.set :refer [intersection
-                        difference]]
-   [xapi-schema.schemata.regex :refer [AbsoluteIRIRegEx
-                                       UuidRegEx]]
-   #?(:clj [schema.core :as s]
-      :cljs [schema.core :as s
-             :include-macros true])))
+                        difference]]))
 
 ;; IFI predicates
 (defn ifi-count
@@ -138,80 +133,8 @@
     (= (get object "objectType") "StatementRef")
     true))
 
-;; Predicate schemata, builders
-
-(def valid-context-pred
-  (s/both (s/pred valid-revision? :predicates/revision-not-allowed)
-          (s/pred valid-platform? :predicates/platform-not-allowed)))
-
+;; util
 (defn re-pred
   [re]
   #(not
     (nil? (re-matches re %))))
-
-(defn regex-pred
-  [regex message]
-  (s/pred #(not (nil? (re-matches regex %)))
-          message))
-
-(def no-multi-ifi-pred
-  (s/pred no-multi-ifi? :predicates/no-multi-ifi))
-
-(def one-ifi-required-pred
-  (s/both no-multi-ifi-pred
-          (s/pred ifi-present? :predicates/no-ifi)))
-
-(def void-statement-ref-pred
-  (s/pred (fn [{:strs [verb object]}]
-            (if (= (get verb "id") "http://adlnet.gov/expapi/verbs/voided")
-              (= (get object "objectType") "StatementRef")
-              true))
-          :predicates/void-statement-ref))
-
-
-;; validation predicate schemata
-
-
-;; TODO: remove
-(def AgentValidations
-  one-ifi-required-pred)
-
-;; TODO: remove
-(def GroupValidations
-  (s/conditional ifi-present? no-multi-ifi-pred ;; identified group, only one IFI
-                 :else (s/pred (fn [{:strs [member]}]
-                                 (not (nil? member))) :predicates/no-anon-group-member)))
-
-;; TODO: remove
-(def InteractionComponentsValidations
-  (s/pred unique-ids? :predicates/distinct-ic-ids))
-
-;; TODO: remove
-(def DefinitionValidations
-  (s/pred valid-component-keys? :predicates/valid-component-keys))
-
-;; TODO: remove
-(def ScoreValidations
-  (s/both (s/pred (fn
-                    [x]
-                    (let [{:strs [raw max]} x]
-                      (if (and raw max)
-                        (<= raw max)
-                        true))) :predicates/score-lt-max)
-          (s/pred (fn
-                    [x]
-                      (let [{:strs [raw min]} x]
-                        (if (and raw min)
-                          (>= raw min)
-                          true))) :predicates/score-gt-min)
-          (s/pred (fn
-                    [x]
-                    (let [{:strs [min max]} x]
-                      (if (and min max)
-                        (< min max)
-                        true))) :predicates/score-lt-max)))
-
-(def StatementValidations
-  (s/both
-   valid-context-pred
-   void-statement-ref-pred))
