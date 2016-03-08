@@ -164,17 +164,16 @@
      (s/optional-key "description") LanguageMap
      (s/optional-key "correctResponsesPattern") [s/Str]
      (s/optional-key "interactionType")
-     (s/both s/Str
-             (s/enum "true-false"
-                     "choice"
-                     "fill-in"
-                     "long-fill-in"
-                     "matching"
-                     "performance"
-                     "sequencing"
-                     "likert"
-                     "numeric"
-                     "other"))
+     (s/enum "true-false"
+             "choice"
+             "fill-in"
+             "long-fill-in"
+             "matching"
+             "performance"
+             "sequencing"
+             "likert"
+             "numeric"
+             "other")
      (s/optional-key "type") IRI
      (s/optional-key "moreInfo") IRL
      (s/optional-key "choices") InteractionComponents
