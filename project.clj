@@ -12,8 +12,12 @@
                  [slingshot "0.12.2"]]
   :exclusions [[org.clojure/clojure]
                [org.clojure/clojurescript]]
-  :plugins [[lein-cljsbuild "1.1.2"]]
-  :profiles {:dev {:dependencies [[speclj "3.3.1"]]}}
+
+  :plugins [[lein-cljsbuild "1.1.3"]]
+
+  :profiles {:dev {:dependencies [[speclj "3.3.1"]
+                                  [com.cemerick/piggieback "0.2.1"]]
+                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
 
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src"]
