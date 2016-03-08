@@ -35,6 +35,17 @@
   (= (ifi-count x)
      0))
 
+;; anon group
+
+(defn has-members?
+  [{:strs [member]}]
+  (seq member))
+
+;; three-legged-oauth group
+
+(defn two-members? [m]
+  (= 2 (count m)))
+
 ;; interaction component predicates
 
 (defn unique-ids?
@@ -98,11 +109,45 @@
       true
       (not platform-present?))))
 
+;; Score pred fns
+
+(defn score-raw-lte-max
+  [x]
+  (let [{:strs [raw max]} x]
+    (if (and raw max)
+      (<= raw max)
+      true)))
+
+(defn score-raw-gte-min
+  [x]
+  (let [{:strs [raw min]} x]
+    (if (and raw min)
+      (>= raw min)
+      true)))
+
+(defn score-min-lt-max
+  [x]
+  (let [{:strs [min max]} x]
+    (if (and min max)
+      (< min max)
+      true)))
+
+;; statement predicate fns
+(defn valid-void? [{:strs [verb object]}]
+  (if (= (get verb "id") "http://adlnet.gov/expapi/verbs/voided")
+    (= (get object "objectType") "StatementRef")
+    true))
+
 ;; Predicate schemata, builders
 
 (def valid-context-pred
   (s/both (s/pred valid-revision? :predicates/revision-not-allowed)
           (s/pred valid-platform? :predicates/platform-not-allowed)))
+
+(defn re-pred
+  [re]
+  #(not
+    (nil? (re-matches re %))))
 
 (defn regex-pred
   [regex message]
@@ -126,21 +171,26 @@
 
 ;; validation predicate schemata
 
+
+;; TODO: remove
 (def AgentValidations
   one-ifi-required-pred)
 
+;; TODO: remove
 (def GroupValidations
   (s/conditional ifi-present? no-multi-ifi-pred ;; identified group, only one IFI
                  :else (s/pred (fn [{:strs [member]}]
                                  (not (nil? member))) :predicates/no-anon-group-member)))
 
+;; TODO: remove
 (def InteractionComponentsValidations
   (s/pred unique-ids? :predicates/distinct-ic-ids))
 
+;; TODO: remove
 (def DefinitionValidations
   (s/pred valid-component-keys? :predicates/valid-component-keys))
 
-
+;; TODO: remove
 (def ScoreValidations
   (s/both (s/pred (fn
                     [x]
