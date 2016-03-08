@@ -1,7 +1,16 @@
 (ns xapi-schema.schemata.predicates-spec
-  #?@(:cljs [(:require-macros [speclj.core :refer [describe context with it should should= should-not run-specs pending]])
+  #?@(:cljs [(:require-macros [speclj.core :refer [describe
+                                                   context
+                                                   with
+                                                   it
+                                                   should
+                                                   should=
+                                                   should-not
+                                                   run-specs
+                                                   pending]])
              (:require [speclj.core]
-                       [xapi-schema.schemata.predicates :refer [regex-pred
+                       [xapi-schema.schemata.predicates :refer [ifi-count
+                                                                no-ifi?
                                                                 re-pred
                                                                 unique-ids?
                                                                 valid-component-keys?
