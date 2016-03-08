@@ -190,5 +190,7 @@
  "Utils"
  (describe
   "re-pred"
-  (xit "takes a regex, and returns a simple predicate fn"
-      )))
+  (with re #"^[A-Z]$")
+  (it "takes a regex, and returns a simple predicate fn"
+      (should ((re-pred @re) "A"))
+      (should-not ((re-pred @re) "a")))))
