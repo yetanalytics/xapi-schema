@@ -29,124 +29,99 @@
              :include-macros true])))
 
 
-;; Component schema
+;; Scalar schemata
 
 (s/defschema
   LanguageTag
   "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#52-language-map"
   (s/named
-   (s/constrained
-    s/Str
-    (re-pred LanguageTagRegEx)
-    :predicates/valid-ltag)
-   "Language Tag"))
+   LanguageTagRegEx
+   :valid/ltag))
+
+(s/defschema
+  IRI
+  "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#def-iri"
+  (s/named
+   AbsoluteIRIRegEx
+   :valid/iri))
+
+(s/defschema
+  MailToIRI
+  "http://xmlns.com/foaf/spec/#term_mbox"
+  (s/named
+   MailToIRIRegEx
+   :valid/mailto-iri))
+
+(s/defschema
+  IRL
+  (s/named
+   AbsoluteIRIRegEx
+   :valid/irl))
+
+(s/defschema
+  OpenID
+  (s/named
+   OpenIdRegEx
+   :valid/openid))
+
+(s/defschema
+  UuidId
+  (s/named
+   UuidRegEx
+   :valid/uuid))
+
+(s/defschema
+  Timestamp
+  (s/named
+   TimestampRegEx
+   :valid/timestamp))
+
+(s/defschema
+  Duration
+  (s/named
+   DurationRegEx
+   :valid/duration))
+
+(s/defschema
+  Version
+  (s/named
+   xAPIVersionRegEx
+   :valid/xapi-version))
+
+(s/defschema
+  Sha2
+  (s/named
+   Base64RegEx
+   :valid/sha-2-sum))
+
+(s/defschema
+  Sha1Sum
+  (s/named
+   Sha1RegEx
+   :valid/sha-1-sum))
+
+
+;; Composite schemata
+
+(s/defschema
+  Extensions
+  (s/named
+   {IRI s/Any}
+   :xapi/extensions))
 
 (s/defschema
   LanguageMap
   "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#52-language-map"
   (s/named
    {LanguageTag s/Str}
-   "Language Map"))
-
-(s/defschema
-  IRI
-  "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#def-iri"
-  (s/named
-   (s/constrained
-    s/Str
-    (re-pred AbsoluteIRIRegEx)
-    :predicates/valid-iri)
-   "Internationalized Resource Locator"))
-
-(s/defschema
-  MailToIRI
-  "http://xmlns.com/foaf/spec/#term_mbox"
-  (s/named
-   (s/constrained
-    s/Str
-    (re-pred MailToIRIRegEx)
-    :predicates/valid-mailto-iri)
-   "Mailto IRI"))
-
-(s/defschema
-  IRL
-  (s/named
-   (s/constrained
-    s/Str
-    (re-pred AbsoluteIRIRegEx)
-    :predicates/valid-irl)
-   "IRL"))
-
-(s/defschema
-  Extensions
-  (s/named
-   {IRI s/Any}
-   "Extensions Map"))
-
-(s/defschema
-  OpenID
-  (s/named
-   (s/constrained s/Str
-                  (re-pred OpenIdRegEx)
-                  :predicates/valid-openid)
-   "OpenId URL"))
-
-(s/defschema
-  UuidId
-  (s/named
-   (s/constrained s/Str
-                  (re-pred UuidRegEx)
-                  :predicates/valid-uuid)
-   "Uuid"))
-
-(s/defschema
-  Timestamp
-  (s/named
-   (s/constrained s/Str
-                  (re-pred TimestampRegEx)
-                  :predicates/valid-timestamp)
-   "Timestamp"))
-
-(s/defschema
-  Duration
-  (s/named
-   (s/constrained s/Str
-                  (re-pred DurationRegEx)
-                  :predicates/valid-duration)
-   "Duration"))
-
-(s/defschema
-  Version
-  (s/named
-   (s/constrained s/Str
-                  (re-pred xAPIVersionRegEx)
-                  :predicates/valid-xapi-version)
-   "Version"))
-
-(s/defschema
-  Sha2
-  (s/named
-   (s/constrained s/Str
-                  (re-pred Base64RegEx)
-                  :predicates/valid-sha-2-sum)
-   "Sha2"))
-
-(def
-  Sha1Sum
-  (s/named
-   (s/constrained s/Str
-                  (re-pred Sha1RegEx)
-                  :predicates/valid-sha-1-sum)
-   "SHA-1 Sum"))
-
-;; Composite schemas
+   :xapi/language-map))
 
 (s/defschema
   InteractionComponent
   (s/named
    {(s/required-key "id") s/Str
     (s/optional-key "description") LanguageMap}
-   "Interaction Component"))
+   :xapi/interaction-component))
 
 (s/defschema
   InteractionComponents
