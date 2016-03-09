@@ -129,7 +129,7 @@
    (s/constrained [InteractionComponent]
                   unique-ids?
                   :predicates/distinct-ic-ids)
-   "Interaction Components Array"))
+   :xapi/interaction-components))
 
 (s/defschema
   Definition
@@ -159,7 +159,7 @@
      (s/optional-key "extensions") Extensions}
     valid-component-keys?
     :predicates/valid-component-keys)
-   "Activity Definition"))
+   :xapi/definition))
 
 (s/defschema
   Activity
@@ -167,14 +167,14 @@
    {(s/optional-key "objectType") (s/eq "Activity")
     (s/required-key "id") IRI
     (s/optional-key "definition") Definition}
-   "Activity Definition"))
+   :xapi/activity))
 
 (s/defschema
   Account
   (s/named
    {(s/required-key "homePage") IRL
     (s/required-key "name") s/Str}
-   "Account"))
+   :xapi/account))
 
 
 (s/defschema
@@ -189,7 +189,7 @@
 
        (s/constrained ifi-present? :predicates/no-ifi)
        (s/constrained no-multi-ifi? :predicates/no-multi-ifi))
-   "Agent"))
+   :xapi/agent))
 
 (s/defschema
   Group
@@ -213,14 +213,14 @@
             (s/optional-key "member") [(s/one Agent :predicates/at-least-one-agent) Agent]}
            has-members?
            :predicates/no-anon-group-member))
-   "Group"))
+   :xapi/group))
 
 (s/defschema
   Actor
   (s/named
    (object-type-dispatch "Group" Group
                          :else Agent)
-   "Actor"))
+   :xapi/actor))
 
 
 (s/defschema
@@ -228,7 +228,7 @@
   (s/named
    {(s/required-key "id") IRI
     (s/optional-key "display") LanguageMap}
-   "Verb"))
+   :xapi/verb))
 
 
 (s/defschema
@@ -242,7 +242,7 @@
        (s/constrained score-raw-lte-max :predicates/score-lt-max)
        (s/constrained score-raw-gte-min :predicates/score-gt-min)
        (s/constrained score-min-lt-max  :predicates/score-lt-max))
-   "Score"))
+   :xapi/score))
 
 (s/defschema
   Result
@@ -253,21 +253,21 @@
     (s/optional-key "response") s/Str
     (s/optional-key "duration") Duration
     (s/optional-key "extensions") Extensions}
-   "Result"))
+   :xapi/result))
 
 (s/defschema
   StatementRef
   (s/named
    {(s/required-key "id") UuidId
     (s/required-key "objectType") (s/eq "StatementRef")}
-   "Statement Reference"))
+   :xapi/statement-ref))
 
 
 (s/defschema
   ContextActivitiesArray
   (s/named
    [(s/one Activity :predicates/at-least-one-activity) Activity]
-   "Context Activities Array"))
+   :xapi/context-activities-array))
 
 (s/defschema
   ContextActivities
@@ -275,7 +275,7 @@
    (s/if map?
      Activity
      ContextActivitiesArray)
-   "Context Activities"))
+   :xapi/context-activities-single-or-array))
 
 (s/defschema
   ContextActivitiesMap
@@ -284,7 +284,7 @@
     (s/optional-key "grouping") ContextActivities
     (s/optional-key "category") ContextActivities
     (s/optional-key "other") ContextActivities}
-   "Context Activities Map"))
+   :xapi/context-activities-map))
 
 (s/defschema
   Context
@@ -298,7 +298,7 @@
     (s/optional-key "language") LanguageTag
     (s/optional-key "statement") StatementRef
     (s/optional-key "extensions") Extensions}
-   "Context"))
+   :xapi/context))
 
 (s/defschema
   Attachment
@@ -310,7 +310,7 @@
     (s/required-key "length") s/Int ; The length of the attachment data in octets.
     (s/required-key "sha2") Sha2 ; The SHA-2 (SHA-256, SHA-384, SHA-512) hash of the attachment data.
     (s/optional-key "fileUrl") IRL}
-   "File Attachment"))
+   :xapi/file-attachment))
 
 (s/defschema
   UrlAttachment
@@ -322,13 +322,13 @@
     (s/required-key "length") s/Int ; The length of the attachment data in octets.
     (s/required-key "sha2") Sha2 ; The SHA-2 (SHA-256, SHA-384, SHA-512) hash of the attachment data.
     (s/required-key "fileUrl") IRL}
-   "URL Attachment"))
+   :xapi/url-attachment))
 
 (s/defschema
   Attachments
   (s/named
    [(s/one Attachment :predicates/at-least-one-attachement) Attachment]
-   "Attachments Array"))
+   :xapi/attachments))
 
 (s/defschema
   SubStatement
@@ -345,7 +345,7 @@
     (s/optional-key "attachments") Attachments
     (s/optional-key "timestamp") Timestamp
     (s/required-key "objectType") (s/eq "SubStatement")}
-   "SubStatement"))
+   :xapi/sub-statement))
 
 (s/defschema
   OAuthConsumer
@@ -353,7 +353,7 @@
    {(s/optional-key "objectType") (s/eq "Agent") ;; Agent
     (s/optional-key "name") s/Str
     (s/required-key "account") Account}
-   "OAuth Consumer Agent"))
+   :xapi/oauth-consumer))
 
 (s/defschema
   ThreeLeggedOAuthGroup
@@ -369,7 +369,7 @@
                                        :predicates/one-oauth-consumer) Agent]
                                two-members?
                                :predicates/exactly-2-members)}
-   "Three-Legged OAuth Group"))
+   :xapi/three-legged-oauth-group))
 
 (s/defschema
   Authority
@@ -378,7 +378,7 @@
     "Agent" Agent
     "Group" ThreeLeggedOAuthGroup
     :else Agent)
-   "Authority"))
+   :xapi/authority))
 
 (s/defschema
   StatementObject
@@ -390,7 +390,7 @@
     "StatementRef" StatementRef
     "Activity" Activity
     :else Activity)
-   "Statement Object"))
+   :xapi/statement-object))
 
 
 (s/defschema
@@ -412,11 +412,11 @@
        (s/constrained valid-void? :predicates/void-statement-ref)
        (s/constrained valid-revision? :predicates/revision-not-allowed)
        (s/constrained valid-platform? :predicates/platform-not-allowed))
-   "Statement"))
+   :xapi/statement))
 
 (s/defschema
   Statements
   (s/named
    [(s/one Statement :predicates/at-least-one-statement)
     Statement]
-   "Statements"))
+   :xapi/statements))
