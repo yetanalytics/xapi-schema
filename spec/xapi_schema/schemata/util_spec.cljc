@@ -11,7 +11,9 @@
              (:require [speclj.core]
                        [xapi-schema.schemata.util :refer [check-type
                                                           object-type-dispatch
-                                                          error->string
+                                                          error->vec
+                                                          error-val->json
+                                                          errors->json
                                                           errors->data
                                                           named-error?
                                                           validation-error?
@@ -96,99 +98,41 @@
 
 (describe
  "error fns"
+
  (describe
-  "error->string"
-  (context
-   "given a missing key error"
-   (with err (s/check {(s/required-key "foo") s/Str} {}))
-   (it "converts it to an English string"
-       (should= "Missing required key"
-                (error->string  (get
-                                 @err
-                                 "foo")))))
-  (context
-   "given a disallowed key error"
-   (with err (s/check {} {"foo" "bar"}))
-   (it "converts it to an English string"
-       (should= "Key not allowed"
-                (error->string (get
-                                @err
-                                "foo")))))
-  (context
-   "given a NOT validation error"
-   (context
-    "from a predicate"
-    (with err
-          (s/check (s/pred (fn [bar]
-                             (= "bar" bar)) "a bar") "foo"))
-    (it "converts it to an English string"
-        (should= "Not a bar: foo"
-                 (error->string @err))))
-   (context
-    "from a predicate that throws"
-    (with err
-          (s/check (s/pred seq "a sequable thing") true))
-    (it "mentions it"
-        (should= "Not a sequable thing: true (threw)"
-                 (error->string @err))))
-   (context
-    "from a seq schema"
-    (with err
-          (s/check [] {}))
-    (it "converts"
-        (should= "Not sequential: {}"
-                 (error->string @err))))
-   (context
-    "from a map schema"
-    (with err
-          (s/check {} []))
-    (it "converts"
-        (should= "Not map: []"
-                 (error->string @err))))
-   (context
-    "from an integer"
-    (with err
-          (s/check s/Int "foo"))
-    (it "converts"
-        (should= "Not integer: foo"
-                 (error->string @err))))
-   (context
-    "from s/Str"
-    (with err
-          (s/check s/Str 1))
-    (it "converts"
-        (should= "Not string: 1"
-                 (error->string @err))))
-   (context
-    "from s/Num"
-    (with err
-          (s/check s/Num "foo"))
-    (it "converts"
-        (should= "Not number: foo"
-                 (error->string @err))))
-   (context
-    "from s/Bool"
-    (with err
-          (s/check s/Bool "foo"))
-    (it "converts"
-        (should= "Not boolean: foo"
-                 (error->string @err))))))
+  "error-val->json"
+  (it "converts values to JSON safe types or keywords"
+      (should= [:foo "bar" 1 1.0 nil true false
+                #?(:clj "1/2")
+                [] []
+                {"foo" "bar" "baz" "quxx"}]
+       (error-val->json
+        [;; will survive
+         :foo "bar" 1 1.0 nil true false
+
+         ;; to string
+         #?(:clj 1/2)
+
+         ;; to vec
+         #{} (list)
+
+         ;; json map
+         {:foo "bar" :baz "quxx"}]))))
 
  (context
   "error processing"
 
-  (with schema (s/named
-                {(s/required-key "foo") s/Str
-                 (s/required-key "bar") s/Num
-                 (s/required-key "baz") s/Int
-                 (s/required-key "quxx") s/Bool
-                 (s/required-key "map") {}
-                 (s/required-key "string-seq") [s/Str]
-                 (s/required-key "not-there") s/Any
-                 (s/required-key "equals") (s/eq "foo")
-                 (s/required-key "enum") (s/enum "foo" "bar" "baz")
-                 (s/required-key "one") [(s/one s/Str "at least one string")]}
-                "bob"))
+  (with schema
+        {(s/required-key "foo") s/Str
+         (s/required-key "bar") s/Num
+         (s/required-key "baz") s/Int
+         (s/required-key "quxx") s/Bool
+         (s/required-key "map") {}
+         (s/required-key "string-seq") [s/Str]
+         (s/required-key "not-there") s/Any
+         (s/required-key "equals") (s/eq "foo")
+         (s/required-key "enum") (s/enum "foo" "bar" "baz")
+         (s/required-key "one") [(s/one s/Str :predicates/at-least-one-agent)]})
 
   (with err (s/check @schema {"foo" 1
                               "bar" true
@@ -213,7 +157,7 @@
        (should (validation-error? (s/check s/Str 1)))))
 
   (describe
-   "errors->data"
+   "errors->json"
    (context
      "with nested named and validation errors"
      (it "converts all error objects to data"
@@ -225,26 +169,49 @@
                (throw (#?(:clj Exception.
                           :cljs js/Error.) "error obj found!"))
                node))
-           (errors->data @err))))
+           (errors->json @err))))
      (it "converts all predicate and scalar errors to strings"
          (should= {"unknown-key" "Key not allowed"
                    "not-there" "Missing required key"
-                   "string-seq" "Not sequential: {}"
-                   "map" "Not map: []"
-                   "quxx" "Not boolean: foo"
-                   "baz" "Not integer: 1.1"
-                   "bar" "Not number: true"
-                   "foo" "Not string: 1"
-                   "equals" "Not foo: bar"
-                   "enum" "Not in #{\"foo\" \"bar\" \"baz\"}: quxx"
-                   "one" ["Not present: at least one string"]}
-                  (errors->data @err))))
+                   "string-seq" ["not" ["sequential?" {}]]
+                   "map" ["not" ["map?" []]]
+                   "quxx" ["not" ["boolean?" "foo"]]
+                   "baz" ["not" ["integer?" 1.1]]
+                   "bar" ["not" ["number?" true]]
+                   "foo" ["not" ["string?" 1]]
+                   "equals" ["not" ["equal to" "foo" "bar"]]
+                   "enum" ["not" ["in" ["foo" "bar" "baz"] "quxx"]]
+                   "one" [["not" ["present?" "at least one Agent"]]]}
+                  (errors->json @err))))
    (context
     "given some xapi validation cases"
     (context
+     "bad timestamp"
+     (with bad-stamp
+           (errors->json
+            (s/check json/Statement
+                     (assoc d/long-statement
+                            "timestamp"
+                            "foo"))))
+     (it "parses an agent objectType error"
+         (should-not-throw
+          @bad-stamp))
+     (it "coerces the errors to strings"
+         (should= {"timestamp"
+                   ["not"
+                    ["a valid ISO 8601 timestamp"
+                     "foo"
+                     ["reason"
+                      ["not"
+                       ["found in RegEx"
+                        "#\"^([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)|T23:59:60Z)?)?$\""
+                        "foo"]]]]]}
+                  @bad-stamp)))
+
+    (context
      "bad agent type"
      (with bad-agent-type
-           (errors->data
+           (errors->json
             (s/check json/Statement
                      (assoc d/long-statement
                             "actor"
@@ -254,37 +221,102 @@
          (should-not-throw
           @bad-agent-type))
      (it "coerces the errors to strings"
-         (should= {"actor" {"objectType" "Not Agent: NotAnAgent"}}
+         (should= {"actor" {"objectType"
+                            ["not" ["equal to" "Agent" "NotAnAgent"]]}}
                   @bad-agent-type)))
 
     (context
      "Anon group with no members"
      (with bad-anon-group
-           (errors->data
+           (errors->json
             (s/check json/Statement
                      (assoc d/long-statement
                             "actor"
                             {"objectType" "Group"
                              "member" []}))))
      (it "returns a localized error"
-         (should= {"actor" {"member" ["Not present: at least one Agent"]}}
-                  @bad-anon-group)))
+         (should= {"actor" {"member" [["not" ["present?" "at least one Agent"]]]}}
+                  @bad-anon-group)))))
+  (describe
+   "errors->data"
+   (it "walks errors and returns their clojure data representation"
+       (should=
+        {"baz"
+         (list (symbol "not") (list (symbol #?(:clj "integer?"
+                                               :cljs "cljs$core$integer?")) 1.1))
 
-    ))
+         "not-there"
+         (symbol "missing-required-key")
+
+         "equals"
+         (list (symbol "not") (list (symbol "=") "foo" "bar"))
+
+         "quxx"
+         (list (symbol "not") (list (symbol "instance?") #?(:clj java.lang.Boolean
+                                                            :cljs js/Boolean) "foo"))
+
+         "foo"
+         (list (symbol "not") #?(:clj (list (symbol "instance?") java.lang.String 1)
+                                 :cljs (list (symbol "cljs$core$string?") 1)))
+
+         "bar"
+         (list (symbol "not") (list (symbol "instance?") #?(:clj java.lang.Number
+                                                            :cljs js/Number) true))
+
+         "string-seq"
+         (list (symbol "not") (list (symbol "sequential?") {}))
+
+         "one"
+         [(list (symbol "not") (list (symbol "present?") :predicates/at-least-one-agent))]
+
+         "map"
+         (list (symbol "not") (list (symbol "map?") []))
+
+         "enum"
+         (list (symbol "not") (list #{"foo" "bar" "baz"} "quxx"))
+
+         "unknown-key" (symbol "disallowed-key")
+         }
+        (errors->data @err))))
   (describe
    "errors->paths"
    (it "returns a map"
        (should (map? (errors->paths @err))))
    (it "maps errors to their paths"
-       (should= (errors->paths @err)
-                {"Key not allowed" ["unknown-key"]
-                 "Missing required key" ["not-there"]
-                 "Not sequential: {}" ["string-seq"]
-                 "Not map: []" ["map"]
-                 "Not boolean: foo" ["quxx"]
-                 "Not integer: 1.1" ["baz"]
-                 "Not number: true" ["bar"]
-                 "Not string: 1" ["foo"]
-                 "Not foo: bar" ["equals"]
-                 "Not in #{\"foo\" \"bar\" \"baz\"}: quxx" ["enum"]
-                 "Not present: at least one string" ["one" 0]})))))
+       (should= {(list (symbol "not") (list (symbol #?(:clj "integer?"
+                                                       :cljs "cljs$core$integer?")) 1.1))
+                 ["baz"]
+
+                 (symbol "missing-required-key")
+                 ["not-there"]
+
+                 (list (symbol "not") (list (symbol "=") "foo" "bar"))
+                 ["equals"]
+
+                 (list (symbol "not") (list (symbol "instance?") #?(:clj java.lang.Boolean
+                                                                    :cljs js/Boolean) "foo"))
+                 ["quxx"]
+
+                 (list (symbol "not") #?(:clj (list (symbol "instance?") java.lang.String 1)
+                                         :cljs (list (symbol "cljs$core$string?") 1)))
+                 ["foo"]
+
+                 (list (symbol "not") (list (symbol "instance?") #?(:clj java.lang.Number
+                                                                    :cljs js/Number) true))
+                 ["bar"]
+
+                 (list (symbol "not") (list (symbol "sequential?") {}))
+                 ["string-seq"]
+
+                 (list (symbol "not") (list (symbol "present?") :predicates/at-least-one-agent))
+                 ["one" 0]
+
+                 (list (symbol "not") (list (symbol "map?") []))
+                 ["map"]
+
+                 (list (symbol "not") (list #{"foo" "bar" "baz"} "quxx"))
+                 ["enum"]
+
+                 (symbol "disallowed-key") ["unknown-key"]
+                 }
+                (errors->paths @err))))))

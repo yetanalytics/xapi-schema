@@ -38,12 +38,28 @@
    LanguageTagRegEx
    :valid/ltag))
 
+;; used to designate Ltag keys, so they don't become data
+(s/defschema
+  LanguageTagKey
+  "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#52-language-map"
+  (s/named
+   LanguageTagRegEx
+   :valid-key/ltag))
+
 (s/defschema
   IRI
   "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#def-iri"
   (s/named
    AbsoluteIRIRegEx
    :valid/iri))
+
+;; used to designate IRI keys
+(s/defschema
+  IRIKey
+  "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#def-iri"
+  (s/named
+   AbsoluteIRIRegEx
+   :valid-key/iri))
 
 (s/defschema
   MailToIRI
@@ -105,318 +121,262 @@
 
 (s/defschema
   Extensions
-  (s/named
-   {IRI s/Any}
-   :xapi/extensions))
+  {IRIKey s/Any})
 
 (s/defschema
   LanguageMap
   "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#52-language-map"
-  (s/named
-   {LanguageTag s/Str}
-   :xapi/language-map))
+  {LanguageTagKey s/Str})
 
 (s/defschema
   InteractionComponent
-  (s/named
-   {(s/required-key "id") s/Str
-    (s/optional-key "description") LanguageMap}
-   :xapi/interaction-component))
+  {(s/required-key "id") s/Str
+   (s/optional-key "description") LanguageMap})
 
 (s/defschema
   InteractionComponents
-  (s/named
-   (s/constrained [InteractionComponent]
-                  unique-ids?
-                  :predicates/distinct-ic-ids)
-   :xapi/interaction-components))
+  (s/constrained [InteractionComponent]
+                 unique-ids?
+                 :predicates/distinct-ic-ids))
 
 (s/defschema
   Definition
-  (s/named
-   (s/constrained
-    {(s/optional-key "name") LanguageMap
-     (s/optional-key "description") LanguageMap
-     (s/optional-key "correctResponsesPattern") [s/Str]
-     (s/optional-key "interactionType")
-     (s/enum "true-false"
-             "choice"
-             "fill-in"
-             "long-fill-in"
-             "matching"
-             "performance"
-             "sequencing"
-             "likert"
-             "numeric"
-             "other")
-     (s/optional-key "type") IRI
-     (s/optional-key "moreInfo") IRL
-     (s/optional-key "choices") InteractionComponents
-     (s/optional-key "scale") InteractionComponents
-     (s/optional-key "source") InteractionComponents
-     (s/optional-key "target") InteractionComponents
-     (s/optional-key "steps") InteractionComponents
-     (s/optional-key "extensions") Extensions}
-    valid-component-keys?
-    :predicates/valid-component-keys)
-   :xapi/definition))
+  (s/constrained
+   {(s/optional-key "name") LanguageMap
+    (s/optional-key "description") LanguageMap
+    (s/optional-key "correctResponsesPattern") [s/Str]
+    (s/optional-key "interactionType")
+    (s/enum "true-false"
+            "choice"
+            "fill-in"
+            "long-fill-in"
+            "matching"
+            "performance"
+            "sequencing"
+            "likert"
+            "numeric"
+            "other")
+    (s/optional-key "type") IRI
+    (s/optional-key "moreInfo") IRL
+    (s/optional-key "choices") InteractionComponents
+    (s/optional-key "scale") InteractionComponents
+    (s/optional-key "source") InteractionComponents
+    (s/optional-key "target") InteractionComponents
+    (s/optional-key "steps") InteractionComponents
+    (s/optional-key "extensions") Extensions}
+   valid-component-keys?
+   :predicates/valid-component-keys))
 
 (s/defschema
   Activity
-  (s/named
-   {(s/optional-key "objectType") (s/eq "Activity")
-    (s/required-key "id") IRI
-    (s/optional-key "definition") Definition}
-   :xapi/activity))
+  {(s/optional-key "objectType") (s/eq "Activity")
+   (s/required-key "id") IRI
+   (s/optional-key "definition") Definition})
 
 (s/defschema
   Account
-  (s/named
-   {(s/required-key "homePage") IRL
-    (s/required-key "name") s/Str}
-   :xapi/account))
+  {(s/required-key "homePage") IRL
+   (s/required-key "name") s/Str})
 
 
 (s/defschema
   Agent
-  (s/named
-   (-> {(s/optional-key "objectType") (s/eq "Agent")
-        (s/optional-key "name") s/Str
-        (s/optional-key "mbox") MailToIRI
-        (s/optional-key "mbox_sha1sum") Sha1Sum
-        (s/optional-key "openid") OpenID
-        (s/optional-key "account") Account}
+  (-> {(s/optional-key "objectType") (s/eq "Agent")
+       (s/optional-key "name") s/Str
+       (s/optional-key "mbox") MailToIRI
+       (s/optional-key "mbox_sha1sum") Sha1Sum
+       (s/optional-key "openid") OpenID
+       (s/optional-key "account") Account}
 
-       (s/constrained ifi-present? :predicates/no-ifi)
-       (s/constrained no-multi-ifi? :predicates/no-multi-ifi))
-   :xapi/agent))
+      (s/constrained ifi-present? :predicates/no-ifi)
+      (s/constrained no-multi-ifi? :predicates/no-multi-ifi)))
 
 (s/defschema
   Group
-  (s/named
-   (s/conditional
-    ;; named group
-    ifi-present? (s/constrained
-                  {(s/required-key "objectType") (s/eq "Group") ;; Group
-                   (s/optional-key "name") s/Str
-                   (s/optional-key "mbox") MailToIRI
-                   (s/optional-key "mbox_sha1sum") Sha1Sum
-                   (s/optional-key "openid") OpenID
-                   (s/optional-key "account") Account
-                   (s/optional-key "member") [Agent]}
-                  no-multi-ifi?
-                  :predicates/no-multi-ifi)
-    ;; anon group
-    :else (s/constrained
-           {(s/required-key "objectType") (s/eq "Group") ;; Group
-            (s/optional-key "name") s/Str
-            (s/optional-key "member") [(s/one Agent :predicates/at-least-one-agent) Agent]}
-           has-members?
-           :predicates/no-anon-group-member))
-   :xapi/group))
+  (s/conditional
+   ;; named group
+   ifi-present? (s/constrained
+                 {(s/required-key "objectType") (s/eq "Group") ;; Group
+                  (s/optional-key "name") s/Str
+                  (s/optional-key "mbox") MailToIRI
+                  (s/optional-key "mbox_sha1sum") Sha1Sum
+                  (s/optional-key "openid") OpenID
+                  (s/optional-key "account") Account
+                  (s/optional-key "member") [Agent]}
+                 no-multi-ifi?
+                 :predicates/no-multi-ifi)
+   ;; anon group
+   :else (s/constrained
+          {(s/required-key "objectType") (s/eq "Group") ;; Group
+           (s/optional-key "name") s/Str
+           (s/optional-key "member") [(s/one Agent :predicates/at-least-one-agent) Agent]}
+          has-members?
+          :predicates/no-anon-group-member)))
 
 (s/defschema
   Actor
-  (s/named
-   (object-type-dispatch "Group" Group
-                         :else Agent)
-   :xapi/actor))
+  (object-type-dispatch "Group" Group
+                        :else Agent))
 
 
 (s/defschema
   Verb
-  (s/named
-   {(s/required-key "id") IRI
-    (s/optional-key "display") LanguageMap}
-   :xapi/verb))
+  {(s/required-key "id") IRI
+   (s/optional-key "display") LanguageMap})
 
 
 (s/defschema
   Score
-  (s/named
-   (-> {(s/optional-key "scaled") s/Num ; Decimal number between -1 and 1, inclusive
-        (s/optional-key "raw") s/Num ; Decimal number between min and max (if present, otherwise unrestricted), inclusive
-        (s/optional-key "min") s/Num ; Decimal number less than max (if present)
-        (s/optional-key "max") s/Num}  ; Decimal number greater than min (if present)
-       ;; TODO: fix these pred names?
-       (s/constrained score-raw-lte-max :predicates/score-lt-max)
-       (s/constrained score-raw-gte-min :predicates/score-gt-min)
-       (s/constrained score-min-lt-max  :predicates/score-lt-max))
-   :xapi/score))
+  (-> {(s/optional-key "scaled") s/Num ; Decimal number between -1 and 1, inclusive
+       (s/optional-key "raw") s/Num ; Decimal number between min and max (if present, otherwise unrestricted), inclusive
+       (s/optional-key "min") s/Num ; Decimal number less than max (if present)
+       (s/optional-key "max") s/Num}  ; Decimal number greater than min (if present)
+      ;; TODO: fix these pred names?
+      (s/constrained score-raw-lte-max :predicates/score-lt-max)
+      (s/constrained score-raw-gte-min :predicates/score-gt-min)
+      (s/constrained score-min-lt-max  :predicates/score-lt-max)))
 
 (s/defschema
   Result
-  (s/named
-   {(s/optional-key "score") Score
-    (s/optional-key "success") s/Bool
-    (s/optional-key "completion") s/Bool
-    (s/optional-key "response") s/Str
-    (s/optional-key "duration") Duration
-    (s/optional-key "extensions") Extensions}
-   :xapi/result))
+  {(s/optional-key "score") Score
+   (s/optional-key "success") s/Bool
+   (s/optional-key "completion") s/Bool
+   (s/optional-key "response") s/Str
+   (s/optional-key "duration") Duration
+   (s/optional-key "extensions") Extensions})
 
 (s/defschema
   StatementRef
-  (s/named
-   {(s/required-key "id") UuidId
-    (s/required-key "objectType") (s/eq "StatementRef")}
-   :xapi/statement-ref))
+  {(s/required-key "id") UuidId
+   (s/required-key "objectType") (s/eq "StatementRef")})
 
 
 (s/defschema
   ContextActivitiesArray
-  (s/named
-   [(s/one Activity :predicates/at-least-one-activity) Activity]
-   :xapi/context-activities-array))
+  [(s/one Activity :predicates/at-least-one-activity) Activity])
 
 (s/defschema
   ContextActivities
-  (s/named
-   (s/if map?
-     Activity
-     ContextActivitiesArray)
-   :xapi/context-activities-single-or-array))
+  (s/if map?
+    Activity
+    ContextActivitiesArray))
 
 (s/defschema
   ContextActivitiesMap
-  (s/named
-   {(s/optional-key "parent") ContextActivities
-    (s/optional-key "grouping") ContextActivities
-    (s/optional-key "category") ContextActivities
-    (s/optional-key "other") ContextActivities}
-   :xapi/context-activities-map))
+  {(s/optional-key "parent") ContextActivities
+   (s/optional-key "grouping") ContextActivities
+   (s/optional-key "category") ContextActivities
+   (s/optional-key "other") ContextActivities})
 
 (s/defschema
   Context
-  (s/named
-   {(s/optional-key "registration") UuidId
-    (s/optional-key "instructor") Actor
-    (s/optional-key "team") Group
-    (s/optional-key "contextActivities") ContextActivitiesMap
-    (s/optional-key "revision") s/Str
-    (s/optional-key "platform") s/Str
-    (s/optional-key "language") LanguageTag
-    (s/optional-key "statement") StatementRef
-    (s/optional-key "extensions") Extensions}
-   :xapi/context))
+  {(s/optional-key "registration") UuidId
+   (s/optional-key "instructor") Actor
+   (s/optional-key "team") Group
+   (s/optional-key "contextActivities") ContextActivitiesMap
+   (s/optional-key "revision") s/Str
+   (s/optional-key "platform") s/Str
+   (s/optional-key "language") LanguageTag
+   (s/optional-key "statement") StatementRef
+   (s/optional-key "extensions") Extensions})
 
 (s/defschema
   Attachment
-  (s/named
-   {(s/required-key "usageType") IRI
-    (s/required-key "display") LanguageMap
-    (s/optional-key "description") LanguageMap
-    (s/required-key "contentType") s/Str ; Internet Media Type
-    (s/required-key "length") s/Int ; The length of the attachment data in octets.
-    (s/required-key "sha2") Sha2 ; The SHA-2 (SHA-256, SHA-384, SHA-512) hash of the attachment data.
-    (s/optional-key "fileUrl") IRL}
-   :xapi/file-attachment))
+  {(s/required-key "usageType") IRI
+   (s/required-key "display") LanguageMap
+   (s/optional-key "description") LanguageMap
+   (s/required-key "contentType") s/Str ; Internet Media Type
+   (s/required-key "length") s/Int ; The length of the attachment data in octets.
+   (s/required-key "sha2") Sha2 ; The SHA-2 (SHA-256, SHA-384, SHA-512) hash of the attachment data.
+   (s/optional-key "fileUrl") IRL})
 
 (s/defschema
   UrlAttachment
-  (s/named
-   {(s/required-key "usageType") IRI
-    (s/required-key "display") LanguageMap
-    (s/optional-key "description") LanguageMap
-    (s/required-key "contentType") s/Str ; Internet Media Type
-    (s/required-key "length") s/Int ; The length of the attachment data in octets.
-    (s/required-key "sha2") Sha2 ; The SHA-2 (SHA-256, SHA-384, SHA-512) hash of the attachment data.
-    (s/required-key "fileUrl") IRL}
-   :xapi/url-attachment))
+  {(s/required-key "usageType") IRI
+   (s/required-key "display") LanguageMap
+   (s/optional-key "description") LanguageMap
+   (s/required-key "contentType") s/Str ; Internet Media Type
+   (s/required-key "length") s/Int ; The length of the attachment data in octets.
+   (s/required-key "sha2") Sha2 ; The SHA-2 (SHA-256, SHA-384, SHA-512) hash of the attachment data.
+   (s/required-key "fileUrl") IRL})
 
 (s/defschema
   Attachments
-  (s/named
-   [(s/one Attachment :predicates/at-least-one-attachement) Attachment]
-   :xapi/attachments))
+  [(s/one Attachment :predicates/at-least-one-attachement) Attachment])
 
 (s/defschema
   SubStatement
-  (s/named
-   {(s/required-key "actor") Actor
-    (s/required-key "verb") Verb
-    (s/required-key "object")
-    (object-type-dispatch "Agent" Agent
-                          "Group" Group
-                          "StatementRef" StatementRef
-                          :else Activity)
-    (s/optional-key "result") Result
-    (s/optional-key "context") Context
-    (s/optional-key "attachments") Attachments
-    (s/optional-key "timestamp") Timestamp
-    (s/required-key "objectType") (s/eq "SubStatement")}
-   :xapi/sub-statement))
+  {(s/required-key "actor") Actor
+   (s/required-key "verb") Verb
+   (s/required-key "object")
+   (object-type-dispatch "Agent" Agent
+                         "Group" Group
+                         "StatementRef" StatementRef
+                         :else Activity)
+   (s/optional-key "result") Result
+   (s/optional-key "context") Context
+   (s/optional-key "attachments") Attachments
+   (s/optional-key "timestamp") Timestamp
+   (s/required-key "objectType") (s/eq "SubStatement")})
 
 (s/defschema
   OAuthConsumer
-  (s/named
-   {(s/optional-key "objectType") (s/eq "Agent") ;; Agent
-    (s/optional-key "name") s/Str
-    (s/required-key "account") Account}
-   :xapi/oauth-consumer))
+  {(s/optional-key "objectType") (s/eq "Agent") ;; Agent
+   (s/optional-key "name") s/Str
+   (s/required-key "account") Account})
 
 (s/defschema
   ThreeLeggedOAuthGroup
-  (s/named
-   {(s/optional-key "objectType") (s/eq "Group") ;; Group
-    (s/optional-key "name") s/Str
-    (s/optional-key "mbox") MailToIRI
-    (s/optional-key "mbox_sha1sum") Sha1Sum
-    (s/optional-key "openid") OpenID
-    (s/optional-key "account") Account
-    (s/required-key "member") (s/constrained
-                               [(s/one OAuthConsumer
-                                       :predicates/one-oauth-consumer) Agent]
-                               two-members?
-                               :predicates/exactly-2-members)}
-   :xapi/three-legged-oauth-group))
+  {(s/optional-key "objectType") (s/eq "Group") ;; Group
+   (s/optional-key "name") s/Str
+   (s/optional-key "mbox") MailToIRI
+   (s/optional-key "mbox_sha1sum") Sha1Sum
+   (s/optional-key "openid") OpenID
+   (s/optional-key "account") Account
+   (s/required-key "member") (s/constrained
+                              [(s/one OAuthConsumer
+                                      :predicates/one-oauth-consumer) Agent]
+                              two-members?
+                              :predicates/exactly-2-members)})
 
 (s/defschema
   Authority
-  (s/named
-   (object-type-dispatch
-    "Agent" Agent
-    "Group" ThreeLeggedOAuthGroup
-    :else Agent)
-   :xapi/authority))
+  (object-type-dispatch
+   "Agent" Agent
+   "Group" ThreeLeggedOAuthGroup
+   :else Agent))
 
 (s/defschema
   StatementObject
-  (s/named
-   (object-type-dispatch
-    "Agent" Agent
-    "Group" Group
-    "SubStatement" SubStatement
-    "StatementRef" StatementRef
-    "Activity" Activity
-    :else Activity)
-   :xapi/statement-object))
+  (object-type-dispatch
+   "Agent" Agent
+   "Group" Group
+   "SubStatement" SubStatement
+   "StatementRef" StatementRef
+   "Activity" Activity
+   :else Activity))
 
 
 (s/defschema
   Statement
-  (s/named
-   (-> {(s/optional-key "id") UuidId
-        (s/required-key "actor") Actor
-        (s/required-key "verb") Verb
-        (s/required-key "object") StatementObject
-        (s/optional-key "result") Result
-        (s/optional-key "context") Context
-        (s/optional-key "timestamp") Timestamp
-        (s/optional-key "stored") Timestamp
-        (s/optional-key "authority") Authority
-        (s/optional-key "version") Version
-        (s/optional-key "attachments") Attachments
-        (s/optional-key "objectType") s/Str ;; necessary for validating substatements as statements!
-        }
-       (s/constrained valid-void? :predicates/void-statement-ref)
-       (s/constrained valid-revision? :predicates/revision-not-allowed)
-       (s/constrained valid-platform? :predicates/platform-not-allowed))
-   :xapi/statement))
+  (-> {(s/optional-key "id") UuidId
+       (s/required-key "actor") Actor
+       (s/required-key "verb") Verb
+       (s/required-key "object") StatementObject
+       (s/optional-key "result") Result
+       (s/optional-key "context") Context
+       (s/optional-key "timestamp") Timestamp
+       (s/optional-key "stored") Timestamp
+       (s/optional-key "authority") Authority
+       (s/optional-key "version") Version
+       (s/optional-key "attachments") Attachments
+       (s/optional-key "objectType") s/Str ;; necessary for validating substatements as statements!
+       }
+      (s/constrained valid-void? :predicates/void-statement-ref)
+      (s/constrained valid-revision? :predicates/revision-not-allowed)
+      (s/constrained valid-platform? :predicates/platform-not-allowed)))
 
 (s/defschema
   Statements
-  (s/named
-   [(s/one Statement :predicates/at-least-one-statement)
-    Statement]
-   :xapi/statements))
+  [(s/one Statement :predicates/at-least-one-statement)
+   Statement])
