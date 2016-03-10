@@ -154,16 +154,21 @@
                ;; local-name (t ltag ename)
                error (.-error node)]
            (assert (keyword? ename) "Schema names must be keywords")
-           (assert (validation-error? error) "Named schema must wrap single errors")
-           (if (= "valid-key" (namespace ename))
-             ;; pull the value and make an error string
-             (error-val->json (.-value error))
 
+
+           (if (validation-error? error)
+             (if (= "valid-key" (namespace ename))
+               ;; pull the value and make an error string
+               (error-val->json (.-value error))
+
+               (walk-node [:not
+                           [ename
+                            (error-val->json (.-value error))
+                            [:reason
+                             error]]]))
              (walk-node [:not
                          [ename
-                         (error-val->json (.-value error))
-                         [:reason
-                          error]]])))
+                          error]])))
 
          (validation-error? node)
          (-> node
