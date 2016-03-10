@@ -1,15 +1,25 @@
-{:en {:not "not"
+{:en {;; top level
+      :not "not"
+      :threw "threw"
+
+      ;; keys
       :missing-required-key "Missing required key"
       :disallowed-key "Key not allowed"
-      :threw "threw"
-      :sequential "sequential"
-      :map "map"
-      :integer "integer"
-      :string "string"
-      :number "number"
-      :boolean "boolean"
+      :invalid-key "Key invalid"
+
+      ;; explanation predicates
+      :sequential? "sequential?"
+      :map? "map?"
+      :integer? "integer?"
+      :string? "string?"
+      :number? "number?"
+      :boolean? "boolean?"
       :in "in"
-      :present "present"
+      :present? "present?"
+      := "equal to"
+      :re-find "found in RegEx"
+      :reason "reason"
+
       :predicates
       {:revision-not-allowed "valid if Statement object is an Activity"
        :platform-not-allowed "valid if Statement object is an Activity"
@@ -20,17 +30,6 @@
        :valid-component-keys  "valid Interaction Component List key(s)"
        :score-lt-max "less than max"
        :score-gt-min "greater than min"
-       :valid-ltag "a valid RFC 5646 Language Tag"
-       :valid-iri "a valid IRI address"
-       :valid-mailto-iri "a valid MailTo IRI address"
-       :valid-irl "a valid IRL"
-       :valid-openid "a valid OpenID URL"
-       :valid-uuid "a valid Uuid"
-       :valid-timestamp "a valid ISO 8601 timestamp"
-       :valid-duration "a valid ISO 8601 duration"
-       :valid-xapi-version "a valid xAPI 1.x.x version"
-       :valid-sha-2-sum "a valid SHA-2 sum"
-       :valid-sha-1-sum "a valid SHA-1 sum"
        :exactly-2-members "Exactly 2 Members"
        :at-least-one-agent "at least one Agent"
        :at-least-one-activity "at least one Activity"
@@ -68,6 +67,7 @@
        :statement-object "Statement Object"
        :statement "Statement"
        :statements "Statements"}
+
       :valid
       {:ltag "a valid RFC 5646 Language Tag"
        :iri "a valid IRI address"
@@ -79,4 +79,8 @@
        :duration "a valid ISO 8601 duration"
        :xapi-version "a valid xAPI 1.x.x version"
        :sha-2-sum "a valid SHA-2 sum"
-       :sha-1-sum "a valid SHA-1 sum"}}}
+       :sha-1-sum "a valid SHA-1 sum"}
+
+      :valid-key
+      {:ltag "a valid RFC 5646 Language Tag key"
+       :iri "a valid IRI address key"}}}
