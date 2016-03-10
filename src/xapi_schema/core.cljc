@@ -9,14 +9,22 @@
    [schema.utils :as su]
    [xapi-schema.schemata.util :as u]))
 
+;; set a high max value length
+(s/set-max-value-length! 10000)
+
 (def statement-checker
   (s/checker Statement))
 
 (def statements-checker
   (s/checker Statements))
 
+;; raw error forms
 (def errors->data
   u/errors->data)
+
+;; suitable for json
+(def errors->json
+  u/errors->json)
 
 (def errors->paths
   u/errors->paths)
@@ -50,6 +58,15 @@
               :else sd))))
 
 #?(:cljs
-   (defn ^:export validate-statement-data-js
+    (defn ^:export validate-statement-data-js
+      [sd]
+      (clj->js (validate-statement-data (js->clj sd)))))
+
+#?(:cljs
+   (defn ^:export check-statement-data-js
      [sd]
-     (clj->js (validate-statement-data (js->clj sd)))))
+     (let [data (js->clj sd)]
+       (clj->js (errors->json ((if (map? data)
+                                 statement-checker
+                                 statements-checker)
+                               data))))))
