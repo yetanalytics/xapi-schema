@@ -57,6 +57,16 @@
               (string? sd) (.parse js/JSON sd)
               :else sd))))
 
+(defn valid?
+  "provides true/false validation for a single statement"
+  [stmt]
+  (try
+    (validate-statement-data stmt)
+    true
+    (catch #?(:clj Exception
+              :cljs js/Error) _
+        false)))
+
 #?(:cljs
     (defn ^:export validate-statement-data-js
       [sd]
