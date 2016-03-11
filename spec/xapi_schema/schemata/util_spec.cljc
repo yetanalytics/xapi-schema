@@ -222,7 +222,7 @@
           @bad-agent-type))
      (it "coerces the errors to strings"
          (should= {"actor" {"objectType"
-                            ["not" ["equal to" "Agent" "NotAnAgent"]]}}
+                            ["not" ["in" ["Agent" "Group"] "NotAnAgent"]]}}
                   @bad-agent-type)))
 
     (context

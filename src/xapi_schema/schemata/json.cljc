@@ -1,6 +1,14 @@
 (ns xapi-schema.schemata.json
   (:require
-   [xapi-schema.schemata.predicates :refer [re-pred
+   [xapi-schema.schemata.predicates :refer [agent?
+                                            group?
+                                            activity?
+                                            sub-statement?
+                                            statement-ref?
+                                            no-object-type?
+                                            agent-actor?
+                                            activity-object?
+                                            re-pred
                                             unique-ids?
                                             valid-component-keys?
                                             no-multi-ifi?
@@ -23,10 +31,10 @@
                                        DurationRegEx
                                        Base64RegEx
                                        Sha1RegEx]]
-   [xapi-schema.schemata.util :refer [check-type object-type-dispatch]]
-   #?(:clj [schema.core :as s]
-      :cljs [schema.core :as s
-             :include-macros true])))
+   [schema.core :as s
+    #?@(:cljs [:include-macros true])]
+   [schema.experimental.abstract-map :as am
+    #?@(:cljs [:include-macros true])]))
 
 
 ;; Scalar schemata
@@ -168,6 +176,11 @@
    :predicates/valid-component-keys))
 
 (s/defschema
+  AbstractActivity
+  {(s/optional-key "id") s/Str
+   (s/optional-key "definition") Definition})
+
+(s/defschema
   Activity
   {(s/optional-key "objectType") (s/eq "Activity")
    (s/required-key "id") IRI
@@ -187,13 +200,12 @@
        (s/optional-key "mbox_sha1sum") Sha1Sum
        (s/optional-key "openid") OpenID
        (s/optional-key "account") Account}
-
       (s/constrained ifi-present? :predicates/no-ifi)
       (s/constrained no-multi-ifi? :predicates/no-multi-ifi)))
 
 (s/defschema
   Group
-  (s/conditional
+  (s/if
    ;; named group
    ifi-present? (s/constrained
                  {(s/required-key "objectType") (s/eq "Group") ;; Group
@@ -206,17 +218,30 @@
                  no-multi-ifi?
                  :predicates/no-multi-ifi)
    ;; anon group
-   :else (s/constrained
-          {(s/required-key "objectType") (s/eq "Group") ;; Group
-           (s/optional-key "name") s/Str
-           (s/optional-key "member") [(s/one Agent :predicates/at-least-one-agent) Agent]}
-          has-members?
-          :predicates/no-anon-group-member)))
+   {(s/required-key "objectType") (s/eq "Group") ;; Group
+    (s/optional-key "name") s/Str
+    (s/required-key "member") [(s/one Agent :predicates/at-least-one-agent) Agent]}))
+
+
+(s/defschema
+  AbstractActor
+  {(s/optional-key "name") s/Str
+   (s/optional-key "mbox") MailToIRI
+   (s/optional-key "mbox_sha1sum") Sha1Sum
+   (s/optional-key "openid") OpenID
+   (s/optional-key "account") Account
+   (s/optional-key "member") [Agent]})
 
 (s/defschema
   Actor
-  (object-type-dispatch "Group" Group
-                        :else Agent))
+  (s/conditional
+   group?  Group
+   agent-actor? Agent
+   :else (merge
+          AbstractActor
+          {(s/optional-key "objectType")
+           (s/enum "Agent" "Group") ;; will fail
+           })))
 
 
 (s/defschema
@@ -244,6 +269,10 @@
    (s/optional-key "response") s/Str
    (s/optional-key "duration") Duration
    (s/optional-key "extensions") Extensions})
+
+(s/defschema
+  AbstractStatementRef
+  {(s/optional-key "id") s/Str})
 
 (s/defschema
   StatementRef
@@ -305,19 +334,48 @@
   [(s/one Attachment :predicates/at-least-one-attachement) Attachment])
 
 (s/defschema
+  AbstractSubStatement
+  {(s/optional-key "actor") Actor
+   (s/optional-key "verb") Verb
+   (s/optional-key "object")
+   (s/conditional
+    agent? Agent
+    group? Group
+    statement-ref? StatementRef
+    activity-object? Activity
+    :else (merge
+           AbstractActor
+           AbstractStatementRef
+           AbstractActivity
+           {(s/required-key "objectType")
+            (s/enum "Agent" "Group" "StatementRef" "Activity")}))
+   (s/optional-key "result") Result
+   (s/optional-key "context") Context
+   (s/optional-key "attachments") Attachments
+   (s/optional-key "timestamp") Timestamp})
+
+(s/defschema
   SubStatement
   {(s/required-key "actor") Actor
    (s/required-key "verb") Verb
    (s/required-key "object")
-   (object-type-dispatch "Agent" Agent
-                         "Group" Group
-                         "StatementRef" StatementRef
-                         :else Activity)
+   (s/conditional
+    agent? Agent
+    group? Group
+    statement-ref? StatementRef
+    activity-object? Activity
+    :else (merge
+           AbstractActor
+           AbstractStatementRef
+           AbstractActivity
+           {(s/required-key "objectType")
+            (s/enum "Agent" "Group" "StatementRef" "Activity")}))
    (s/optional-key "result") Result
    (s/optional-key "context") Context
    (s/optional-key "attachments") Attachments
    (s/optional-key "timestamp") Timestamp
    (s/required-key "objectType") (s/eq "SubStatement")})
+
 
 (s/defschema
   OAuthConsumer
@@ -341,20 +399,25 @@
 
 (s/defschema
   Authority
-  (object-type-dispatch
-   "Agent" Agent
-   "Group" ThreeLeggedOAuthGroup
-   :else Agent))
+  (s/if
+   group? ThreeLeggedOAuthGroup
+   Agent))
 
 (s/defschema
   StatementObject
-  (object-type-dispatch
-   "Agent" Agent
-   "Group" Group
-   "SubStatement" SubStatement
-   "StatementRef" StatementRef
-   "Activity" Activity
-   :else Activity))
+  (s/conditional
+   agent? Agent
+   group? Group
+   sub-statement? SubStatement
+   statement-ref? StatementRef
+   activity-object? Activity
+   :else (merge
+          AbstractActor
+          AbstractStatementRef
+          AbstractActivity
+          AbstractSubStatement
+          {(s/required-key "objectType")
+           (s/enum "Agent" "Group" "StatementRef" "SubStatement" "Activity")})))
 
 
 (s/defschema

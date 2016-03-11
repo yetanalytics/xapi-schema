@@ -3,6 +3,31 @@
    [clojure.set :refer [intersection
                         difference]]))
 
+;; objectType predicates
+(defn agent? [m]
+  (= "Agent" (get m "objectType")))
+
+(defn group? [m]
+  (= "Group" (get m "objectType")))
+
+(defn activity? [m]
+  (= "Activity" (get m "objectType")))
+
+(defn sub-statement? [m]
+  (= "SubStatement" (get m "objectType")))
+
+(defn statement-ref? [m]
+  (= "SubStatement" (get m "objectType")))
+
+(defn no-object-type? [m]
+  (not (find m "objectType")))
+
+(def agent-actor?
+  (comp (partial some true?) (juxt agent? no-object-type?)))
+
+(def activity-object?
+  (comp (partial some true?) (juxt activity? no-object-type?)))
+
 ;; IFI predicates
 (defn ifi-count
   "returns the number of IFI keys in map x"
