@@ -17,7 +17,7 @@
   (= "SubStatement" (get m "objectType")))
 
 (defn statement-ref? [m]
-  (= "SubStatement" (get m "objectType")))
+  (= "StatementRef" (get m "objectType")))
 
 (defn no-object-type? [m]
   (not (find m "objectType")))
