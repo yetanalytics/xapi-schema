@@ -1,12 +1,18 @@
 (ns xapi-schema.schemata.json
   (:require
-   [xapi-schema.schemata.predicates :refer [regex-pred
-                                            InteractionComponentsValidations
-                                            DefinitionValidations
-                                            AgentValidations
-                                            GroupValidations
-                                            ScoreValidations
-                                            StatementValidations]]
+   [xapi-schema.schemata.predicates :refer [re-pred
+                                            unique-ids?
+                                            valid-component-keys?
+                                            no-multi-ifi?
+                                            ifi-present?
+                                            has-members?
+                                            score-raw-lte-max
+                                            score-raw-gte-min
+                                            score-min-lt-max
+                                            two-members?
+                                            valid-revision?
+                                            valid-platform?
+                                            valid-void?]]
    [xapi-schema.schemata.regex :refer [LanguageTagRegEx
                                        OpenIdRegEx
                                        AbsoluteIRIRegEx
@@ -29,10 +35,10 @@
   LanguageTag
   "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#52-language-map"
   (s/named
-   (s/both
+   (s/constrained
     s/Str
-    (regex-pred LanguageTagRegEx
-                :predicates/valid-ltag))
+    (re-pred LanguageTagRegEx)
+    :predicates/valid-ltag)
    "Language Tag"))
 
 (s/defschema
@@ -46,29 +52,29 @@
   IRI
   "https://github.com/adlnet/xAPI-Spec/blob/1.0.3/xAPI.md#def-iri"
   (s/named
-   (s/both
+   (s/constrained
     s/Str
-    (regex-pred AbsoluteIRIRegEx
-                :predicates/valid-iri))
+    (re-pred AbsoluteIRIRegEx)
+    :predicates/valid-iri)
    "Internationalized Resource Locator"))
 
 (s/defschema
   MailToIRI
   "http://xmlns.com/foaf/spec/#term_mbox"
   (s/named
-   (s/both
+   (s/constrained
     s/Str
-    (regex-pred MailToIRIRegEx
-                :predicates/valid-mailto-iri))
+    (re-pred MailToIRIRegEx)
+    :predicates/valid-mailto-iri)
    "Mailto IRI"))
 
 (s/defschema
   IRL
   (s/named
-   (s/both
-    (regex-pred AbsoluteIRIRegEx
-                :predicates/valid-irl)
-    s/Str)
+   (s/constrained
+    s/Str
+    (re-pred AbsoluteIRIRegEx)
+    :predicates/valid-irl)
    "IRL"))
 
 (s/defschema
@@ -80,55 +86,57 @@
 (s/defschema
   OpenID
   (s/named
-   (s/both s/Str
-           (regex-pred OpenIdRegEx
-                       :predicates/valid-openid))
+   (s/constrained s/Str
+                  (re-pred OpenIdRegEx)
+                  :predicates/valid-openid)
    "OpenId URL"))
 
 (s/defschema
   UuidId
   (s/named
-   (s/both s/Str
-           (regex-pred UuidRegEx
-                       :predicates/valid-uuid))
+   (s/constrained s/Str
+                  (re-pred UuidRegEx)
+                  :predicates/valid-uuid)
    "Uuid"))
 
 (s/defschema
   Timestamp
   (s/named
-   (s/both s/Str
-           (regex-pred TimestampRegEx
-                       :predicates/valid-timestamp))
+   (s/constrained s/Str
+                  (re-pred TimestampRegEx)
+                  :predicates/valid-timestamp)
    "Timestamp"))
 
 (s/defschema
   Duration
   (s/named
-   (s/both s/Str
-           (regex-pred DurationRegEx
-                       :predicates/valid-duration))
+   (s/constrained s/Str
+                  (re-pred DurationRegEx)
+                  :predicates/valid-duration)
    "Duration"))
 
 (s/defschema
   Version
   (s/named
-   (s/both s/Str
-           (regex-pred xAPIVersionRegEx
-                       :predicates/valid-xapi-version))
+   (s/constrained s/Str
+                  (re-pred xAPIVersionRegEx)
+                  :predicates/valid-xapi-version)
    "Version"))
 
 (s/defschema
   Sha2
-  (s/both (regex-pred Base64RegEx
-                      :predicates/valid-sha-2-sum)
-          s/Str))
+  (s/named
+   (s/constrained s/Str
+                  (re-pred Base64RegEx)
+                  :predicates/valid-sha-2-sum)
+   "Sha2"))
 
 (def
   Sha1Sum
   (s/named
-   (s/both s/Str
-           (regex-pred Sha1RegEx
-                       :predicates/valid-sha-1-sum))
+   (s/constrained s/Str
+                  (re-pred Sha1RegEx)
+                  :predicates/valid-sha-1-sum)
    "SHA-1 Sum"))
 
 ;; Composite schemas
@@ -143,29 +151,29 @@
 (s/defschema
   InteractionComponents
   (s/named
-   (s/both [InteractionComponent]
-           InteractionComponentsValidations)
+   (s/constrained [InteractionComponent]
+                  unique-ids?
+                  :predicates/distinct-ic-ids)
    "Interaction Components Array"))
 
 (s/defschema
   Definition
   (s/named
-   (s/both
+   (s/constrained
     {(s/optional-key "name") LanguageMap
      (s/optional-key "description") LanguageMap
      (s/optional-key "correctResponsesPattern") [s/Str]
      (s/optional-key "interactionType")
-     (s/both s/Str
-             (s/enum "true-false"
-                     "choice"
-                     "fill-in"
-                     "long-fill-in"
-                     "matching"
-                     "performance"
-                     "sequencing"
-                     "likert"
-                     "numeric"
-                     "other"))
+     (s/enum "true-false"
+             "choice"
+             "fill-in"
+             "long-fill-in"
+             "matching"
+             "performance"
+             "sequencing"
+             "likert"
+             "numeric"
+             "other")
      (s/optional-key "type") IRI
      (s/optional-key "moreInfo") IRL
      (s/optional-key "choices") InteractionComponents
@@ -174,13 +182,14 @@
      (s/optional-key "target") InteractionComponents
      (s/optional-key "steps") InteractionComponents
      (s/optional-key "extensions") Extensions}
-    DefinitionValidations)
+    valid-component-keys?
+    :predicates/valid-component-keys)
    "Activity Definition"))
 
 (s/defschema
   Activity
   (s/named
-   {(s/optional-key "objectType") (s/both s/Str (s/eq "Activity"))
+   {(s/optional-key "objectType") (s/eq "Activity")
     (s/required-key "id") IRI
     (s/optional-key "definition") Definition}
    "Activity Definition"))
@@ -196,31 +205,39 @@
 (s/defschema
   Agent
   (s/named
-   (s/both
-    {(s/optional-key "objectType")
-     (s/both s/Str (s/both
-                    s/Str
-                    (s/eq "Agent"))) ;; Agent
-     (s/optional-key "name") s/Str
-     (s/optional-key "mbox") MailToIRI
-     (s/optional-key "mbox_sha1sum") Sha1Sum
-     (s/optional-key "openid") OpenID
-     (s/optional-key "account") Account}
-    AgentValidations)
+   (-> {(s/optional-key "objectType") (s/eq "Agent")
+        (s/optional-key "name") s/Str
+        (s/optional-key "mbox") MailToIRI
+        (s/optional-key "mbox_sha1sum") Sha1Sum
+        (s/optional-key "openid") OpenID
+        (s/optional-key "account") Account}
+
+       (s/constrained ifi-present? :predicates/no-ifi)
+       (s/constrained no-multi-ifi? :predicates/no-multi-ifi))
    "Agent"))
 
 (s/defschema
   Group
   (s/named
-   (s/both
-    {(s/required-key "objectType") (s/both s/Str (s/eq "Group")) ;; Group
-     (s/optional-key "name") s/Str
-     (s/optional-key "mbox") MailToIRI
-     (s/optional-key "mbox_sha1sum") Sha1Sum
-     (s/optional-key "openid") OpenID
-     (s/optional-key "account") Account
-     (s/optional-key "member") [(s/one Agent :predicates/at-least-one-agent) Agent]}
-    GroupValidations)
+   (s/conditional
+    ;; named group
+    ifi-present? (s/constrained
+                  {(s/required-key "objectType") (s/eq "Group") ;; Group
+                   (s/optional-key "name") s/Str
+                   (s/optional-key "mbox") MailToIRI
+                   (s/optional-key "mbox_sha1sum") Sha1Sum
+                   (s/optional-key "openid") OpenID
+                   (s/optional-key "account") Account
+                   (s/optional-key "member") [Agent]}
+                  no-multi-ifi?
+                  :predicates/no-multi-ifi)
+    ;; anon group
+    :else (s/constrained
+           {(s/required-key "objectType") (s/eq "Group") ;; Group
+            (s/optional-key "name") s/Str
+            (s/optional-key "member") [(s/one Agent :predicates/at-least-one-agent) Agent]}
+           has-members?
+           :predicates/no-anon-group-member))
    "Group"))
 
 (s/defschema
@@ -242,11 +259,14 @@
 (s/defschema
   Score
   (s/named
-   (s/both {(s/optional-key "scaled") s/Num ; Decimal number between -1 and 1, inclusive
-            (s/optional-key "raw") s/Num ; Decimal number between min and max (if present, otherwise unrestricted), inclusive
-            (s/optional-key "min") s/Num ; Decimal number less than max (if present)
-            (s/optional-key "max") s/Num}  ; Decimal number greater than min (if present)
-           ScoreValidations)
+   (-> {(s/optional-key "scaled") s/Num ; Decimal number between -1 and 1, inclusive
+        (s/optional-key "raw") s/Num ; Decimal number between min and max (if present, otherwise unrestricted), inclusive
+        (s/optional-key "min") s/Num ; Decimal number less than max (if present)
+        (s/optional-key "max") s/Num}  ; Decimal number greater than min (if present)
+       ;; TODO: fix these pred names?
+       (s/constrained score-raw-lte-max :predicates/score-lt-max)
+       (s/constrained score-raw-gte-min :predicates/score-gt-min)
+       (s/constrained score-min-lt-max  :predicates/score-lt-max))
    "Score"))
 
 (s/defschema
@@ -264,9 +284,7 @@
   StatementRef
   (s/named
    {(s/required-key "id") UuidId
-    (s/required-key "objectType") (s/both
-                                   s/Str
-                                   (s/eq "StatementRef"))}
+    (s/required-key "objectType") (s/eq "StatementRef")}
    "Statement Reference"))
 
 
@@ -351,13 +369,13 @@
     (s/optional-key "context") Context
     (s/optional-key "attachments") Attachments
     (s/optional-key "timestamp") Timestamp
-    (s/required-key "objectType") (s/both s/Str (s/eq "SubStatement"))}
+    (s/required-key "objectType") (s/eq "SubStatement")}
    "SubStatement"))
 
 (s/defschema
   OAuthConsumer
   (s/named
-   {(s/optional-key "objectType") (s/both s/Str (s/eq "Agent")) ;; Agent
+   {(s/optional-key "objectType") (s/eq "Agent") ;; Agent
     (s/optional-key "name") s/Str
     (s/required-key "account") Account}
    "OAuth Consumer Agent"))
@@ -365,19 +383,17 @@
 (s/defschema
   ThreeLeggedOAuthGroup
   (s/named
-   (s/both
-    GroupValidations
-    {(s/optional-key "objectType") (s/both s/Str (s/eq "Group")) ;; Group
-     (s/optional-key "name") s/Str
-     (s/optional-key "mbox") MailToIRI
-     (s/optional-key "mbox_sha1sum") Sha1Sum
-     (s/optional-key "openid") OpenID
-     (s/optional-key "account") Account
-     (s/required-key "member") (s/both
-                                (s/pred (fn [m]
-                                          (= 2 (count m))) :predicates/exactly-2-members)
-                                [(s/one OAuthConsumer
-                                        :predicates/one-oauth-consument) Agent])})
+   {(s/optional-key "objectType") (s/eq "Group") ;; Group
+    (s/optional-key "name") s/Str
+    (s/optional-key "mbox") MailToIRI
+    (s/optional-key "mbox_sha1sum") Sha1Sum
+    (s/optional-key "openid") OpenID
+    (s/optional-key "account") Account
+    (s/required-key "member") (s/constrained
+                               [(s/one OAuthConsumer
+                                       :predicates/one-oauth-consumer) Agent]
+                               two-members?
+                               :predicates/exactly-2-members)}
    "Three-Legged OAuth Group"))
 
 (s/defschema
@@ -405,21 +421,22 @@
 (s/defschema
   Statement
   (s/named
-   (s/both
-    {(s/optional-key "id") UuidId
-     (s/required-key "actor") Actor
-     (s/required-key "verb") Verb
-     (s/required-key "object") StatementObject
-     (s/optional-key "result") Result
-     (s/optional-key "context") Context
-     (s/optional-key "timestamp") Timestamp
-     (s/optional-key "stored") Timestamp
-     (s/optional-key "authority") Authority
-     (s/optional-key "version") Version
-     (s/optional-key "attachments") Attachments
-     (s/optional-key "objectType") s/Str ;; necessary for validating substatements as statements!
-     }
-    StatementValidations)
+   (-> {(s/optional-key "id") UuidId
+        (s/required-key "actor") Actor
+        (s/required-key "verb") Verb
+        (s/required-key "object") StatementObject
+        (s/optional-key "result") Result
+        (s/optional-key "context") Context
+        (s/optional-key "timestamp") Timestamp
+        (s/optional-key "stored") Timestamp
+        (s/optional-key "authority") Authority
+        (s/optional-key "version") Version
+        (s/optional-key "attachments") Attachments
+        (s/optional-key "objectType") s/Str ;; necessary for validating substatements as statements!
+        }
+       (s/constrained valid-void? :predicates/void-statement-ref)
+       (s/constrained valid-revision? :predicates/revision-not-allowed)
+       (s/constrained valid-platform? :predicates/platform-not-allowed))
    "Statement"))
 
 (s/defschema

@@ -1,12 +1,7 @@
 (ns xapi-schema.schemata.predicates
   (:require
    [clojure.set :refer [intersection
-                        difference]]
-   [xapi-schema.schemata.regex :refer [AbsoluteIRIRegEx
-                                       UuidRegEx]]
-   #?(:clj [schema.core :as s]
-      :cljs [schema.core :as s
-             :include-macros true])))
+                        difference]]))
 
 ;; IFI predicates
 (defn ifi-count
@@ -34,6 +29,17 @@
   [x]
   (= (ifi-count x)
      0))
+
+;; anon group
+
+(defn has-members?
+  [{:strs [member]}]
+  (seq member))
+
+;; three-legged-oauth group
+
+(defn two-members? [m]
+  (= 2 (count m)))
 
 ;; interaction component predicates
 
@@ -98,70 +104,37 @@
       true
       (not platform-present?))))
 
-;; Predicate schemata, builders
+;; Score pred fns
 
-(def valid-context-pred
-  (s/both (s/pred valid-revision? :predicates/revision-not-allowed)
-          (s/pred valid-platform? :predicates/platform-not-allowed)))
+(defn score-raw-lte-max
+  [x]
+  (let [{:strs [raw max]} x]
+    (if (and raw max)
+      (<= raw max)
+      true)))
 
-(defn regex-pred
-  [regex message]
-  (s/pred #(not (nil? (re-matches regex %)))
-          message))
+(defn score-raw-gte-min
+  [x]
+  (let [{:strs [raw min]} x]
+    (if (and raw min)
+      (>= raw min)
+      true)))
 
-(def no-multi-ifi-pred
-  (s/pred no-multi-ifi? :predicates/no-multi-ifi))
+(defn score-min-lt-max
+  [x]
+  (let [{:strs [min max]} x]
+    (if (and min max)
+      (< min max)
+      true)))
 
-(def one-ifi-required-pred
-  (s/both no-multi-ifi-pred
-          (s/pred ifi-present? :predicates/no-ifi)))
+;; statement predicate fns
+(defn valid-void? [{:strs [verb object]}]
+  (if (= (get verb "id") "http://adlnet.gov/expapi/verbs/voided")
+    (= (get object "objectType") "StatementRef")
+    true))
 
-(def void-statement-ref-pred
-  (s/pred (fn [{:strs [verb object]}]
-            (if (= (get verb "id") "http://adlnet.gov/expapi/verbs/voided")
-              (= (get object "objectType") "StatementRef")
-              true))
-          :predicates/void-statement-ref))
-
-
-;; validation predicate schemata
-
-(def AgentValidations
-  one-ifi-required-pred)
-
-(def GroupValidations
-  (s/conditional ifi-present? no-multi-ifi-pred ;; identified group, only one IFI
-                 :else (s/pred (fn [{:strs [member]}]
-                                 (not (nil? member))) :predicates/no-anon-group-member)))
-
-(def InteractionComponentsValidations
-  (s/pred unique-ids? :predicates/distinct-ic-ids))
-
-(def DefinitionValidations
-  (s/pred valid-component-keys? :predicates/valid-component-keys))
-
-
-(def ScoreValidations
-  (s/both (s/pred (fn
-                    [x]
-                    (let [{:strs [raw max]} x]
-                      (if (and raw max)
-                        (<= raw max)
-                        true))) :predicates/score-lt-max)
-          (s/pred (fn
-                    [x]
-                      (let [{:strs [raw min]} x]
-                        (if (and raw min)
-                          (>= raw min)
-                          true))) :predicates/score-gt-min)
-          (s/pred (fn
-                    [x]
-                    (let [{:strs [min max]} x]
-                      (if (and min max)
-                        (< min max)
-                        true))) :predicates/score-lt-max)))
-
-(def StatementValidations
-  (s/both
-   valid-context-pred
-   void-statement-ref-pred))
+;; util
+(defn re-pred
+  [re]
+  #(not
+    (nil? (re-matches re %))))

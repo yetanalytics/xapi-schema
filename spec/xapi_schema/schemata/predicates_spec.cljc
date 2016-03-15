@@ -1,25 +1,30 @@
 (ns xapi-schema.schemata.predicates-spec
-  #?@(:cljs [(:require-macros [speclj.core :refer [describe context with it should should= should-not run-specs pending]])
+  #?@(:cljs [(:require-macros [speclj.core :refer [describe
+                                                   context
+                                                   with
+                                                   it
+                                                   should
+                                                   should=
+                                                   should-not
+                                                   run-specs
+                                                   pending]])
              (:require [speclj.core]
                        [xapi-schema.schemata.predicates :refer [ifi-count
-                                                                no-multi-ifi?
-                                                                ifi-present?
                                                                 no-ifi?
+                                                                re-pred
                                                                 unique-ids?
                                                                 valid-component-keys?
+                                                                no-multi-ifi?
+                                                                ifi-present?
+                                                                has-members?
+                                                                score-raw-lte-max
+                                                                score-raw-gte-min
+                                                                score-min-lt-max
+                                                                two-members?
                                                                 valid-revision?
                                                                 valid-platform?
-                                                                valid-context-pred
-                                                                regex-pred
-                                                                no-multi-ifi-pred
-                                                                one-ifi-required-pred
-                                                                void-statement-ref-pred
-                                                                AgentValidations
-                                                                GroupValidations
-                                                                InteractionComponentsValidations
-                                                                DefinitionValidations
-                                                                ScoreValidations
-                                                                StatementValidations]]
+                                                                valid-void?
+                                                                ]]
                        [schema.core :as s
                         :include-macros true]
                        [xapi-schema.support.schema :refer [should-satisfy
@@ -65,6 +70,21 @@
   (it "returns true if there are no ifi keys"
       (should (no-ifi? {}))
       (should-not (no-ifi? {"mbox" "mailto:milt@yetanalytics.com"})))))
+
+(describe
+ "group predicates"
+ (describe
+  "has-members?"
+  (it "is truthy if the group object has members"
+      (should (has-members? {"member" [{}]}))
+      (should-not (has-members? {}))
+      (should-not (has-members? {"member" nil}))))
+ (describe
+  "two members?"
+  (it "is truthy if the members vector has exactly two members"
+      (should (two-members? [{}{}]))
+      (should-not (two-members? [{}])))))
+
 
 (describe
  "interaction component predicates"
@@ -126,158 +146,51 @@
        (should (valid-platform? {}))))))
 
 (describe
- "predicate schemata, builders"
+ "Score Predicates"
  (describe
-  "valid-context-pred"
-  (context
-   "with valid structure for revision and/or platform"
-   (it "is satisfied"
-       (should-satisfy
-        valid-context-pred {"object" {"objectType" "Activity"}
-                            "context" {"revision" "whatever"
-                                       "platform" "whatever"}})))
-  (context
-   "with invalid structure for revision and/or plaform"
-   (it "is not satisfied"
-       (should-not-satisfy
-        valid-context-pred {"object" {"objectType" "StatementRef"}
-                            "context" {"revision" "whatever"
-                                       "platform" "whatever"}}))))
+  "score-raw-lte-max"
+  (it "is truthy if the raw score is less than or equal to max"
+      (should (score-raw-lte-max
+               {"raw" 5
+                "max" 10}))
+      (should-not (score-raw-lte-max
+                   {"raw" 10
+                    "max" 5}))))
  (describe
-  "regex-pred"
-  (context
-   "given a regex and a message"
-   (with pred (regex-pred #"[A-Z]" "A capital letter"))
-   (it "creates a regex predicate"
-       (should-satisfy+ @pred "A" :bad "a"))))
+  "score-raw-gte-min"
+  (it "is truthy if the raw score is greater than or equal to min"
+      (should (score-raw-gte-min
+               {"raw" 5
+                "min" 0}))
+      (should-not (score-raw-gte-min
+                   {"raw" 1
+                    "min" 5}))))
  (describe
-  "no-multi-ifi-pred"
-  (it "checks that there are not multiple IFIs"
-      (should-satisfy+
-       no-multi-ifi-pred
-       {}
-       {"mbox" "mailto:milt@yetanalytics.com"}
-       :bad
-       {"foo" "bar"
-        "mbox" "mailto:milt@yetanalytics.com"
-        "account" {"homePage" "http://www.foo.com"
-                   "name" "foobar"}})))
- (describe
-  "one-ifi-required-pred"
-  (it "checks that there is one and only one IFI"
-      (should-satisfy+
-       one-ifi-required-pred
-       {"mbox" "mailto:milt@yetanalytics.com"}
-       :bad
-       {"foo" "bar"
-        "mbox" "mailto:milt@yetanalytics.com"
-        "account" {"homePage" "http://www.foo.com"
-                   "name" "foobar"}}
-       {})))
- (describe
-  "void-statement-ref-pred"
-  (it "checks that voiding statements have an object with the type StatementRef"
-      (should-satisfy+
-       void-statement-ref-pred
-       {"verb" {"id" "http://adlnet.gov/expapi/verbs/voided"}
-        "object" {"objectType" "StatementRef"}}
-       :bad
-       {"verb" {"id" "http://adlnet.gov/expapi/verbs/voided"}
-        "object" {"id" "http://example.com/some/ambiguous/id"}}))))
+  "score-min-lt-max"
+  (it "is truthy if the min score is less than max"
+      (should (score-min-lt-max
+               {"min" 5
+                "max" 10}))
+      (should-not (score-min-lt-max
+                   {"min" 10
+                    "max" 5})))))
 
 (describe
- "validation predicate schemata"
+ "Statement Predicates"
  (describe
-  "AgentValidations"
-  (it "verifies that the agent has one and only one IFI"
-      (should-satisfy+
-       AgentValidations
-       {"mbox" "mailto:milt@yetanalytics.com"}
-       :bad
-       {"name" "Milt"}
-       {"foo" "bar"
-        "mbox" "mailto:milt@yetanalytics.com"
-        "account" {"homePage" "http://www.foo.com"
-                   "name" "foobar"}})))
+  "valid-void?"
+  (it "if the statement verb is void it checks for a statement ref object, otherwise true"
+      (should (valid-void? {"verb" {"id" "http://adlnet.gov/expapi/verbs/voided"}
+                           "object" {"objectType" "StatementRef"}}))
+      (should (valid-void? {}))
+      (should-not (valid-void? {"verb" {"id" "http://adlnet.gov/expapi/verbs/voided"}
+                               "object" {"objectType" "Activity"}})))))
+
+(describe
+ "Utils"
  (describe
-  "GroupValidations"
-  (context
-   "Identified Group"
-   (it "checks to make sure there is only one IFI"
-       (should-satisfy+
-        GroupValidations
-        {"mbox" "mailt:devteam@yetanalytics.com"}
-        :bad
-        {"mbox" "mailt:devteam@yetanalytics.com"
-         "openid" "http://foo.bar"})))
-  (context
-   "Anonymous Group"
-   (it "ensures the group has a member key"
-       (should-satisfy+
-        GroupValidations
-        {"member" []}
-        :bad
-        {"name" "some group"}))))
- (describe
-  "InteractionComponentsValidations"
-  (it "ensures that interaction components have unique ids"
-      (should-satisfy+
-       InteractionComponentsValidations
-       [{"id" "1"} {"id" "2"}]
-       :bad
-       [{"id" "1"} {"id" "1"}])))
- (describe
-  "DefinitionValidations"
-  (it "ensures that interaction component list keys are valid"
-      (should-satisfy+
-       DefinitionValidations
-       {"interactionType" "performance"
-        "steps" "foo"}
-       :bad
-       {"interactionType" "choice"
-        "steps" "foo"})))
- (describe
-  "ScoreValidations"
-  (context
-   "with a valid score"
-   (it "is satisfied"
-       (should-satisfy
-        ScoreValidations
-        {"max" 10
-         "min" 1
-         "raw" 5})))
-  (context
-   "with an invalid score"
-   (it "returns an error"
-       (should-satisfy+
-        ScoreValidations
-        {"max" 10
-         "min" 1
-         "raw" 5}
-        :bad
-        {"raw" 10 ;; raw higher than max
-         "max" 1}
-        {"min" 5 ;; raw lower than min
-         "raw" 1}
-        {"min" 10
-         "max" 1}))))
- (describe
-  "StatementValidations"
-  (it "validates statement context (platform and registration) structure"
-      (should-satisfy+
-       StatementValidations
-       {"object" {"objectType" "Activity"}
-        "context" {"registration" "whatever"
-                   "platform" "whatever"}}
-       :bad
-       {"object" {"objectType" "Agent"}
-        "context" {"registration" "whatever"
-                   "platform" "whatever"}}))
-  (it "validates the objectType of voiding statements"
-      (should-satisfy+
-       StatementValidations
-       {"verb" {"id" "http://adlnet.gov/expapi/verbs/voided"}
-        "object" {"objectType" "StatementRef"}}
-       :bad
-       {"verb" {"id" "http://adlnet.gov/expapi/verbs/voided"}
-        "object" {"id" "http://example.com/some/ambiguous/id"}}))))
+  "re-pred"
+  (with re #"^[A-Z]$")
+  (it "takes a regex, and returns a simple predicate fn"
+      (should ((re-pred @re) "A"))
+      (should-not ((re-pred @re) "a")))))

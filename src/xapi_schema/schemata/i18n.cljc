@@ -11,4 +11,12 @@
                                         ;:dev-mode? true ; Set to true for auto dictionary reloading
    })
 
-(def t (make-t tower-config))
+(def t* (make-t tower-config))
+
+(defn t
+  "Return a localized string for key, or return the stringed key if not found"
+  [ltag k]
+  (let [localized (t* ltag k)]
+    (if-not (= localized "")
+      localized
+      (str k))))

@@ -90,7 +90,7 @@
          (str (t ltag :in) " " in ": " value)
 
          [(['present? required] :seq)]
-         (str (t ltag :present) ": " required)
+         (str (t ltag :present) ": " (t ltag required))
 
          ;; predicate with string message
          [([(pred-msg :guard string?) value] :seq)]
