@@ -5,7 +5,7 @@ notifications:
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/7fc950df542cce183d37
-      - http://requestb.in/12bmgvc1
+      - https://9de9a93a.ngrok.io/services/travis_ci/69cbfc94b8030191c1f9f329363df722
     on_success: always
     on_failure: always
     on_start: false

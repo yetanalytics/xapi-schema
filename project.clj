@@ -4,9 +4,9 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.7.228"]
-                 [prismatic/schema "1.0.5"]
-                 [cheshire "5.5.0"]
+                 [org.clojure/clojurescript "1.8.40"]
+                 [prismatic/schema "1.1.0"]
+                 [cheshire "5.6.1"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [com.taoensso/tower "3.1.0-beta3"]
                  [slingshot "0.12.2"]]
@@ -15,7 +15,7 @@
 
   :plugins [[lein-cljsbuild "1.1.3"]]
 
-  :profiles {:dev {:dependencies [[speclj "3.3.1"]
+  :profiles {:dev {:dependencies [[speclj "3.3.2"]
                                   [com.cemerick/piggieback "0.2.1"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
 
