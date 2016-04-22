@@ -15,8 +15,6 @@
 
   :plugins [[lein-cljsbuild "1.1.3"]]
 
-  ;; Hello
-
   :profiles {:dev {:dependencies [[speclj "3.3.2"]
                                   [com.cemerick/piggieback "0.2.1"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}

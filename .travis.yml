@@ -5,7 +5,7 @@ notifications:
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/7fc950df542cce183d37
-      - https://9de9a93a.ngrok.io/services/travis_ci/69cbfc94b8030191c1f9f329363df722
+      - https://cantilever-staging.yetcore.io/services/travis_ci/5283e531cc956792cd416d3513c70572
     on_success: always
     on_failure: always
     on_start: false
