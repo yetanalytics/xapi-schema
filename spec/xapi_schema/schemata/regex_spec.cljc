@@ -56,9 +56,13 @@
               (should-not (re-matches UuidRegEx "3c7db14d-ac4b-4e35-b2c6-3b2237f382"))))
 
 (describe "TimestampRegex"
-          (it "matches valid ISO 8601 datetime stamps"
+          (it "matches valid ISO 8601 datetime stamps within the rfc3339 profile"
               (should (re-matches TimestampRegEx "2015-05-13T15:16:00Z"))
-              (should-not (re-matches TimestampRegEx "5-13-2015"))))
+              (should (re-matches TimestampRegEx "2015-05-13T15:16:00.304Z"))
+              (should (re-matches TimestampRegEx "2015-05-13T15:16:00-20:00"))
+              (should-not (re-matches TimestampRegEx "5-13-2015"))
+              (should-not (re-matches TimestampRegEx "20150513T15Z"))
+              (should-not (re-matches TimestampRegEx "20150513T15:16:00Z")) ))
 
 (describe "xAPIVersionRegEx"
           (it "matches xAPI 1.0.X versions"
