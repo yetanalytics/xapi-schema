@@ -1,6 +1,6 @@
 #+TITLE: xapi-schema
-#+AUTHOR: Milt Reder, Jason Lewis
-#+EMAIL: milt@yetanalytics.com, jason@yetanalytics.com
+#+AUTHOR: Milt Reder
+#+EMAIL: milt@yetanalytics.com
 
 [[https://travis-ci.org/yetanalytics/xapi-schema][https://travis-ci.org/yetanalytics/xapi-schema.svg?branch=master]]
 [[https://jarkeeper.com/yetanalytics/xapi-schema][https://jarkeeper.com/yetanalytics/xapi-schema/status.png]]
@@ -18,7 +18,7 @@ You can use xapi-schema to validate statements in real-time [[http://yetanalytic
 ** Getting Started
 1. Add to your project dependencies:
   #+BEGIN_SRC clojure
-  [[com.yetanalytics/xapi-schema "0.1.5"]]
+  [[com.yetanalytics/xapi-schema "0.1.10"]]
   #+END_SRC
 2. Require in your project:
   #+BEGIN_SRC clojure
@@ -151,7 +151,7 @@ xapi_schema.core.validate_statement_data_js(statement_json); // => statement JSO
 
 ** License
 
-Copyright © 2015 Yet Analytics, Inc.
+Copyright © 2016 Yet Analytics, Inc.
 
 Distributed under the Eclipse Public License, the same as Clojure.
 See the file [[file:LICENSE][LICENSE]] for details.
