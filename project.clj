@@ -4,9 +4,9 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.8.40"]
-                 [prismatic/schema "1.1.0"]
-                 [cheshire "5.6.1"]
+                 [org.clojure/clojurescript "1.9.229"]
+                 [prismatic/schema "1.1.3"]
+                 [cheshire "5.6.3"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [com.taoensso/tower "3.1.0-beta3"]
                  [slingshot "0.12.2"]]
