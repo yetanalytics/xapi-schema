@@ -60,6 +60,7 @@
               (should (re-matches TimestampRegEx "2015-05-13T15:16:00Z"))
               (should (re-matches TimestampRegEx "2015-05-13T15:16:00.304Z"))
               (should (re-matches TimestampRegEx "2015-05-13T15:16:00-20:00"))
+              (should (re-matches TimestampRegEx "2016-11-22T16:50:25.3868080Z"))
               (should-not (re-matches TimestampRegEx "5-13-2015"))
               (should-not (re-matches TimestampRegEx "20150513T15Z"))
               (should-not (re-matches TimestampRegEx "20150513T15:16:00Z")) ))
