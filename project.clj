@@ -3,8 +3,8 @@
   :url "https://github.com/yetanalytics/xapi-schema"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.229"]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
+                 [org.clojure/clojurescript "1.9.293"]
                  [prismatic/schema "1.1.3"]
                  [cheshire "5.6.3"]
                  [org.clojure/core.match "0.3.0-alpha4"]
