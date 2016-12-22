@@ -37,13 +37,21 @@
   (s/and string?
          (re-pred LanguageTagRegEx)))
 
+(s/def ::language-tag-key
+  (s/and keyword?
+         (comp (re-pred LanguageTagRegEx) name)))
+
 (s/def ::language-map
-  (s/map-of ::language-tag
+  (s/map-of ::language-tag-key
             string?))
 
 (s/def ::iri
   (s/and string?
          (re-pred AbsoluteIRIRegEx)))
+
+(s/def ::iri-key
+  (s/and keyword?
+         (comp (re-pred AbsoluteIRIRegEx) name)))
 
 (s/def ::mailto-iri
   (s/and string?
@@ -54,7 +62,7 @@
          (re-pred AbsoluteIRIRegEx)))
 
 (s/def ::extensions
-  (s/map-of ::iri
+  (s/map-of ::iri-key
             identity)) ;; TODO: spec for any valid json
 
 (s/def ::openid
