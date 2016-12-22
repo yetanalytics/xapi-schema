@@ -15,8 +15,10 @@
 
   :plugins [[lein-cljsbuild "1.1.3"]]
 
-  :profiles {:dev {:dependencies [[speclj "3.3.2"]
-                                  [com.cemerick/piggieback "0.2.1"]]
+  :profiles {:dev {:source-paths ["src" "test"]
+                   :dependencies [[speclj "3.3.2"]
+                                  [com.cemerick/piggieback "0.2.1"]
+                                  [org.clojure/test.check "0.9.0"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
 
   :cljsbuild {:builds [{:id "dev"
