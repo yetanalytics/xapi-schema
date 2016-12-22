@@ -97,16 +97,15 @@
   ::language-map)
 
 (s/def ::interaction-component
-
   (s/and (namespace-conformer "interaction-component")
          (s/keys :req [:interaction-component/id]
                  :opt [:interaction-component/description])))
 
 (s/def ::interaction-components
-  (s/and
-   (s/coll-of ::interaction-component
-              :kind vector?)
-   #(distinct? (map :id %))))
+  (s/and vector?
+         #(distinct? (map :id %))
+         (s/conformer identity vec)
+         (s/cat ::interaction-component (s/* ::interaction-component))))
 
 (s/def :definition/name
   ::language-map)
@@ -289,7 +288,10 @@
   ::account)
 
 (s/def :group/member
-  (s/coll-of ::agent :kind vector?))
+  ;; Hack, would be (s/coll-of ::agent :kind vector? :into []) but that doesn't unform properly
+  (s/and vector?
+         (s/conformer identity vec)
+         (s/cat ::agent (s/* ::agent))))
 
 (s/def ::group
   (s/and
