@@ -406,10 +406,12 @@
    :min-count 1))
 
 (s/def ::context-activities
-  (s/or ::context-activities-array
-        ::context-activities-array
-        ::activity
-        ::activity))
+  (s/and
+   (s/or ::context-activities-array
+         ::context-activities-array
+         ::activity
+         ::activity)
+   conformer-val))
 
 (s/def :contextActivities/parent
   ::context-activities)
