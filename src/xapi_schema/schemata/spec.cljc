@@ -34,9 +34,6 @@
            (for [[k v] m]
              [(name k) v])))))
 
-(def conformer-val
-  (s/conformer val))
-
 ;; Leaves
 
 (s/def ::language-tag
@@ -311,18 +308,15 @@
           (s/keys :req [:group/objectType
                         :group/member]
                   :opt [:group/name])
-          #(-> % :group/member seq)))
-   conformer-val))
+          #(-> % :group/member seq)))))
 
 ;; Actor
 
 (s/def ::actor
-  (s/and
-   (s/or ::agent
-         ::agent
-         ::group
-         ::group)
-   conformer-val))
+  (s/or ::agent
+        ::agent
+        ::group
+        ::group))
 
 ;; Verb
 
@@ -400,18 +394,16 @@
 ;; Context
 
 (s/def ::context-activities-array
-  (s/coll-of
-   ::activity
-   :kind vector?
-   :min-count 1))
+  (s/and vector?
+         not-empty
+         (s/conformer identity vec)
+         (s/cat ::activity (s/* ::activity))))
 
 (s/def ::context-activities
-  (s/and
-   (s/or ::context-activities-array
-         ::context-activities-array
-         ::activity
-         ::activity)
-   conformer-val))
+  (s/or ::context-activities-array
+        ::context-activities-array
+        ::activity
+        ::activity))
 
 (s/def :contextActivities/parent
   ::context-activities)
@@ -517,17 +509,16 @@
            :req-opt [:attachment/description])))
 
 (s/def ::attachment
-  (s/and
-   (s/or ::file-attachment
-         ::file-attachment
-         ::url-attachment
-         ::url-attachment)
-   conformer-val))
+  (s/or ::file-attachment
+        ::file-attachment
+        ::url-attachment
+        ::url-attachment))
 
 (s/def ::attachments
-  (s/and
-   (s/coll-of ::attachment :kind vector?)
-   not-empty))
+  (s/and vector?
+         not-empty
+         (s/conformer identity vec)
+         (s/cat ::attachment (s/* ::attachment))))
 
 ;; Sub-statement
 
@@ -544,8 +535,7 @@
          ::group
          ::group
          ::statement-ref
-         ::statement-ref)
-   conformer-val))
+         ::statement-ref)))
 
 (s/def :sub-statement/result
   ::result)
@@ -607,20 +597,18 @@
 ;; Statement!
 
 (s/def :statement/authority
-  (s/and
-   (s/or ::agent
-         ::agent
-         ::group
-         ::three-legged-oauth-group)
-   conformer-val))
+  (s/or ::agent
+        ::agent
+        ::group
+        ::three-legged-oauth-group))
 
 (s/def :statement/object
-  (s/and
-   (s/or ::actor ::actor
-         ::sub-statement ::sub-statement
-         ::statement-ref ::statement-ref
-         ::activity ::activity)
-   conformer-val))
+  (s/or
+   ::activity ::activity
+   ::agent ::agent
+   ::group ::group
+   ::sub-statement ::sub-statement
+   ::statement-ref ::statement-ref))
 
 (s/def :statement/id
   ::uuid)
