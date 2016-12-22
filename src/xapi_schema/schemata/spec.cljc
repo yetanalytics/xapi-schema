@@ -449,8 +449,8 @@
   (s/with-gen
     (s/and vector?
            not-empty
-           (s/cat ::activity (s/* ::activity))
-           (s/conformer identity vec))
+           (s/conformer identity vec)
+           (s/cat ::activity (s/* ::activity)))
     #(s/gen (s/coll-of
              ::activity
              :kind vector?
