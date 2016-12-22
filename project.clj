@@ -9,7 +9,9 @@
                  [cheshire "5.6.3"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [com.taoensso/tower "3.1.0-beta3"]
-                 [slingshot "0.12.2"]]
+                 [slingshot "0.12.2"]
+                 [org.clojure/test.check "0.9.0"]
+                 [com.gfredericks/test.chuck "0.2.7"]]
   :exclusions [[org.clojure/clojure]
                [org.clojure/clojurescript]]
 
@@ -18,7 +20,7 @@
   :profiles {:dev {:source-paths ["src" "test"]
                    :dependencies [[speclj "3.3.2"]
                                   [com.cemerick/piggieback "0.2.1"]
-                                  [org.clojure/test.check "0.9.0"]]
+                                  ]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
 
   :cljsbuild {:builds [{:id "dev"
