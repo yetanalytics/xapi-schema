@@ -660,12 +660,15 @@
                        :statement/attachments
                        :statement/objectType])
          (fn valid-context? [s]
-           (if (some-> s :statement/object :activity/objectType)
+           (if (some-> s
+                       :statement/object
+                       first
+                       (= ::activity))
              true
              (not (some-> s :statement/context revision-or-platform?))))
          (fn valid-void? [s]
            (if (some-> s :statement/verb :verb/id (= "http://adlnet.gov/expapi/verbs/voided"))
-             (some-> s :statement/object :statement-ref/objectType)
+             (some-> s :statement/object first (= ::statement-ref))
              true))))
 
 (s/def ::statements
