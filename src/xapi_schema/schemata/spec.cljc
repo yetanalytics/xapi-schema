@@ -1,5 +1,6 @@
 (ns xapi-schema.schemata.spec
   (:require
+   [xapi-schema.schemata.predicates :refer [re-pred]]
    [xapi-schema.schemata.regex :refer [LanguageTagRegEx
                                        OpenIdRegEx
                                        AbsoluteIRIRegEx
@@ -10,9 +11,6 @@
                                        DurationRegEx
                                        Base64RegEx
                                        Sha1RegEx]]
-   [xapi-schema.schemata.gen :as xapi-gen]
-   [clojure.spec.gen :as sgen]
-   ;; [clojure.test.check.generators :as gen]
    [clojure.set :refer [intersection
                         difference]]
    #?(:clj [clojure.spec :as s]
@@ -20,105 +18,115 @@
       [cljs.spec :as s :include-macros true])))
 
 
-(defn re-pred [re gen]
-  (s/with-gen (fn [s] (re-matches re s)) (constantly gen)))
-
-(defn keys->strings [m]
-  (into {}
-        (for [[k v] m]
-          [(name k) v])))
-
 (defn namespace-conformer
   "Returns a conformer that coerces map keys to the given ns."
-  ([nss]
-   (s/conformer
-    (fn [m]
-      (try
-        (into {}
-              (for [[k v] m]
-                [(keyword nss k) v]))
-        (catch Exception _
-          :clojure.spec/invalid)))
-    keys->strings))
+  [nss]
+  (s/conformer
+   (fn [m]
+     (try
+       (into {}
+             (for [[k v] m]
+               [(keyword nss k) v]))
+       (catch Exception _
+         :clojure.spec/invalid)))
+   (fn unf [m]
+     (if (map? m)
+       (into {}
+             (for [[k v] m]
+               [(name k) v]))
+       (recur (second m))))))
 
-  ([nss qualified-map-spec]
-   (s/with-gen
-     (s/and
-      (namespace-conformer nss)
-      qualified-map-spec)
-     #(sgen/fmap
-       keys->strings
-       (s/gen qualified-map-spec)))))
+(def strip-tags-conformer
+  (s/conformer
+   identity
+   val
+   #_(fn [x]
+     (if (and (some-> x first keyword?))
+       (recur (second x))
+       x))))
 
 ;; Leaves
 
 (s/def ::language-tag
-  (s/and (re-pred LanguageTagRegEx xapi-gen/ltag)
-         string?))
+  (s/and string?
+         (re-pred LanguageTagRegEx)))
 
 (s/def ::language-map
   (s/map-of ::language-tag
-            string?))
+            string?
+            :gen-max 3))
 
 (s/def ::iri
-  (s/and (re-pred AbsoluteIRIRegEx xapi-gen/iri)
-         string?))
+  (s/and string?
+         (re-pred AbsoluteIRIRegEx)))
 
 (s/def ::mailto-iri
-  (s/and (re-pred MailToIRIRegEx xapi-gen/mailto)
-         string?))
+  (s/and string?
+         (re-pred MailToIRIRegEx)))
 
 (s/def ::irl
-  (s/and (re-pred AbsoluteIRIRegEx xapi-gen/iri)
-         string?))
+  (s/and string?
+         (re-pred AbsoluteIRIRegEx)))
 
 (s/def ::any-json
-  (s/or ::string
-        string?
-        ::number
-        number?
-        ::map
-        (s/map-of string?
-                  ::any-json
-                  :gen-max 2)
-        ::vector
-        (s/coll-of ::any-json
-                   :kind vector?
-                   :gen-max 2)))
+  (s/and
+   (s/or :scalar (s/and
+                  (s/or :string
+                        string?
+                        :number
+                        (s/and
+                         (s/or :double
+                               double?
+                               :int
+                               int?)
+                         strip-tags-conformer))
+                  strip-tags-conformer)
+         :coll (s/and
+                (s/or :map
+                    (s/map-of
+                     string?
+                     ::any-json
+                     :gen-max 4)
+                    :vector
+                    (s/coll-of
+                     ::any-json
+                     :kind vector?
+                     :into []
+                     :gen-max 4))
+                strip-tags-conformer))
+   strip-tags-conformer))
 
 (s/def ::extensions
   (s/map-of ::iri
-            (s/with-gen
-              any?
-              #(s/gen ::any-json))))
+            ::any-json)) ;; TODO: spec for any valid json
 
 (s/def ::openid
-  (s/and (re-pred OpenIdRegEx xapi-gen/openid)
-         string?))
+  (s/and string?
+         (re-pred OpenIdRegEx)))
 
 (s/def ::uuid
-  (s/and (re-pred UuidRegEx xapi-gen/uuid)
-         string?))
+  (s/and string?
+         (re-pred UuidRegEx)))
 
 (s/def ::timestamp
-  (s/and (re-pred TimestampRegEx xapi-gen/timestamp)
-         string?))
+  (s/and string?
+         (re-pred TimestampRegEx)))
 
 (s/def ::duration
-  (s/and (re-pred DurationRegEx xapi-gen/duration)
-         string?))
+  (s/and string?
+         (re-pred DurationRegEx)))
 
 (s/def ::version
-  (s/and (re-pred xAPIVersionRegEx xapi-gen/version)
-         string?))
+  (s/and string?
+         (re-pred xAPIVersionRegEx)))
 
 (s/def ::sha2
-  (s/and (re-pred Base64RegEx xapi-gen/base64)
-         string?))
+  (s/and string?
+         (re-pred Base64RegEx)))
 
 (s/def ::sha1sum
-  (s/and (re-pred Sha1RegEx xapi-gen/sha1)
-         string?))
+  (s/and string?
+         (re-pred Sha1RegEx)))
 
 ;; Activity Definition
 
@@ -128,16 +136,22 @@
 (s/def :interaction-component/description
   ::language-map)
 
+(s/def ::interaction-component*
+  (s/keys :req [:interaction-component/id]
+          :opt [:interaction-component/description]))
+
 (s/def ::interaction-component
-  (namespace-conformer "interaction-component"
-                       (s/keys :req [:interaction-component/id]
-                               :opt [:interaction-component/description])))
+  (s/and (namespace-conformer "interaction-component")
+         ::interaction-component*))
 
 (s/def ::interaction-components
-  (s/and vector?
+  (s/and
+   (s/coll-of ::interaction-component :kind vector? :into [])
+   #(distinct? (map :id %)))
+  #_(s/and vector?
          #(distinct? (map :id %))
-         (s/conformer identity vec)
-         (s/cat ::interaction-component (s/* ::interaction-component))))
+         (s/cat ::interaction-component (s/* ::interaction-component))
+         (s/conformer identity vec)))
 
 (s/def :definition/name
   ::language-map)
@@ -172,7 +186,7 @@
 (s/def :definition/extensions
   ::extensions)
 
-(def interaction-types
+(s/def :definition/interactionType
   #{"true-false"
     "choice"
     "fill-in"
@@ -183,9 +197,6 @@
     "likert"
     "numeric"
     "other"})
-
-(s/def :definition/interactionType
-  interaction-types)
 
 (def component-keys
   #{:definition/choices
@@ -218,33 +229,26 @@
       false
       true)))
 
+(s/def :activity/definition*
+  (s/and
+   (s/keys :opt [:definition/name
+                 :definition/description
+                 :definition/correctResponsesPattern
+                 :definition/interactionType
+                 :definition/type
+                 :definition/moreInfo
+                 :definition/choices
+                 :definition/scale
+                 :definition/source
+                 :definition/target
+                 :definition/steps
+                 :definition/extensions])
+   valid-definition-component-keys?))
+
 (s/def :activity/definition
-  (s/with-gen
-    (s/and
-     (namespace-conformer "definition")
-     (s/keys :opt [:definition/name
-                   :definition/description
-                   :definition/correctResponsesPattern
-                   :definition/interactionType
-                   :definition/type
-                   :definition/moreInfo
-                   :definition/choices
-                   :definition/scale
-                   :definition/source
-                   :definition/target
-                   :definition/steps
-                   :definition/extensions])
-     valid-definition-component-keys?)
-    #(sgen/fmap
-      keys->strings
-      (s/gen ;; Omit the conditional keys from the gen
-       (s/keys :opt [:definition/name
-                     :definition/description
-                     :definition/correctResponsesPattern
-                     :definition/interactionType
-                     :definition/type
-                     :definition/moreInfo
-                     :definition/extensions])))))
+  (s/and
+   (namespace-conformer "definition")
+   :activity/definition*))
 
 (s/def :activity/objectType
   #{"Activity"})
@@ -252,11 +256,15 @@
 (s/def :activity/id
   ::iri)
 
+(s/def ::activity*
+  (s/keys :req [:activity/id]
+          :opt [:activity/objectType
+                :activity/definition]))
+
 (s/def ::activity
-  (namespace-conformer "activity"
-                       (s/keys :req [:activity/id]
-                               :opt [:activity/objectType
-                                     :activity/definition])))
+  (s/and
+   (namespace-conformer "activity")
+   ::activity*))
 
 ;; Account
 
@@ -266,10 +274,13 @@
 (s/def :account/homePage
   ::irl)
 
+(s/def ::account*
+  (s/keys :req [:account/name
+                :account/homePage]))
+
 (s/def ::account
-  (namespace-conformer "account"
-                       (s/keys :req [:account/name
-                                     :account/homePage])))
+  (s/and (namespace-conformer "account")
+         ::account*))
 
 ;; Agent
 
@@ -301,17 +312,29 @@
                               :group/openid
                               :group/account]))))
 
+(s/def ::agent*
+  (s/or
+   :mbox
+   (s/keys :req [:agent/objectType
+                 :agent/mbox]
+           :opt [:agent/name])
+   :mbox_sha1sum
+   (s/keys :req [:agent/objectType
+                 :agent/mbox_sha1sum]
+           :opt [:agent/name])
+   :openid
+   (s/keys :req [:agent/objectType
+                 :agent/openid]
+           :opt [:agent/name])
+   :account
+   (s/keys :req [:agent/objectType
+                 :agent/account]
+           :opt [:agent/name])))
+
 (s/def ::agent
   (s/and
-   (namespace-conformer "agent"
-                        (s/keys :opt [:agent/objectType
-                                      :agent/name
-                                      :agent/mbox
-                                      :agent/mbox_sha1sum
-                                      :agent/openid
-                                      :agent/account]))
-
-   one-ifi?))
+   (namespace-conformer "agent")
+   ::agent*))
 
 ;; Group
 
@@ -335,32 +358,50 @@
 
 (s/def :group/member
   ;; Hack, would be (s/coll-of ::agent :kind vector? :into []) but that doesn't unform properly
-  (s/with-gen
-    (s/and vector?
-           (s/conformer identity vec)
-           (s/cat ::agent (s/* ::agent)))
-    #(s/gen (s/coll-of
-             ::agent
-             :kind vector?))))
+  (s/coll-of ::agent :kind vector? :into [] :gen-max 3)
+  #_(s/and vector?
+         (s/conformer identity vec)
+         (s/cat ::agent (s/* ::agent))))
+
+
+(s/def ::identified-group
+  (s/or
+   :mbox
+   (s/keys :req [:group/objectType
+                 :group/mbox]
+           :opt [:group/name
+                 :group/member])
+   :mbox_sha1sum
+   (s/keys :req [:group/objectType
+                 :group/mbox_sha1sum]
+           :opt [:group/name])
+   :openid
+   (s/keys :req [:group/objectType
+                 :group/openid]
+           :opt [:group/name])
+   :account
+   (s/keys :req [:group/objectType
+                 :group/account]
+           :opt [:group/name])))
+
+(s/def ::anonymous-group
+  (s/and
+   (s/keys :req [:group/objectType
+                 :group/member]
+           :opt [:group/name])
+   #(-> % :group/member seq)))
+
+(s/def ::group*
+  (s/or :identified-group
+        ::identified-group
+        :anonymous-group
+        ::anonymous-group
+        ))
 
 (s/def ::group
   (s/and
-   (namespace-conformer "group"
-                        (s/or ::identified-group
-                              (s/and (s/keys :req [:group/objectType]
-                                             :opt [:group/name
-                                                   :group/mbox
-                                                   :group/mbox_sha1sum
-                                                   :group/openid
-                                                   :group/account
-                                                   :group/member])
-                                     one-ifi?)
-                              ::anonymous-group
-                              (s/and
-                               (s/keys :req [:group/objectType
-                                             :group/member]
-                                       :opt [:group/name])
-                               #(-> % :group/member seq))))))
+   (namespace-conformer "group")
+   ::group*))
 
 ;; Actor
 
@@ -376,11 +417,15 @@
 
 (s/def :verb/display ::language-map)
 
+(s/def ::verb*
+  (s/keys :req [:verb/id]
+          :opt [:verb/display]))
+
 (s/def ::verb
   (s/and
-   (namespace-conformer "verb"
-                        (s/keys :req [:verb/id]
-                                :opt [:verb/display]))))
+   (namespace-conformer "verb")
+   (s/keys :req [:verb/id]
+           :opt [:verb/display])))
 
 ;; Result
 
@@ -396,16 +441,21 @@
 (s/def :score/max
   number?)
 
+(s/def :result/score*
+  (s/and
+   (s/keys :opt [:score/scaled
+                 :score/raw
+                 :score/min
+                 :score/max])
+   (fn [{:keys [score/raw score/min score/max]}]
+     (if (or min raw max)
+       (apply <= (filter identity [min raw max]))
+       true))))
+
 (s/def :result/score
-  (namespace-conformer "score"
-                       (s/and (s/keys :opt [:score/scaled
-                                            :score/raw
-                                            :score/min
-                                            :score/max])
-                              (fn [{:keys [score/raw score/min score/max]}]
-                                (if (or raw min max)
-                                  (apply <= (filter identity [raw min max]))
-                                  true)))))
+  (s/and
+   (namespace-conformer "score")
+   :result/score*))
 
 (s/def :result/success
   boolean?)
@@ -422,14 +472,18 @@
 (s/def :result/extensions
   ::extensions)
 
+(s/def ::result*
+  (s/keys :opt [:result/score
+                :result/success
+                :result/completion
+                :result/response
+                :result/duration
+                :result/extensions]))
+
 (s/def ::result
-  (namespace-conformer "result"
-                       (s/keys :opt [:result/score
-                                     :result/success
-                                     :result/completion
-                                     :result/response
-                                     :result/duration
-                                     :result/extensions])))
+  (s/and
+   (namespace-conformer "result")
+   ::result*))
 
 ;; Statement Ref
 
@@ -438,23 +492,22 @@
 (s/def :statement-ref/objectType
   #{"StatementRef"})
 
+(s/def ::statement-ref*
+  (s/keys :req [:statement-ref/id
+                :statement-ref/objectType]))
+
 (s/def ::statement-ref
-  (namespace-conformer "statement-ref"
-                       (s/keys :req [:statement-ref/id
-                                     :statement-ref/objectType])))
+  (s/and (namespace-conformer "statement-ref")
+         ::statement-ref*))
 
 ;; Context
 
 (s/def ::context-activities-array
-  (s/with-gen
-    (s/and vector?
-           not-empty
-           (s/conformer identity vec)
-           (s/cat ::activity (s/* ::activity)))
-    #(s/gen (s/coll-of
-             ::activity
-             :kind vector?
-             :min-count 1))))
+  (s/coll-of ::activity :kind vector? :into [] :min-count 1)
+  #_(s/and vector?
+         not-empty
+         (s/conformer identity vec)
+         (s/cat ::activity (s/* ::activity))))
 
 (s/def ::context-activities
   (s/or ::context-activities-array
@@ -474,12 +527,16 @@
 (s/def :contextActivities/other
   ::context-activities)
 
+(s/def :context/contextActivities*
+  (s/keys :opt [:contextActivities/parent
+                :contextActivities/grouping
+                :contextActivities/category
+                :contextActivities/other]))
+
 (s/def :context/contextActivities
-  (namespace-conformer "contextActivities"
-                       (s/keys :opt [:contextActivities/parent
-                                     :contextActivities/grouping
-                                     :contextActivities/category
-                                     :contextActivities/other])))
+  (s/and
+   (namespace-conformer "contextActivities")
+   :context/contextActivities*))
 
 
 (s/def :context/registration
@@ -506,17 +563,21 @@
 (s/def :context/extensions
   ::extensions)
 
+(s/def ::context*
+  (s/keys :opt [:context/registration
+                :context/instructor
+                :context/team
+                :context/contextActivities
+                :context/revision
+                :context/platform
+                :context/language
+                :context/statement
+                :context/extensions]))
+
 (s/def ::context
-  (namespace-conformer "context"
-                       (s/keys :opt [:context/registration
-                                     :context/instructor
-                                     :context/team
-                                     :context/contextActivities
-                                     :context/revision
-                                     :context/platform
-                                     :context/language
-                                     :context/statement
-                                     :context/extensions])))
+  (s/and
+   (namespace-conformer "context")
+   ::context*))
 
 ;; Attachments
 
@@ -542,40 +603,40 @@
   ::irl)
 
 (s/def ::file-attachment
-  (namespace-conformer "attachment"
-                       (s/keys :req [:attachment/usageType
-                                     :attachment/display
-                                     :attachment/contentType
-                                     :attachment/length
-                                     :attachment/sha2]
-                               :req-opt [:attachment/description
-                                         :attachment/fileUrl])))
+  (s/keys :req [:attachment/usageType
+                :attachment/display
+                :attachment/contentType
+                :attachment/length
+                :attachment/sha2]
+          :req-opt [:attachment/description
+                    :attachment/fileUrl]))
 
 (s/def ::url-attachment
-  (namespace-conformer "attachment"
-                       (s/keys :req [:attachment/usageType
-                                     :attachment/display
-                                     :attachment/contentType
-                                     :attachment/length
-                                     :attachment/sha2
-                                     :attachment/fileUrl]
-                               :req-opt [:attachment/description])))
+  (s/keys :req [:attachment/usageType
+                :attachment/display
+                :attachment/contentType
+                :attachment/length
+                :attachment/sha2
+                :attachment/fileUrl]
+          :req-opt [:attachment/description]))
 
-(s/def ::attachment
+(s/def ::attachment*
   (s/or ::file-attachment
         ::file-attachment
         ::url-attachment
         ::url-attachment))
 
+(s/def ::attachment
+  (s/and
+   (namespace-conformer "attachment")
+   ::attachment*))
+
 (s/def ::attachments
-  (s/with-gen
-    (s/and vector?
-           not-empty
-           (s/conformer identity vec)
-           (s/cat ::attachment (s/* ::attachment)))
-    #(s/gen (s/coll-of ::attachment
-                       :min-count 1
-                       :kind vector?))))
+  (s/coll-of ::attachment :kind vector? :into [])
+  #_(s/and vector?
+         not-empty
+         (s/conformer identity vec)
+         (s/cat ::attachment (s/* ::attachment))))
 
 ;; Sub-statement
 
@@ -608,22 +669,26 @@
 (s/def :sub-statement/objectType
   #{"SubStatement"})
 
+(s/def ::sub-statement*
+  (s/keys :req [:sub-statement/actor
+                :sub-statement/verb
+                :sub-statement/object
+                :sub-statement/objectType]
+          :opt [:sub-statement/result
+                :sub-statement/context
+                :sub-statement/attachments
+                :sub-statement/timestamp]))
+
 (s/def ::sub-statement
-  (namespace-conformer "sub-statement"
-                       (s/keys :req [:sub-statement/actor
-                                     :sub-statement/verb
-                                     :sub-statement/object
-                                     :sub-statement/objectType]
-                               :opt [:sub-statement/result
-                                     :sub-statement/context
-                                     :sub-statement/attachments
-                                     :sub-statement/timestamp])))
+  (s/and
+   (namespace-conformer "sub-statement")
+   ::sub-statement*))
 
 ;; Authority
 
 (s/def ::oauth-consumer
-  (s/and ::agent
-         #(:agent/account %)))
+  (s/merge ::agent
+           (s/keys :req [:agent/account])))
 
 (comment
   ;; three-legged oauth grp
@@ -638,15 +703,19 @@
           :agent
           ::agent)))
 
+(s/def ::three-legged-oauth-group*
+  (s/keys :req [:group/objectType
+                :group/member]
+          :opt [:group/name
+                :group/mbox
+                :group/mbox_sha1sum
+                :group/openid
+                :group/account]))
+
 (s/def ::three-legged-oauth-group
-  (namespace-conformer "group"
-                       (s/keys :req [:group/objectType
-                                     :group/member]
-                               :opt [:group/name
-                                     :group/mbox
-                                     :group/mbox_sha1sum
-                                     :group/openid
-                                     :group/account])))
+  (s/and
+   (namespace-conformer "group")
+   ::three-legged-oauth-group*))
 
 ;; Statement!
 
@@ -698,19 +767,18 @@
   (some-fn :context/revision
            :context/platform))
 
-(s/def ::statement
-  (s/and (namespace-conformer "statement"
-                              (s/keys :req [:statement/actor
-                                            :statement/verb
-                                            :statement/object]
-                                      :opt [:statement/id
-                                            :statement/result
-                                            :statement/context
-                                            :statement/timestamp
-                                            :statement/stored
-                                            :statement/authority
-                                            :statement/attachments
-                                            :statement/objectType]))
+(s/def ::statement*
+  (s/and (s/keys :req [:statement/actor
+                       :statement/verb
+                       :statement/object]
+                 :opt [:statement/id
+                       :statement/result
+                       :statement/context
+                       :statement/timestamp
+                       :statement/stored
+                       :statement/authority
+                       :statement/attachments
+                       :statement/objectType])
          (fn valid-context? [s]
            (if (some-> s
                        :statement/object
@@ -723,5 +791,9 @@
              (some-> s :statement/object first (= ::statement-ref))
              true))))
 
+(s/def ::statement
+  (s/and (namespace-conformer "statement")
+         ::statement*))
+
 (s/def ::statements
-  (s/coll-of ::statement :kind vector? :min-count 1))
+  (s/coll-of ::statement :kind vector? :into [] :min-count 1))
