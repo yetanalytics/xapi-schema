@@ -1,27 +1,11 @@
-(ns xapi-schema.core-spec
-  #?(:clj (:require
-           [speclj.core :refer [describe
-                                it
-                                should
-                                should=
-                                should-not
-                                context
-                                with
-                                should-be-nil
-                                should-not-be-nil
-                                should-throw]]
-           [speclj.platform]
-           [speclj.components]
-           [speclj.run.standard :refer [run-specs]]
-           [xapi-schema.core :refer :all]
-           [xapi-schema.support.data :as d :refer [long-statement]]
-           [cheshire.core :as c]))
-  #?@(:cljs [(:require-macros [speclj.core :refer [describe
+(ns xapi-schema.core-test
+  #?@(:cljs (:require [cljs.test :refer-macros [deftest is testing run-tests]]))
+  #?@(:cljs [(:require-macros [speclj.core :refer [testing
                                                    it
                                                    should
                                                    should=
                                                    should-not
-                                                   context
+                                                   testing
                                                    with
                                                    should-be-nil
                                                    should-not-be-nil
@@ -39,77 +23,76 @@
                                                  validate-statement-data-js]]
                        [xapi-schema.support.data :as d :refer [long-statement]])]))
 
-(describe
- "statement-checker"
- (context "with a valid statement"
-          (it "returns nil"
-              (should-be-nil (statement-checker long-statement))))
- (context "with an invalid statement"
+(deftest statement-checker 
+ (testing "with a valid statement"
+          (is (nil? (statement-checker long-statement))))
+
+ (testing "with an invalid statement"
           (it "returns an error"
               (should-not-be-nil (statement-checker (dissoc long-statement "object"))))))
 
-(describe
+(testing
  "statements-checker"
- (context "with all valid statements"
+ (testing "with all valid statements"
           (it "returns nil"
               (should-be-nil (statements-checker [long-statement
                                                   long-statement
                                                   long-statement]))))
- (context "with any invalid statements"
+ (testing "with any invalid statements"
           (it "returns an error"
               (should-not-be-nil (statements-checker [long-statement
                                                       long-statement
                                                       (dissoc long-statement "object")])))))
-(describe
+(testing
  "validate-statement"
- (context "with a valid statement in edn"
+ (testing "with a valid statement in edn"
           (with statement long-statement)
           (it "returns the statement"
               (should= @statement (validate-statement @statement))))
- (context "with an invalid statement in edn"
+ (testing "with an invalid statement in edn"
           (with statement (dissoc long-statement "object"))
           (it "throws an error"
               #?(:clj (should-throw (validate-statement @statement))
                  :cljs (should-throw js/Error (validate-statement @statement))))))
 
-(describe
+(testing
  "validate-statements"
- (context "with any valid statements in edn"
+ (testing "with any valid statements in edn"
           (with statements [long-statement
                             long-statement])
           (it "returns the statements"
               (should= @statements (validate-statements @statements))))
- (context "with any invalid statements in edn"
+ (testing "with any invalid statements in edn"
           (with statements [long-statement (dissoc long-statement "object")])
           (it "throws an error"
               #?(:clj (should-throw (validate-statements @statements))
                  :cljs (should-throw js/Error (validate-statements @statements))))))
 
-(describe
+(testing
  "validate-statement-data*"
- (context "with a valid statement"
+ (testing "with a valid statement"
           (with statement long-statement)
           (it "returns the statement"
               (should= @statement (validate-statement-data* @statement))))
- (context "with valid statements"
+ (testing "with valid statements"
           (with statements [long-statement
                             long-statement])
           (it "returns the statements"
               (should= @statements (validate-statement-data* @statements)))))
 
-(describe
+(testing
  "validate-statement-data"
- #?(:clj (context "with string data"
+ #?(:clj (testing "with string data"
                 (with statement (c/generate-string long-statement))
                 (it "parses and returns the validated data"
                     (should= long-statement (validate-statement-data @statement))))
-    :cljs (context "with nested data"
+    :cljs (testing "with nested data"
                  (with statement long-statement)
                  (it "coerces and returns the data"
                      (should= long-statement (validate-statement-data @statement))))))
 
 #?(:cljs
-   (describe
+   (testing
     "validate-statement-data-js"
     (with js-statement (clj->js long-statement))
     (it "returns js data"
@@ -117,4 +100,3 @@
         (should= (long-statement "id")
                  (aget (validate-statement-data-js @js-statement) "id")))))
 
-(run-specs)
