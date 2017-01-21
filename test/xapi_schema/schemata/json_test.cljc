@@ -1,6 +1,5 @@
-(ns xapi-schema.schemata.json-spec
-  #?@(:cljs [(:require-macros [speclj.core :refer [describe context with it should should= should-not run-specs pending]])
-             (:require [speclj.core]
+(ns xapi-schema.schemata.json-test
+  #?@(:cljs [(:require [cljs.test :refer-macros [deftest is testing run-tests]]
                        [xapi-schema.schemata.json :refer [LanguageTag
                                                           LanguageMap
                                                           IRI
@@ -48,80 +47,78 @@
                                                            key-should-satisfy+]]
                        [xapi-schema.support.data :as d :refer [simple-statement
                                                                long-statement]])])
-  #?(:clj (:require [speclj.core :refer :all]
+  #?(:clj (:require [clojure.test :refer :all]
                     [schema.core :as s]
                     [xapi-schema.schemata.json :refer :all]
                     [xapi-schema.support.data :as d :refer [simple-statement
                                                             long-statement]]
-                    [xapi-schema.support.schema :refer [should-satisfy
-                                                        should-not-satisfy
-                                                        should-satisfy+
-                                                        key-should-satisfy+]])))
+                    [xapi-schema.support.schema :refer :all])))
 
-(describe
+(deftest json-test
+ (testing
  "LanguageTag"
- (it "is a valid RFC 5646 Language Tag"
+ (testing "is a valid RFC 5646 Language Tag"
      (should-satisfy+ LanguageTag
                       "en-US"
                       :bad
                       "not a tag!")))
-(describe
+(testing
  "LanguageMap"
- (it "has LanguageTags for keys"
+ (testing "has LanguageTags for keys"
      (should-satisfy+ LanguageMap
                       {"en-US" "foo"}
                       :bad
                       {"hey there" "foo"})))
-(describe
+(testing
  "IRI"
- (it "must be a valid url with scheme"
+ (testing "must be a valid url with scheme"
      (should-satisfy+ IRI
                       "http://foo.com"
                       :bad
                       "foo.com")))
 
-(describe
+(testing
  "MailToIRI"
- (it "must be a valid foaf mbox"
+ (testing "must be a valid foaf mbox"
      (should-satisfy+ MailToIRI
                       "mailto:milt@yetanalytics.com"
                       :bad
                       "mailto:user%@example.com"
                       "milt@yetanalytics.com")))
 
-(describe
+(testing
  "IRL"
- (it "must be a valid URL"
+ (testing "must be a valid URL"
      (should-satisfy+ IRL
                       "http://foo.com"
                       :bad
                       "not an IRL")))
 
-(describe
+(testing
  "Extensions"
- (it "is a map with IRI keys"
+ (testing "is a map with IRI keys"
      (should-satisfy+ Extensions
                       {"http://www.foo.bar" {"arbitrary" "data"}}
                       :bad
                       {"foo.bar" {"arbitrary" "data"}})))
-(describe
+(testing
  "OpenID"
- (it "is a valid URL"
+ (testing "is a valid URL"
      (should-satisfy+ OpenID
                       "http://foo.bar/baz"
                       :bad
                       "some other crap")))
 
-(describe
+(testing
  "UuidId"
- (it "is a valid v4 UUID"
+ (testing "is a valid v4 UUID"
      (should-satisfy+ UuidId
                       "f47ac10b-58cc-4372-a567-0e02b2c3d479"
                       :bad
                       "12345678-1234-1234-1234-123456789012")))
-(describe
+(testing
  "Timestamp"
- (it "is a valid ISO 8601 DateTime"
+ (testing "is a valid ISO 8601 DateTime"
      (should-satisfy+ Timestamp
                       "2014-09-10T14:12:05Z"
                       "2015-06-30T23:59:60Z" ;; leap second
@@ -129,9 +126,9 @@
                       "09-10-2014T14:12:00+500"
                       "2014-09-12T03:47:40" ;; no time zone
                       )))
-(describe
+(testing
  "Duration"
- (it "is a valid ISO 8601 Duration"
+ (testing "is a valid ISO 8601 Duration"
      (should-satisfy+ Duration
                       "P3Y6M4DT12H30M5S"
                       "P3Y6M4DT12H30M5.2S" ;; good fractional
@@ -142,9 +139,9 @@
                       "P3Y6M4DT12H30.1M5S" ;; bad fractional
                       )))
 
-(describe
+(testing
  "Version"
- (it "is a valid xAPI 1.0.X version"
+ (testing "is a valid xAPI 1.0.X version"
      (should-satisfy+ Version
                       "1.0.0"
                       "1.0.1"
@@ -166,16 +163,16 @@
                       "1.0.0-"
                       "what's going on?")))
 
-(describe
+(testing
  "Sha2"
- (it "is a Base64 encoded string"
+ (testing "is a Base64 encoded string"
      (should-satisfy+ Sha2
                       "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634"
                       :bad
                       123)))
-(describe
+(testing
  "Sha1Sum"
- (it "is a SHA-1 string of 40 hex chars"
+ (testing "is a SHA-1 string of 40 hex chars"
      (should-satisfy+
       Sha1Sum
       "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12"
@@ -185,19 +182,19 @@
       "wat"
       2)))
 
-(describe
+(testing
  "InteractionComponent"
- (it "must have an ID"
+ (testing "must have an ID"
      (should-satisfy+ InteractionComponent
                       {"id" "foo"}
                       :bad
                       {})))
 
-(describe
+(testing
  "InteractionComponents"
- (context
+ (testing
   "each component"
-  (it "must have a unique ID"
+  (testing "must have a unique ID"
       (should-satisfy+ InteractionComponents
                        [{"id" "1"
                          "description" {"en-US" "foo"}}
@@ -209,48 +206,48 @@
                         {"id" "1"
                          "description" {"en-US" "bar"}}]))))
 
-(describe
+(let [definition d/definition]
+  (testing
  "Definition"
- (with definition d/definition)
- (it "should be satisfied by a valid definition"
+ (testing "should be satisfied by a valid definition"
      (should-satisfy+ Definition
-                      @definition))
- (context
+                      definition))
+ (testing
   "correctResponsesPattern"
-  (it "is an array of strings"
+  (testing "is an array of strings"
       (key-should-satisfy+
-       Definition @definition
+       Definition definition
        "correctResponsesPattern"
        ["foo" "bar" "baz"]
        :bad
        "foo bar baz")))
- (context
+ (testing
   "interactionType"
-  (it "is one of true-false, choice, fill-in, long-fill-in, matching,
+  (testing "is one of true-false, choice, fill-in, long-fill-in, matching,
        performance, sequencing, likert, numeric, other"
-      (key-should-satisfy+ Definition @definition
+      (key-should-satisfy+ Definition definition
                            "interactionType"
                            "true-false" "choice" "fill-in" "long-fill-in" "matching"
                            "performance" "sequencing" "likert" "numeric" "other"
                            :bad "foo")))
 
- (context "when the activity is an interaction activity"
-          (it "is satisfied by all interaction types"
+ (testing "when the activity is an interaction activity"
+          (testing "is satisfied by all interaction types"
               (apply should-satisfy+ Definition
-                     (vals d/interaction-activity-defs)))))
+                     (vals d/interaction-activity-defs))))))
 
-(describe
+(testing
  "Activity"
- (context
+ (testing
   "id"
-  (it "is required"
+  (testing "is required"
       (should-satisfy+ Activity
                        {"id" "http://foo.com/bar"}
                        :bad
                        {})))
- (context
+ (testing
   "objectType"
-  (it "must be Activity if present"
+  (testing "must be Activity if present"
       (should-satisfy+ Activity
                        {"id" "http://foo.com/bar"}
                        {"id" "http://foo.com/bar"
@@ -259,37 +256,37 @@
                        {"id" "http://foo.com/bar"
                         "objectType" "foo"}))))
 
-(describe
+(testing
  "Account"
- (context
+ (testing
   "name"
-  (it "is required"
+  (testing "is required"
       (should-satisfy+ Account
                        {"name" "bob"
                         "homePage" "http://foo.com/bar"}
                        :bad
                        {"homePage" "http://foo.com/bar"})))
- (context
+ (testing
   "homePage"
-  (it "is required"
+  (testing "is required"
       (should-satisfy+ Account
                        {"name" "bob"
                         "homePage" "http://foo.com/bar"}
                        :bad
                        {"name" "bob"}))))
 
-(describe
+(testing
  "Agent"
- (it "must have one and only one IFI"
+ (testing "must have one and only one IFI"
      (should-satisfy+ Agent
                       {"mbox" "mailto:milt@yetanalytics.com"}
                       :bad
                       {}
                       {"mbox" "mailto:milt@yetanalytics.com"
                        "openid" "https://some.site.com/foo"}))
- (context
+ (testing
   "objectType"
-  (it "must be Agent if provided"
+  (testing "must be Agent if provided"
       (key-should-satisfy+ Agent
                            {"mbox" "mailto:milt@yetanalytics.com"}
                            "objectType"
@@ -297,11 +294,11 @@
                            :bad
                            "Group"))))
 
-(describe
+(testing
  "Group"
- (context
+ (testing
   "Anonymous Groups"
-  (it "must have a member property"
+  (testing "must have a member property"
       (should-satisfy+ Group
                        {"member" [{"mbox" "mailto:milt@yetanalytics.com"}]
                         "objectType" "Group"}
@@ -309,9 +306,9 @@
                        {"objectType" "Group"}
                        {"member" []
                         "objectType" "Group"})))
- (context
+ (testing
   "Identified Group"
-  (it "must have one or no IFI"
+  (testing "must have one or no IFI"
       (should-satisfy+ Group
                        {"mbox" "mailto:milt@yetanalytics.com"
                         "objectType" "Group"}
@@ -320,9 +317,9 @@
                        {"mbox" "mailto:milt@yetanalytics.com"
                         "openid" "https://some.site.com/foo"
                         "objectType" "Group"})))
- (context
+ (testing
   "objectType"
-  (it "must be present and be Group"
+  (testing "must be present and be Group"
       (should-satisfy+ Group
                        {"mbox" "mailto:somegroup@yetanalytics.com"
                         "objectType" "Group"}
@@ -331,18 +328,18 @@
                        {"mbox" "mailto:somegroup@yetanalytics.com"
                         "objectType" "Agent"}))))
 
-(describe
+(testing
  "Verb"
- (context "id"
-          (it "is required"
+ (testing "id"
+          (testing "is required"
               (should-satisfy+ Verb
                                {"id" "http://foo.bar/baz"}
                                :bad
                                {}))))
 
-(describe
+(testing
  "Score"
- (it "validates score properties"
+ (testing "validates score properties"
      (should-satisfy+ Score
                       {"raw" 5
                        "min" 1
@@ -350,27 +347,27 @@
                       :bad
                       {"raw" 5
                        "max" 1}))
- (it "can be empty"
+ (testing "can be empty"
      (should-satisfy Score {})))
 
-(describe
+(testing
  "Result"
- (it "can be empty"
+ (testing "can be empty"
      (should-satisfy Result {})))
 
-(describe
+(testing
  "StatementRef"
- (context
+ (testing
   "id"
-  (it "is required"
+  (testing "is required"
       (should-satisfy+ StatementRef
                        {"objectType" "StatementRef"
                         "id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}
                        :bad
                        {"objectType" "StatementRef"})))
- (context
+ (testing
   "objectType"
-  (it "is required and must be StatementRef"
+  (testing "is required and must be StatementRef"
       (should-satisfy+ StatementRef
                        {"objectType" "StatementRef"
                         "id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}
@@ -380,9 +377,9 @@
                        {"id" "f47ac10b-58cc-4372-a567-0e02b2c3d479"}))))
 
 
-(describe
+(testing
  "ContextActivities"
- (it "is an array of 1+ activities or single activity"
+ (testing "is an array of 1+ activities or single activity"
      (should-satisfy+ ContextActivities
                       [{"id" "http://foo.bar/baz"
                         "objectType" "Activity"}]
@@ -396,18 +393,18 @@
                       []
                       ["foo"])))
 
-(describe
+(testing
  "ContextActivitiesMap"
- (it "can be empty"
+ (testing "can be empty"
      (should-satisfy ContextActivitiesMap {})))
 
-(describe
+(testing
  "Context"
- (it "can be empty"
+ (testing "can be empty"
      (should-satisfy Context {}))
- (describe
+ (testing
   "team"
-  (it "must be a group"
+  (testing "must be a group"
       (should-satisfy+ Context
                        {"team" {"mbox" "mailto:a@b.com"
                                 "objectType" "Group"}}
@@ -416,11 +413,11 @@
                        {"team" {"mbox" "mailto:a@b.com"
                                 "objectType" "Agent"}}))))
 
-(describe
+(testing
  "Attachment"
- (context
+ (testing
   "usageType, display, contentType, length, sha2"
-  (it "are required"
+  (testing "are required"
       (should-satisfy+ Attachment
                        {"usageType" "http://foo.bar/baz"
                         "display" {"en-US" "foo"}
@@ -431,11 +428,11 @@
                        {}
                        {"usageType" "http://foo.bar/baz"}))))
 
-(describe
+(testing
  "UrlAttachment"
- (context
+ (testing
   "usageType, display, contentType, length, sha2, fileUrl"
-  (it "are required"
+  (testing "are required"
       (should-satisfy+ UrlAttachment
                        {"usageType" "http://foo.bar/baz"
                         "display" {"en-US" "foo"}
@@ -447,9 +444,9 @@
                        {}
                        {"usageType" "http://foo.bar/baz"}))))
 
-(describe
+(testing
  "Attachments"
- (it "is an array of at least one attachment"
+ (testing "is an array of at least one attachment"
      (should-satisfy+ Attachments
                       [{"usageType" "http://foo.bar/baz"
                         "display" {"en-US" "foo"}
@@ -460,25 +457,24 @@
                       []
                       {})))
 
-(describe
+(let [minimal-sub-statement d/sub-statement]
+ (testing
  "SubStatement"
- (with minimal-sub-statement
-       d/sub-statement)
- (it "must not have the id, stored, version, or authority properties"
+ (testing "must not have the id, stored, version, or authority properties"
      (should-satisfy+ SubStatement
-                      @minimal-sub-statement
+                      minimal-sub-statement
                       :bad
-                      (assoc @minimal-sub-statement "id" d/uuid)
-                      (assoc @minimal-sub-statement "stored" d/timestamp)
-                      (assoc @minimal-sub-statement "version" d/version)
-                      (assoc @minimal-sub-statement "authority" d/agent)))
- (context
+                      (assoc minimal-sub-statement "id" d/uuid)
+                      (assoc minimal-sub-statement "stored" d/timestamp)
+                      (assoc minimal-sub-statement "version" d/version)
+                      (assoc minimal-sub-statement "authority" d/agent)))
+ (testing
   "actor"
-  (it "is required"
-      (should-not-satisfy SubStatement (dissoc @minimal-sub-statement "actor")))
-  (it "is an agent or group"
+  (testing "is required"
+      (should-not-satisfy SubStatement (dissoc minimal-sub-statement "actor")))
+  (testing "is an agent or group"
       (key-should-satisfy+ SubStatement
-                           @minimal-sub-statement
+                           minimal-sub-statement
                            "actor"
                            d/agent
                            d/group
@@ -486,13 +482,13 @@
                            :bad
                            "foo"
                            {})))
- (context
+ (testing
   "verb"
-  (it "is required"
-      (should-not-satisfy SubStatement (dissoc @minimal-sub-statement "verb")))
-  (it "is a Verb"
+  (testing "is required"
+      (should-not-satisfy SubStatement (dissoc minimal-sub-statement "verb")))
+  (testing "is a Verb"
       (key-should-satisfy+ SubStatement
-                           @minimal-sub-statement
+                           minimal-sub-statement
                            "verb"
                            d/verb
                            :bad
@@ -500,14 +496,14 @@
                            {}
                            d/activity
                            d/agent)))
- (context
+ (testing
   "object"
-  (it "is required"
+  (testing "is required"
       (should-not-satisfy SubStatement
-                          (dissoc @minimal-sub-statement "object")))
-  (it "is an Activity, Agent, Group, or StatementRef"
+                          (dissoc minimal-sub-statement "object")))
+  (testing "is an Activity, Agent, Group, or StatementRef"
       (key-should-satisfy+ SubStatement
-                           @minimal-sub-statement
+                           minimal-sub-statement
                            "object"
                            ;; Activity is the default
                            (dissoc d/activity "objectType")
@@ -520,14 +516,14 @@
                            :bad
                            []
                            {})))
- (context
+ (testing
   "objectType"
-  (it "is required"
-      (should-not-satisfy SubStatement (dissoc @minimal-sub-statement "objectType")))))
+  (testing "is required"
+      (should-not-satisfy SubStatement (dissoc minimal-sub-statement "objectType"))))))
 
-(describe
+(testing
  "OAuthConsumer"
- (it "must be identified by account"
+ (testing "must be identified by account"
      (should-satisfy+
       OAuthConsumer
       {"account" {"name" "oauth_consumer_x75db"
@@ -535,37 +531,37 @@
       :bad
       {"mbox" "mailto:milt@yetanalytics.com"})))
 
-(describe
+(testing
  "ThreeLeggedOAuthGroup"
- (it "must be a group with two agents"
+ (testing "must be a group with two agents"
      (should-satisfy+
       ThreeLeggedOAuthGroup
       d/authority-group
       :bad
       (update-in d/authority-group ["member"] (comp vector first))))
- (it "must have an OAuthConsumer for the first member"
+ (testing "must have an OAuthConsumer for the first member"
      (should-satisfy+
       ThreeLeggedOAuthGroup
       d/authority-group
       :bad
       (assoc d/authority-group "member" [d/agent d/agent]))))
 
-(describe
+(testing
  "Authority"
- (it "must be an agent"
+ (testing "must be an agent"
      (should-satisfy
       Authority
       d/agent))
- (context
+ (testing
   "except in the case of three-legged-oauth, when"
-  (it "can be a group with two agents"
+  (testing "can be a group with two agents"
       (should-satisfy
        Authority
        d/authority-group))))
 
-(describe
+(testing
  "StatementObject"
- (it "is an Agent, Group, SubStatement, StatementRef or Activity"
+ (testing "is an Agent, Group, SubStatement, StatementRef or Activity"
      (should-satisfy+ StatementObject
                       d/agent
                       d/group
@@ -580,13 +576,13 @@
                       d/verb
                       )))
 
-(describe
+(testing
  "Statement"
- (context
+ (testing
   "actor"
-  (it "is required"
+  (testing "is required"
       (should-not-satisfy Statement (dissoc long-statement "actor")))
-  (it "is an agent or group"
+  (testing "is an agent or group"
       (key-should-satisfy+ Statement
                            long-statement
                            "actor"
@@ -596,11 +592,11 @@
                            :bad
                            "foo"
                            {})))
- (context
+ (testing
   "verb"
-  (it "is required"
+  (testing "is required"
       (should-not-satisfy Statement (dissoc long-statement "verb")))
-  (it "is a Verb"
+  (testing "is a Verb"
       (key-should-satisfy+ Statement
                            long-statement
                            "verb"
@@ -610,12 +606,12 @@
                            {}
                            d/activity
                            d/agent)))
- (context
+ (testing
   "object"
-  (it "is required"
+  (testing "is required"
       (should-not-satisfy Statement
                           (dissoc long-statement "object")))
-  (it "is an Activity, Agent, Group, StatementRef, or sub-statement"
+  (testing "is an Activity, Agent, Group, StatementRef, or sub-statement"
       (key-should-satisfy+ Statement
                            ;; use one without context so we can swap non-activity objects
                            (dissoc long-statement "context")
@@ -631,28 +627,28 @@
                            :bad
                            []
                            {})))
- (context
+ (testing
   "context"
-  (context "when the statement object is an activity"
-           (with statement (assoc-in long-statement ["context" "revision"] "whatevs")) ;; has revision and platform
-           (it "can have the platform and revision properties"
-               (should-satisfy Statement @statement)))
-  (context "when the statement object is not an activity"
-           (with statement d/void-statement)
-           (it "cannot have the platform and revision properties"
+  (testing "when the statement object is an activity"
+           (let [statement (assoc-in long-statement ["context" "revision"] "whatevs")]
+            (testing "can have the platform and revision properties"
+               (should-satisfy Statement statement))))
+  (testing "when the statement object is not an activity"
+           (let [statement d/void-statement]
+            (testing "cannot have the platform and revision properties"
                (should-satisfy+ Statement
-                                @statement
+                                statement
                                 :bad
-                                (assoc @statement "context" {"platform" "Apple Newton"})
-                                (assoc @statement "context" {"revision" "whatevs"})))))
+                                (assoc statement "context" {"platform" "Apple Newton"})
+                                (assoc statement "context" {"revision" "whatevs"}))))))
 
- (it "is satisfied by all ADL example statements"
+ (testing "is satisfied by all ADL example statements"
      (should-satisfy+ Statement
                       simple-statement
                       long-statement
                       d/completion-statement
                       d/void-statement))
- (it "checks for the proper object objectType on voiding statements"
+ (testing "checks for the proper object objectType on voiding statements"
      (should-satisfy+ Statement
                       d/void-statement
                       :bad
@@ -661,4 +657,4 @@
                                 "mbox" "mailto:admin@example.adlnet.gov"}
                        "verb" {"id" "http://adlnet.gov/expapi/verbs/voided"
                                "display" {"en-US" "voided"}}
-                       "object" {"id" "http://example.com/activities/1"}})))
+                       "object" {"id" "http://example.com/activities/1"}}))))

@@ -23,7 +23,7 @@
     (is (nil? (s/check [schema] goods)))
     (when bads
       (is (not (nil? checked-bad)))
-      (is (not (contains? checked-bag nil))))))
+      (is (not (contains? checked-bad nil))))))
 
 (defn key-should-satisfy+ [schema
                            base
