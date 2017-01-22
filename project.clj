@@ -36,7 +36,8 @@
                         :compiler {:output-to "target/js/xapi_schema.js"
                                    :optimizations :advanced}}]}
   :resource-paths ["resources"]
-  :test-paths ["test" "dev"]
+  :test-paths ["test"]
+  :min-lein-version "2.6.1"
   :aliases {"deploy-lib" ["do" "clean," "deploy" "clojars"]
             "ci" ["do"
                   ["test"]
