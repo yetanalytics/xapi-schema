@@ -38,6 +38,6 @@
   :resource-paths ["resources"]
   :test-paths ["test" "dev"]
   :aliases {"deploy-lib" ["do" "clean," "deploy" "clojars"]
-            "spec-cljs" ["do" "clean," "run" "-m" "xapi-schema.dev.cljs"]
-            "spec-clj" ["do" "run" "-m" "xapi-schema.dev.spec"]
-            "ci"   ["do" "spec-clj," "spec-cljs"]})
+            "ci" ["do"
+                  ["test"]
+                  ["doo" "phantom" "test" "once"]]})
