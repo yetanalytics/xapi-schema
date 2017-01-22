@@ -23,8 +23,14 @@
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src"]
                         :compiler {:output-to "target/js/xapi_schema_dev.js"
-                                   :optimizations :whitespace
+                                   :optimizations :none
                                    :pretty-print true}}
+                       {:id "test"
+                        :source-paths ["src" "test"]
+                        :main xapi-schema.runner
+                        :compiler {:output-to "target/js/xapi_schema_test.js"
+                                   :output-dir "target/js/test_out"
+                                   :optimizations :whitespace}}
                        {:id "release"
                         :source-paths ["src"]
                         :compiler {:output-to "target/js/xapi_schema.js"
