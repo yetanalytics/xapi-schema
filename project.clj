@@ -13,7 +13,8 @@
   :exclusions [[org.clojure/clojure]
                [org.clojure/clojurescript]]
 
-  :plugins [[lein-cljsbuild "1.1.3"]]
+  :plugins [[lein-cljsbuild "1.1.3"]
+            [lein-doo "0.1.7"]]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.nrepl "0.2.10"]
                                   [com.cemerick/piggieback "0.2.1"]]
