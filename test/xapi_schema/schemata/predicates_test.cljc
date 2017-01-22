@@ -1,5 +1,5 @@
 (ns xapi-schema.schemata.predicates-test
-  #?@(:cljs [(:require [cljs.test :refer-macros [testing is testing run-tests]]
+  #?@(:cljs [(:require [cljs.test :refer-macros [testing is testing run-tests deftest]]
                        [xapi-schema.schemata.predicates :refer [ifi-count
                                                                 no-ifi?
                                                                 re-pred

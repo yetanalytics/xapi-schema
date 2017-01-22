@@ -34,7 +34,8 @@
 
 (defn should-not-throw [fun]
   (is (try fun
-       (catch Exception e
+           (catch #?(:clj Exception
+                     :cljs js/Error) e
          false))))
 
 (deftest util-tests
@@ -139,8 +140,8 @@
         (is (= "Not sequential: {}"
                  (error->string err))))))
    (testing
-    "from a map schema" 
-    (let [err (s/check {} [])] 
+    "from a map schema"
+    (let [err (s/check {} [])]
       (testing "converts"
         (is (= "Not map: []"
                  (error->string err))))))
@@ -157,14 +158,14 @@
         (is (= "Not string: 1"
                  (error->string err))))))
    (testing
-    "from s/Num" 
-    (let [err (s/check s/Num "foo")] 
+    "from s/Num"
+    (let [err (s/check s/Num "foo")]
       (testing "converts"
         (is (= "Not number: foo"
                  (error->string err))))))
    (testing
-    "from s/Bool" 
-    (let [err (s/check s/Bool "foo")] 
+    "from s/Bool"
+    (let [err (s/check s/Bool "foo")]
       (testing "converts"
         (is (= "Not boolean: foo"
                  (error->string err))))))))
@@ -233,7 +234,7 @@
                   (errors->data err))))
     (testing
     "given some xapi validation cases"
-    (let [bad-agent-type 
+    (let [bad-agent-type
           (errors->data
             (s/check json/Statement
                      (assoc d/long-statement
@@ -241,7 +242,7 @@
                             {"mbox" "mailto:milt@yetanalytics.com"
                              "objectType" "NotAnAgent"})))]
      (testing
-     "bad agent type" 
+     "bad agent type"
      (testing "parses an agent objectType error"
          (should-not-throw bad-agent-type)))
 
