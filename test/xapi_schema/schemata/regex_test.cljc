@@ -14,7 +14,7 @@
        :clj [[clojure.test :refer :all]
             [xapi-schema.schemata.regex :refer :all]])))
 
-(deftest language-tag-regex-test 
+(deftest language-tag-regex-test
   (testing "matches valid Language Tags"
     (is (re-matches LanguageTagRegEx "en-US"))
     (is (not (re-matches LanguageTagRegEx "not a language tag")))))
@@ -41,7 +41,7 @@
     (is (re-matches AbsoluteIRIRegEx "http://example.com/xapi/verbs#sent-a-statement"))
     (is (re-matches AbsoluteIRIRegEx "http://example.com/xapi/foo/#bar?my_jimmies=rustled"))))
 
-(deftest absolute-iri-regex-test
+(deftest mailto-iri-regex-test
   (testing "matches valid mailto IRIs"
     (is (re-matches MailToIRIRegEx "mailto:milt@yetanalytics.com"))
     (is (not (re-matches MailToIRIRegEx "http://foo.com")))
@@ -49,7 +49,7 @@
     (is (not (re-matches MailToIRIRegEx "mi%lt@yetanalytics.com")))
     (is (re-matches MailToIRIRegEx "mailto:mi%0Alt@yetanalytics.com"))))
 
-(deftest uuid-regex-test 
+(deftest uuid-regex-test
   (testing "matches valid 4.0 UUIDs"
     (is (re-matches UuidRegEx "f47ac10b-58cc-4372-a567-0e02b2c3d479"))
     (is (not (re-matches UuidRegEx "1234-1234-1234-1234")))
@@ -65,13 +65,13 @@
     (is (not (re-matches TimestampRegEx "20150513T15Z")))
     (is (not (re-matches TimestampRegEx "20150513T15:16:00Z")))))
 
-(deftest xapi-version-regex-test 
+(deftest xapi-version-regex-test
   (testing "matches xAPI 1.0.X versions"
     (is (and (re-matches xAPIVersionRegEx "1.0.0")
              (re-matches xAPIVersionRegEx "1.0.2")))
     (is (not (re-matches xAPIVersionRegEx "0.9.5")))))
 
-(deftest duration-regex-test 
+(deftest duration-regex-test
   (testing "matches ISO durations"
     (is (re-matches DurationRegEx "P3Y6M4DT12H30M5S"))
     (is (re-matches DurationRegEx "P23DT122.34S"))
