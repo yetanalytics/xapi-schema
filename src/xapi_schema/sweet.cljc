@@ -5,7 +5,6 @@
   (try
    (xapi/validate-statement-data stmt)
    true
-   #?(:clj (catch Exception)
-      false
-      :cljs (catch js/Error)
-      false)))
+   (catch #?(:clj Exception
+             :cljs js/Error) _
+       false)))

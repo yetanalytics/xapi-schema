@@ -1,4 +1,5 @@
 language: clojure
+lein: 2.6.1
 script:
 - lein ci
 notifications:

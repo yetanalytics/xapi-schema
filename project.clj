@@ -13,24 +13,32 @@
   :exclusions [[org.clojure/clojure]
                [org.clojure/clojurescript]]
 
-  :plugins [[lein-cljsbuild "1.1.3"]]
+  :plugins [[lein-cljsbuild "1.1.3"]
+            [lein-doo "0.1.7"]]
 
-  :profiles {:dev {:dependencies [[speclj "3.3.2"]
+  :profiles {:dev {:dependencies [[org.clojure/tools.nrepl "0.2.10"]
                                   [com.cemerick/piggieback "0.2.1"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
 
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src"]
                         :compiler {:output-to "target/js/xapi_schema_dev.js"
-                                   :optimizations :whitespace
+                                   :optimizations :none
                                    :pretty-print true}}
+                       {:id "test"
+                        :source-paths ["src" "test"]
+                        :main xapi-schema.runner
+                        :compiler {:output-to "target/js/xapi_schema_test.js"
+                                   :output-dir "target/js/test_out"
+                                   :optimizations :whitespace}}
                        {:id "release"
                         :source-paths ["src"]
                         :compiler {:output-to "target/js/xapi_schema.js"
                                    :optimizations :advanced}}]}
   :resource-paths ["resources"]
-  :test-paths ["spec" "dev"]
+  :test-paths ["test"]
+  :min-lein-version "2.6.1"
   :aliases {"deploy-lib" ["do" "clean," "deploy" "clojars"]
-            "spec-cljs" ["do" "clean," "run" "-m" "xapi-schema.dev.cljs"]
-            "spec-clj" ["do" "run" "-m" "xapi-schema.dev.spec"]
-            "ci"   ["do" "spec-clj," "spec-cljs"]})
+            "ci" ["do"
+                  ["test"]
+                  ["doo" "phantom" "test" "once"]]})

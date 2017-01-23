@@ -2,31 +2,28 @@
   #?(:clj (:require
            [schema.core :as s]
            [schema.utils :as su]
-           [speclj.core :refer [context it should-be-nil should-not-be-nil should-not-contain]]))
+           [clojure.test :refer :all]))
   #?@(:cljs [(:require
-              [speclj.core]
+              [cljs.test :refer-macros [deftest is testing run-tests]]
               [schema.core :as s :include-macros true]
-              [schema.utils :as su])
-             (:require-macros [speclj.core :refer [context it should-be-nil should-not-be-nil should-not-contain]])]))
-
+              [schema.utils :as su])]))
 
 (defn should-satisfy [schema data]
   (let [checked (s/check schema data)]
-    (should-be-nil checked)))
+    (is (nil? checked))))
 
 (defn should-not-satisfy [schema data]
   (let [checked (s/check schema data)]
-    (should-not-be-nil checked)))
+    (is (not (nil? checked)))))
 
 (defn should-satisfy+
   [schema & goods-bads]
   (let [[goods _ bads] (partition-by #(= :bad %) goods-bads)
         checked-bad (when bads (s/check [schema] bads))]
-    (should-be-nil (s/check [schema] goods))
+    (is (nil? (s/check [schema] goods)))
     (when bads
-      (should-not-be-nil checked-bad)
-      (should-not-contain nil
-                          checked-bad))))
+      (is (not (nil? checked-bad)))
+      (is (not (contains? checked-bad nil))))))
 
 (defn key-should-satisfy+ [schema
                            base
