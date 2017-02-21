@@ -143,15 +143,15 @@ xapi_schema.core.validate_statement_data_js(statement_json); // => statement JSO
 
 *** Clojure
 
-=$ lein spec-clj=
+=$ lein test=
 
 *** ClojureScript
 
-=$ lein spec-cljs=
+=$ lein test=
 
 ** License
 
-Copyright © 2016 Yet Analytics, Inc.
+Copyright © 2017 Yet Analytics, Inc.
 
 Distributed under the Eclipse Public License, the same as Clojure.
 See the file [[file:LICENSE][LICENSE]] for details.
