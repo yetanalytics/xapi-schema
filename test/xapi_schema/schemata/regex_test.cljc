@@ -53,7 +53,8 @@
   (testing "matches valid 4.0 UUIDs"
     (is (re-matches UuidRegEx "f47ac10b-58cc-4372-a567-0e02b2c3d479"))
     (is (not (re-matches UuidRegEx "1234-1234-1234-1234")))
-    (is (not (re-matches UuidRegEx "3c7db14d-ac4b-4e35-b2c6-3b2237f382")))))
+    (is (not (re-matches UuidRegEx "3c7db14d-ac4b-4e35-b2c6-3b2237f382")))
+    (is (not (re-matches UuidRegEx "MA97B177-9383-4934-8543-0F91A7A02836")))))
 
 (deftest timestamp-regex-test
   (testing "matches valid ISO 8601 datetime stamps within the rfc3339 profile"
