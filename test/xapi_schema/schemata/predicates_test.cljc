@@ -9,9 +9,7 @@
                                                         no-multi-ifi?
                                                         ifi-present?
                                                         has-members?
-                                                        score-raw-lte-max
-                                                        score-raw-gte-min
-                                                        score-min-lt-max
+                                                        valid-score?
                                                         two-members?
                                                         valid-revision?
                                                         valid-platform?
@@ -121,28 +119,34 @@
 (deftest score-predicates-test
   (testing
    "returns when 'max' is the larger value in the map"
-    (is (score-raw-lte-max
+    (is (valid-score?
          {"raw" 5
           "max" 10}))
-    (is (not (score-raw-lte-max
+    (is (not (valid-score?
               {"raw" 10
                "max" 5}))))
   (testing
    "returns when raw is the larger value in the map"
-    (is (score-raw-gte-min
+    (is (valid-score?
          {"raw" 5
           "min" 0}))
-    (is (not (score-raw-gte-min
+    (is (not (valid-score?
               {"raw" 1
                "min" 5}))))
   (testing
    "returns when min is the smaller value in the map"
-    (is (score-min-lt-max
+    (is (valid-score?
          {"min" 5
           "max" 10}))
-    (is (not (score-min-lt-max
+    (is (not (valid-score?
               {"min" 10
-               "max" 5})))))
+               "max" 5}))))
+  (testing
+      "returns when scaled is between -1.0 and 1.0."
+    (is (valid-score?
+         {"scaled" 0.4}))
+    (is (not (valid-score?
+              {"scaled" 1.1})))))
 
 (deftest statement-predicates
   (testing

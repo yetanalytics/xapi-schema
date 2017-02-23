@@ -6,9 +6,7 @@
                                             no-multi-ifi?
                                             ifi-present?
                                             has-members?
-                                            score-raw-lte-max
-                                            score-raw-gte-min
-                                            score-min-lt-max
+                                            valid-score?
                                             two-members?
                                             valid-revision?
                                             valid-platform?
@@ -264,9 +262,7 @@
         (s/optional-key "min") s/Num ; Decimal number less than max (if present)
         (s/optional-key "max") s/Num}  ; Decimal number greater than min (if present)
        ;; TODO: fix these pred names?
-       (s/constrained score-raw-lte-max :predicates/score-lt-max)
-       (s/constrained score-raw-gte-min :predicates/score-gt-min)
-       (s/constrained score-min-lt-max  :predicates/score-lt-max))
+       (s/constrained valid-score? :predicates/valid-score))
    "Score"))
 
 (s/defschema

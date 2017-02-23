@@ -106,26 +106,16 @@
 
 ;; Score pred fns
 
-(defn score-raw-lte-max
+(defn valid-score?
   [x]
-  (let [{:strs [raw max]} x]
-    (if (and raw max)
-      (<= raw max)
-      true)))
-
-(defn score-raw-gte-min
-  [x]
-  (let [{:strs [raw min]} x]
-    (if (and raw min)
-      (>= raw min)
-      true)))
-
-(defn score-min-lt-max
-  [x]
-  (let [{:strs [min max]} x]
-    (if (and min max)
-      (< min max)
-      true)))
+  (let [{:strs [min max raw scaled]} x]
+    (and
+     (if scaled
+       (<= -1.0 scaled 1.0)
+       true)
+     (if (or min raw max)
+       (apply <= (filter identity [min raw max]))
+       true))))
 
 ;; statement predicate fns
 (defn valid-void? [{:strs [verb object]}]
