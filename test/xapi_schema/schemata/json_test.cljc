@@ -323,6 +323,9 @@
                       "max" 10}
                      :bad
                      {"raw" 5
+                      "max" 1}
+                     {"raw" 100
+                      "min" 99
                       "max" 1}))
   (testing "can be empty"
     (should-satisfy Score {})))
