@@ -358,18 +358,20 @@
 (s/defschema
   SubStatement
   (s/named
-   {(s/required-key "actor") Actor
-    (s/required-key "verb") Verb
-    (s/required-key "object")
-    (object-type-dispatch "Agent" Agent
-                          "Group" Group
-                          "StatementRef" StatementRef
-                          :else Activity)
-    (s/optional-key "result") Result
-    (s/optional-key "context") Context
-    (s/optional-key "attachments") Attachments
-    (s/optional-key "timestamp") Timestamp
-    (s/required-key "objectType") (s/eq "SubStatement")}
+   (-> {(s/required-key "actor") Actor
+        (s/required-key "verb") Verb
+        (s/required-key "object")
+        (object-type-dispatch "Agent" Agent
+                              "Group" Group
+                              "StatementRef" StatementRef
+                              :else Activity)
+        (s/optional-key "result") Result
+        (s/optional-key "context") Context
+        (s/optional-key "attachments") Attachments
+        (s/optional-key "timestamp") Timestamp
+        (s/required-key "objectType") (s/eq "SubStatement")}
+       (s/constrained valid-revision? :predicates/revision-not-allowed)
+       (s/constrained valid-platform? :predicates/platform-not-allowed))
    "SubStatement"))
 
 (s/defschema
