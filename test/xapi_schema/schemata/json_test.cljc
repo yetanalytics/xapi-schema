@@ -191,7 +191,8 @@
                          "description" {"en-US" "bar"}}]))))
 
 (deftest definition-test
-  (let [definition d/definition]
+  (let [definition                       d/definition
+        definition-with-interaction-type d/definition-with-interaction-type]
     (testing "should be satisfied by a valid definition"
       (should-satisfy+ Definition
                        definition))
@@ -199,7 +200,7 @@
      "correctResponsesPattern"
       (testing "is an array of strings"
         (key-should-satisfy+
-         Definition definition
+         Definition definition-with-interaction-type
          "correctResponsesPattern"
          ["foo" "bar" "baz"]
          :bad
