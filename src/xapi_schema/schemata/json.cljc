@@ -7,6 +7,7 @@
                                             ifi-present?
                                             has-members?
                                             valid-score?
+                                            map-not-empty?
                                             two-members?
                                             valid-revision?
                                             valid-platform?
@@ -301,10 +302,11 @@
 (s/defschema
   ContextActivitiesMap
   (s/named
-   {(s/optional-key "parent") ContextActivities
-    (s/optional-key "grouping") ContextActivities
-    (s/optional-key "category") ContextActivities
-    (s/optional-key "other") ContextActivities}
+   (-> {(s/optional-key "parent") ContextActivities
+        (s/optional-key "grouping") ContextActivities
+        (s/optional-key "category") ContextActivities
+        (s/optional-key "other") ContextActivities}
+       (s/constrained map-not-empty? :predicates/empty-map-not-allowed))
    "Context Activities Map"))
 
 (s/defschema

@@ -32,6 +32,10 @@
 
 ;; anon group
 
+(defn map-not-empty?
+  [x]
+  (not (empty? x)))
+
 (defn has-members?
   [{:strs [member]}]
   (seq member))

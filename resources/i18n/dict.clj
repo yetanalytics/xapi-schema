@@ -16,6 +16,7 @@
        :no-multi-ifi "there is at most one IFI"
        :no-ifi "present: IFI"
        :no-anon-group-member "present: member key on anonymous group"
+       :empty-map-not-allowed "the collection cannot be empty"
        :distinct-ic-ids "distinct: Interaction Component IDs"
        :valid-component-keys  "valid Interaction Component List key(s)"
        :valid-score "a valid Score Object"
