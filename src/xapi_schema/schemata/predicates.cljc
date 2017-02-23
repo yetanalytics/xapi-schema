@@ -73,14 +73,21 @@
   "Predicate to ensure valid component list keys"
   (if (map? data)
    (let [interaction-type (data "interactionType")
-        submitted-keys (intersection (set (keys data)) component-keys)
-        valid-for-type (valid-component-keys interaction-type)
-        invalid (difference submitted-keys valid-for-type)]
+         submitted-keys   (intersection (set (keys data)) component-keys)
+         valid-for-type   (valid-component-keys interaction-type)
+         invalid          (difference submitted-keys valid-for-type)]
 
-    (if (and interaction-type (seq invalid))
-      false
-      true))
-    true))
+     (if (and interaction-type (seq invalid))
+       false
+
+       ;; If any of these component keys are given, an interactionType must be present
+       (if (some (conj component-keys "correctResponsesPattern")
+                 (keys data))
+         (if interaction-type
+           true
+           false)
+         true)))
+   true))
 
 ;; context predicates
 
