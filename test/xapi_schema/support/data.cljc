@@ -74,7 +74,6 @@
     "A simple Experience API statement. Note that the LRS
                      does not need to have any prior information about the Actor (learner), the
                      verb, or the Activity/object."}})
-
 (def activity
   {"id" iri
    "definition" definition})
