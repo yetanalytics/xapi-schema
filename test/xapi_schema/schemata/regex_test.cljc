@@ -69,7 +69,8 @@
 (deftest xapi-version-regex-test
   (testing "matches xAPI 1.0.X versions"
     (is (and (re-matches xAPIVersionRegEx "1.0.0")
-             (re-matches xAPIVersionRegEx "1.0.2")))
+             (re-matches xAPIVersionRegEx "1.0.2")
+             (re-matches xAPIVersionRegEx "1.0")))
     (is (not (re-matches xAPIVersionRegEx "0.9.5")))))
 
 (deftest duration-regex-test
