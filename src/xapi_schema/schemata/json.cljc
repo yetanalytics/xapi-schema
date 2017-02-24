@@ -385,10 +385,6 @@
   (s/named
    {(s/optional-key "objectType") (s/eq "Group") ;; Group
     (s/optional-key "name") s/Str
-    (s/optional-key "mbox") MailToIRI
-    (s/optional-key "mbox_sha1sum") Sha1Sum
-    (s/optional-key "openid") OpenID
-    (s/optional-key "account") Account
     (s/required-key "member") (s/constrained
                                [(s/one OAuthConsumer
                                        :predicates/one-oauth-consumer) Agent]
