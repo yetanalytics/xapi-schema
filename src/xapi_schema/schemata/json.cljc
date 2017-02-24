@@ -431,9 +431,7 @@
         (s/optional-key "stored") Timestamp
         (s/optional-key "authority") Authority
         (s/optional-key "version") Version
-        (s/optional-key "attachments") Attachments
-        (s/optional-key "objectType") s/Str ;; necessary for validating substatements as statements!
-        }
+        (s/optional-key "attachments") Attachments}
        (s/constrained valid-void? :predicates/void-statement-ref)
        (s/constrained valid-revision? :predicates/revision-not-allowed)
        (s/constrained valid-platform? :predicates/platform-not-allowed))
