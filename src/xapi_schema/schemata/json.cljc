@@ -7,6 +7,7 @@
                                             ifi-present?
                                             has-members?
                                             valid-score?
+                                            map-not-empty?
                                             two-members?
                                             valid-revision?
                                             valid-platform?
@@ -301,10 +302,11 @@
 (s/defschema
   ContextActivitiesMap
   (s/named
-   {(s/optional-key "parent") ContextActivities
-    (s/optional-key "grouping") ContextActivities
-    (s/optional-key "category") ContextActivities
-    (s/optional-key "other") ContextActivities}
+   (-> {(s/optional-key "parent") ContextActivities
+        (s/optional-key "grouping") ContextActivities
+        (s/optional-key "category") ContextActivities
+        (s/optional-key "other") ContextActivities}
+       (s/constrained map-not-empty? :predicates/empty-map-not-allowed))
    "Context Activities Map"))
 
 (s/defschema
@@ -348,7 +350,7 @@
 (s/defschema
   Attachments
   (s/named
-   [(s/one Attachment :predicates/at-least-one-attachement) Attachment]
+   [(s/one Attachment :predicates/at-least-one-attachment) Attachment]
    "Attachments Array"))
 
 (s/defschema
@@ -383,10 +385,6 @@
   (s/named
    {(s/optional-key "objectType") (s/eq "Group") ;; Group
     (s/optional-key "name") s/Str
-    (s/optional-key "mbox") MailToIRI
-    (s/optional-key "mbox_sha1sum") Sha1Sum
-    (s/optional-key "openid") OpenID
-    (s/optional-key "account") Account
     (s/required-key "member") (s/constrained
                                [(s/one OAuthConsumer
                                        :predicates/one-oauth-consumer) Agent]
@@ -429,9 +427,7 @@
         (s/optional-key "stored") Timestamp
         (s/optional-key "authority") Authority
         (s/optional-key "version") Version
-        (s/optional-key "attachments") Attachments
-        (s/optional-key "objectType") s/Str ;; necessary for validating substatements as statements!
-        }
+        (s/optional-key "attachments") Attachments}
        (s/constrained valid-void? :predicates/void-statement-ref)
        (s/constrained valid-revision? :predicates/revision-not-allowed)
        (s/constrained valid-platform? :predicates/platform-not-allowed))
