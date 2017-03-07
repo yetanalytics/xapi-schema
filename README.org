@@ -18,7 +18,7 @@ You can use xapi-schema to validate statements in real-time [[http://yetanalytic
 ** Getting Started
 1. Add to your project dependencies:
   #+BEGIN_SRC clojure
-  [[com.yetanalytics/xapi-schema "0.1.13"]]
+  [[com.yetanalytics/xapi-schema "0.1.14"]]
   #+END_SRC
 2. Require in your project:
   #+BEGIN_SRC clojure
