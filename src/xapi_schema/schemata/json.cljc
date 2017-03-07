@@ -350,7 +350,7 @@
 (s/defschema
   Attachments
   (s/named
-   [(s/one Attachment :predicates/at-least-one-attachement) Attachment]
+   [(s/one Attachment :predicates/at-least-one-attachment) Attachment]
    "Attachments Array"))
 
 (s/defschema
