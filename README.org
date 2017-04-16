@@ -155,3 +155,7 @@ Copyright © 2017 Yet Analytics, Inc.
 
 Distributed under the Eclipse Public License, the same as Clojure.
 See the file [[file:LICENSE][LICENSE]] for details.
+
+
+  #+ATTR_HTML: title="Join the chat at https://gitter.im/yetanalytics/xapi-schema"
+  [[https://gitter.im/yetanalytics/xapi-schema?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge][file:https://badges.gitter.im/Join%20Chat.svg]]
