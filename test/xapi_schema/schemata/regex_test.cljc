@@ -39,7 +39,8 @@
     (is (re-matches AbsoluteIRIRegEx "reallydamnlongschemeoverhere://foo.bar")))
   (testing "matches IRIs with fragments"
     (is (re-matches AbsoluteIRIRegEx "http://example.com/xapi/verbs#sent-a-statement"))
-    (is (re-matches AbsoluteIRIRegEx "http://example.com/xapi/foo/#bar?my_jimmies=rustled"))))
+    (is (re-matches AbsoluteIRIRegEx "http://example.com/xapi/foo/#bar?my_jimmies=rustled"))
+    (is (re-matches AbsoluteIRIRegEx "http://a_b/#foo"))))
 
 (deftest mailto-iri-regex-test
   (testing "matches valid mailto IRIs"
