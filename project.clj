@@ -1,4 +1,4 @@
-(defproject com.yetanalytics/xapi-schema "0.1.16-SNAPSHOT"
+(defproject com.yetanalytics/xapi-schema "0.1.16"
   :description "Clojure(script) Schema for the Experience API v1.0.3"
   :url "https://github.com/yetanalytics/xapi-schema"
   :license {:name "Eclipse Public License"
