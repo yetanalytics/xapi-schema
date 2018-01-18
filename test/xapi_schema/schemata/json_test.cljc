@@ -416,7 +416,7 @@
   (testing
    "usageType, display, contentType, length, sha2, fileUrl"
     (testing "are required"
-      (should-satisfy+ UrlAttachment ::xs/url-attachment
+      (should-satisfy+ UrlAttachment ::xs/attachment
                        {"usageType" "http://foo.bar/baz"
                         "display" {"en-US" "foo"}
                         "contentType" "application/json"
