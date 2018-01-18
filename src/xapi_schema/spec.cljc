@@ -134,7 +134,12 @@
            :opt [:interaction-component/description])))
 
 (s/def ::interaction-components
-  (s/coll-of ::interaction-component :kind vector? :into []))
+  (s/and (s/coll-of ::interaction-component :kind vector? :into [])
+         (fn [icomps]
+           (apply distinct? (map (some-fn
+                            :interaction-component/id
+                            #(get % "id")) icomps)))))
+
 
 (s/def :definition/name
   ::language-map)
@@ -287,12 +292,12 @@
 (s/def ::agent
   (s/and
    (map-ns-conformer "agent")
-   (s/keys :req [:agent/objectType
-                 (or :agent/mbox
+   (s/keys :req [(or :agent/mbox
                      :agent/mbox_sha1sum
                      :agent/openid
                      :agent/account)]
-           :opt [:agent/name])))
+           :opt [:agent/name
+                 :agent/objectType])))
 
 ;; Group
 
@@ -384,7 +389,9 @@
                  :score/raw
                  :score/min
                  :score/max])
-   (fn [{:keys [score/raw score/min score/max]}]
+   (fn [{raw :score/raw
+         min :score/min
+         max :score/max}]
      (if (or min raw max)
        (apply <= (filter identity [min raw max]))
        true))))
@@ -515,25 +522,31 @@
   ::irl)
 
 (s/def ::file-attachment
-  (s/keys :req [:attachment/usageType
-                :attachment/display
-                :attachment/contentType
-                :attachment/length
-                :attachment/sha2]
-          :req-opt [:attachment/description
-                    :attachment/fileUrl]))
+  (s/and (map-ns-conformer "attachment")
+         (s/keys :req [:attachment/usageType
+                       :attachment/display
+                       :attachment/contentType
+                       :attachment/length
+                       :attachment/sha2]
+                 :req-opt [:attachment/description
+                           :attachment/fileUrl])))
 
 (s/def ::url-attachment
-  (s/keys :req [:attachment/usageType
-                :attachment/display
-                :attachment/contentType
-                :attachment/length
-                :attachment/sha2
-                :attachment/fileUrl]
-          :req-opt [:attachment/description]))
+  (s/and (map-ns-conformer "attachment")
+         (s/keys :req [:attachment/usageType
+                       :attachment/display
+                       :attachment/contentType
+                       :attachment/length
+                       :attachment/sha2
+                       :attachment/fileUrl]
+                 :req-opt [:attachment/description])))
 
 (s/def ::attachment
-  (s/and (map-ns-conformer "attachment")
+  (s/or ::file-attachment
+        ::file-attachment
+        ::url-attachment
+        ::url-attachment)
+  #_(s/and (map-ns-conformer "attachment")
          (s/or ::file-attachment
                ::file-attachment
                ::url-attachment
@@ -551,12 +564,13 @@
   ::verb)
 
 (s/def :sub-statement/object
-  (s/or ::agent
-        ::agent
-        ::group
-        ::group
-        ::statement-ref
-        ::statement-ref))
+  (s/or
+   ::activity
+   ::activity
+   ::actor
+   ::actor
+   ::statement-ref
+   ::statement-ref))
 
 (s/def :sub-statement/result
   ::result)
@@ -575,6 +589,10 @@
 
 (s/def ::sub-statement
   (s/and (map-ns-conformer "sub-statement")
+         #(empty? (select-keys % [:sub-statement/id
+                                  :sub-statement/stored
+                                  :sub-statement/version
+                                  :sub-statement/authority]))
          (s/keys :req [:sub-statement/actor
                        :sub-statement/verb
                        :sub-statement/object
@@ -587,9 +605,9 @@
 ;; Authority
 
 (s/def ::oauth-consumer
-  (s/merge ::agent
-           (s/and (map-ns-conformer "agent")
-                  (s/keys :req [:agent/account]))))
+  (s/and
+   (map-ns-conformer "agent")
+   (s/keys :req [:agent/account])))
 
 (comment
   ;; three-legged oauth grp
@@ -612,12 +630,16 @@
                        :group/mbox
                        :group/mbox_sha1sum
                        :group/openid
-                       :group/account])))
+                       :group/account])
+         #(some-> % :group/member count (= 2))
+         ))
+
 
 ;; Statement!
 
 (s/def :statement/authority
-  (s/or ::agent
+  ::actor
+  #_(s/or ::agent
         ::agent
         ::group
         ::three-legged-oauth-group))
@@ -693,3 +715,30 @@
 
 (s/def ::statements
   (s/coll-of ::statement :kind vector? :into [] :min-count 1))
+
+;; Shadow Core API
+(def statement-checker
+  (partial s/explain-data ::statement))
+
+(def statements-checker
+  (partial s/explain-data ::statements))
+
+(def errors->data
+  (comp ::spec-error ex-data))
+
+(def errors->paths
+  identity) ;; TODO: fix this if it is actually needed
+
+(defn validate-statement [s]
+  (if-let [error (statement-checker s)]
+    (throw (ex-info "Invalid Statement"
+                    {:type ::invalid-statement
+                     ::spec-error error}))
+    s))
+
+(defn validate-statements [ss]
+  (if-let [error (statements-checker ss)]
+    (throw (ex-info "Invalid Statements"
+                    {:type ::invalid-statements
+                     ::spec-error error}))
+    ss))
