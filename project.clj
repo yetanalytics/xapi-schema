@@ -4,15 +4,12 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.9.908"]
+                 [org.clojure/clojurescript "1.9.946"]
                  [prismatic/schema "1.1.7"]
                  [cheshire "5.8.0"]
                  [org.clojure/core.match "0.3.0-alpha5"]
                  [com.taoensso/tower "3.1.0-beta4"]
                  [slingshot "0.12.2"]]
-  ;; :exclusions [[org.clojure/clojure]
-  ;;              [org.clojure/clojurescript]]
-
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-doo "0.1.8"]]
 
@@ -30,7 +27,7 @@
                         :main xapi-schema.runner
                         :compiler {:output-to "target/js/xapi_schema_test.js"
                                    :output-dir "target/js/test_out"
-                                   :optimizations :none}}
+                                   :optimizations :whitespace}}
                        {:id "release"
                         :source-paths ["src"]
                         :compiler {:output-to "target/js/xapi_schema.js"
