@@ -15,7 +15,9 @@
 
   :profiles {:dev {:dependencies [[org.clojure/tools.nrepl "0.2.10"]
                                   [com.cemerick/piggieback "0.2.2"]]
-                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
+                   :source-paths ["dev"]
+                   :repl-options {:init-ns user
+                                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
 
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src"]
