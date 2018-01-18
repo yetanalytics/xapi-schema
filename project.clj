@@ -14,7 +14,14 @@
             [lein-doo "0.1.8"]]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.nrepl "0.2.10"]
-                                  [com.cemerick/piggieback "0.2.2"]]
+                                  [com.cemerick/piggieback "0.2.2"]
+                                  [org.clojure/test.check "0.10.0-alpha2"]
+                                  [com.gfredericks/test.chuck "0.2.8" :exclusions [clj-time
+                                                                                   com.andrewmcveigh/cljs-time
+                                                                                   instaparse]]
+                                  [clj-time "0.14.2"]
+                                  [com.andrewmcveigh/cljs-time "0.5.2"]
+                                  [instaparse "1.4.8"]]
                    :source-paths ["dev"]
                    :repl-options {:init-ns user
                                   :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
