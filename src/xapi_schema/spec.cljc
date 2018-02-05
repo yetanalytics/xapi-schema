@@ -598,7 +598,9 @@
 ;; Result
 
 (s/def :score/scaled
-  (s/double-in :min -1.0 :max 1.0))
+  (s/and
+   (s/conformer double)
+   (s/double-in :min -1.0 :max 1.0)))
 
 (s/def :score/raw
   number?)
