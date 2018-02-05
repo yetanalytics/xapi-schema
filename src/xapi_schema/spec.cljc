@@ -455,12 +455,10 @@
 (s/def :agent/account
   ::account)
 
-(defn max-one-ifi [a]
-  (>= 1 (count (select-keys a ["mbox"
-                               "mbox_sha1sum"
-                               "openid"
-                               "acount"
-                               :agent/mbox
+(defn max-one-ifi
+  "Assert that agents/groups only have one IFI"
+  [a]
+  (>= 1 (count (select-keys a [:agent/mbox
                                :agent/mbox_sha1sum
                                :agent/openid
                                :agent/account
@@ -482,7 +480,8 @@
                   :agent/mbox
                   :agent/mbox_sha1sum
                   :agent/openid
-                  :agent/account)))
+                  :agent/account)
+   max-one-ifi))
 
 (s/def ::agent
   (s/and
@@ -557,7 +556,8 @@
                   :group/mbox
                   :group/mbox_sha1sum
                   :group/openid
-                  :group/account)))
+                  :group/account)
+   max-one-ifi))
 
 (s/def ::group
   (s/and
@@ -856,7 +856,8 @@
                                         nil :sub-statement-object/activity
                                         "Agent" :sub-statement-object/agent
                                         "Group" :sub-statement-object/group
-                                        "StatementRef" :sub-statement-object/statement-ref)))
+                                        "StatementRef" :sub-statement-object/statement-ref
+                                        ::s/invalid)))
 
 (defmethod sub-statement-object-type :sub-statement-object/activity [_]
   ::activity)
@@ -971,7 +972,8 @@
                                     "Agent" :statement-object/agent
                                     "Group" :statement-object/group
                                     "StatementRef" :statement-object/statement-ref
-                                    "SubStatement" :statement-object/sub-statement)))
+                                    "SubStatement" :statement-object/sub-statement
+                                    ::s/invalid)))
 
 (defmethod statement-object-type :statement-object/activity [_]
   ::activity)
