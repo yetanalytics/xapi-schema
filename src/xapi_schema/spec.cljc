@@ -475,12 +475,13 @@
                   :agent/mbox_sha1sum
                   :agent/openid
                   :agent/account)
-   max-one-ifi))
+   ))
 
 (s/def ::agent
   (s/and
    (map-ns-conformer "agent")
-   ::agent*))
+   ::agent*
+   max-one-ifi))
 
 ;; Group
 
@@ -550,13 +551,13 @@
                   :group/mbox
                   :group/mbox_sha1sum
                   :group/openid
-                  :group/account)
-   max-one-ifi))
+                  :group/account)))
 
 (s/def ::group
   (s/and
    (map-ns-conformer "group")
-   ::group*))
+   ::group*
+   max-one-ifi))
 
 ;; Actor
 
