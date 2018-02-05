@@ -60,7 +60,7 @@
 
 (s/def ::language-tag
   (s/and ::string-not-empty
-         (partial re-find LanguageTagRegEx)))
+         (partial re-matches LanguageTagRegEx)))
 
 (s/def ::language-map
   (s/map-of ::language-tag
@@ -70,15 +70,15 @@
 
 (s/def ::iri
   (s/and string?
-         (partial re-find AbsoluteIRIRegEx)))
+         (partial re-matches AbsoluteIRIRegEx)))
 
 (s/def ::mailto-iri
   (s/and string?
-         (partial re-find MailToIRIRegEx)))
+         (partial re-matches MailToIRIRegEx)))
 
 (s/def ::irl
   (s/and string?
-         (partial re-find AbsoluteIRIRegEx)))
+         (partial re-matches AbsoluteIRIRegEx)))
 
 (s/def ::any-json
   (s/nilable
@@ -110,31 +110,31 @@
 
 (s/def ::openid
   (s/and string?
-         (partial re-find OpenIdRegEx)))
+         (partial re-matches OpenIdRegEx)))
 
 (s/def ::uuid
   (s/and string?
-         (partial re-find UuidRegEx)))
+         (partial re-matches UuidRegEx)))
 
 (s/def ::timestamp
   (s/and string?
-         (partial re-find TimestampRegEx)))
+         (partial re-matches TimestampRegEx)))
 
 (s/def ::duration
   (s/and string?
-         (partial re-find DurationRegEx)))
+         (partial re-matches DurationRegEx)))
 
 (s/def ::version
   (s/and string?
-         (partial re-find xAPIVersionRegEx)))
+         (partial re-matches xAPIVersionRegEx)))
 
 (s/def ::sha2
   (s/and string?
-         (partial re-find Base64RegEx)))
+         (partial re-matches Base64RegEx)))
 
 (s/def ::sha1sum
   (s/and string?
-         (partial re-find Sha1RegEx)))
+         (partial re-matches Sha1RegEx)))
 
 ;; Activity Definition
 
