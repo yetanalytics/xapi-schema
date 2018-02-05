@@ -239,20 +239,19 @@
       false
       true)))
 
-(s/def :activity/definition*
+(defmulti interaction-type :definition/interactionType)
+
+(defmethod interaction-type "choice" [_]
   (s/and
-   (s/keys :opt [:definition/name
-                 :definition/description
-                 :definition/correctResponsesPattern
-                 :definition/interactionType
-                 :definition/type
-                 :definition/moreInfo
-                 :definition/choices
-                 :definition/scale
-                 :definition/source
-                 :definition/target
-                 :definition/steps
-                 :definition/extensions])
+   (s/keys
+    :req [:definition/interactionType]
+    :opt [:definition/name
+          :definition/description
+          :definition/correctResponsesPattern
+          :definition/type
+          :definition/moreInfo
+          :definition/choices
+          :definition/extensions])
    (restrict-keys :definition/name
                   :definition/description
                   :definition/correctResponsesPattern
@@ -260,12 +259,137 @@
                   :definition/type
                   :definition/moreInfo
                   :definition/choices
+                  :definition/extensions)))
+
+(defmethod interaction-type "sequencing" [_]
+  (s/and
+   (s/keys
+    :req [:definition/interactionType]
+    :opt [:definition/name
+          :definition/description
+          :definition/correctResponsesPattern
+          :definition/type
+          :definition/moreInfo
+          :definition/choices
+          :definition/extensions])
+   (restrict-keys :definition/name
+                  :definition/description
+                  :definition/correctResponsesPattern
+                  :definition/interactionType
+                  :definition/type
+                  :definition/moreInfo
+                  :definition/choices
+                  :definition/extensions)))
+
+(defmethod interaction-type "likert" [_]
+  (s/and
+   (s/keys
+    :req [:definition/interactionType]
+    :opt [:definition/name
+          :definition/description
+          :definition/correctResponsesPattern
+          :definition/type
+          :definition/moreInfo
+          :definition/scale
+          :definition/extensions])
+   (restrict-keys :definition/name
+                  :definition/description
+                  :definition/correctResponsesPattern
+                  :definition/interactionType
+                  :definition/type
+                  :definition/moreInfo
+                  :definition/scale
+                  :definition/extensions)))
+
+(defmethod interaction-type "matching" [_]
+  (s/and
+   (s/keys
+    :req [:definition/interactionType]
+    :opt [:definition/name
+          :definition/description
+          :definition/correctResponsesPattern
+          :definition/type
+          :definition/moreInfo
+          :definition/source
+          :definition/target
+          :definition/extensions])
+   (restrict-keys :definition/name
+                  :definition/description
+                  :definition/correctResponsesPattern
+                  :definition/interactionType
+                  :definition/type
+                  :definition/moreInfo
+                  :definition/source
+                  :definition/target
+                  :definition/extensions)))
+
+(defmethod interaction-type "performance" [_]
+  (s/and
+   (s/keys
+    :req [:definition/interactionType]
+    :opt [:definition/name
+          :definition/description
+          :definition/correctResponsesPattern
+          :definition/type
+          :definition/moreInfo
+          :definition/steps
+          :definition/extensions])
+   (restrict-keys :definition/name
+                  :definition/description
+                  :definition/correctResponsesPattern
+                  :definition/interactionType
+                  :definition/type
+                  :definition/moreInfo
+                  :definition/steps
+                  :definition/extensions)))
+
+(defmethod interaction-type nil [_]
+  (s/and
+   (s/keys
+    :opt [:definition/name
+          :definition/description
+          :definition/correctResponsesPattern
+          :definition/type
+          :definition/moreInfo
+          :definition/choices
+          :definition/scale
+          :definition/source
+          :definition/target
+          :definition/steps
+          :definition/extensions])
+   (restrict-keys :definition/name
+                  :definition/description
+                  :definition/correctResponsesPattern
+                  :definition/type
+                  :definition/moreInfo
+                  :definition/choices
                   :definition/scale
                   :definition/source
                   :definition/target
                   :definition/steps
-                  :definition/extensions)
-   valid-definition-component-keys?))
+                  :definition/extensions)))
+
+(defmethod interaction-type :default [_]
+  (s/and
+   (s/keys
+    :req [:definition/interactionType]
+    :opt [:definition/name
+          :definition/description
+          :definition/correctResponsesPattern
+          :definition/type
+          :definition/moreInfo
+          :definition/extensions])
+   (restrict-keys :definition/name
+                  :definition/description
+                  :definition/correctResponsesPattern
+                  :definition/interactionType
+                  :definition/type
+                  :definition/moreInfo
+                  :definition/extensions)))
+
+
+(s/def :activity/definition*
+  (s/multi-spec interaction-type :definition/interactionType))
 
 (s/def :activity/definition
   (s/and
