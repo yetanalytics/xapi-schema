@@ -15,6 +15,6 @@
   (prop/for-all [s (spec-gen ::xs/statement)]
                 (nil? (core/statement-checker s))))
 
-(defspec satisfies-old-schema-test
+(defspec satisfies-old-schema-test ;; TODO: often breaks in cljs
   10
   prop-satisfies-old-schema)
