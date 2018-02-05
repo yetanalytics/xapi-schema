@@ -1075,7 +1075,7 @@
    ::statement*))
 
 (s/def ::statements
-  (s/coll-of ::statement :kind vector? :into [] :min-count 1))
+  (s/coll-of ::statement :into [] :min-count 1))
 
 ;; Shadow Core API
 (def statement-checker
