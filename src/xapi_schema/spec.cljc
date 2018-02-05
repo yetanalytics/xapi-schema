@@ -840,7 +840,7 @@
          ::attachment*))
 
 (s/def ::attachments
-  (s/coll-of ::attachment :kind vector? :into []))
+  (s/coll-of ::attachment :kind vector? :into [] :min-count 1))
 
 ;; Sub-statement
 
