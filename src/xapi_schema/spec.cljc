@@ -112,8 +112,7 @@
 
 (s/def ::extensions
   (s/map-of ::iri
-            ::any-json
-            :min-count 1)) ;; TODO: spec for any valid json
+            ::any-json))
 
 (s/def ::openid
   (s/and string?
