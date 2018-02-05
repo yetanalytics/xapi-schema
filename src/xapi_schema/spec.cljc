@@ -16,6 +16,8 @@
    [clojure.walk :refer [stringify-keys]]
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]))
 
+;; Utils
+
 (defn conform-ns-map [map-ns string-map]
   (try (reduce-kv (fn [m k v]
                     (assoc m (if (string? k)
@@ -43,6 +45,11 @@
   (s/conformer
    (partial conform-ns-map map-ns)
    unform-ns-map))
+
+(defn restrict-keys
+  "Return a predicate that asserts that only the given keys are present."
+  [& ks]
+  (fn [m] (every? (set ks) (keys m))))
 
 ;; primitives - useful to hook into for generation
 (s/def ::string-not-empty
@@ -137,8 +144,11 @@
   ::language-map)
 
 (s/def ::interaction-component*
-  (s/keys :req [:interaction-component/id]
-          :opt [:interaction-component/description]))
+  (s/and
+   (s/keys :req [:interaction-component/id]
+           :opt [:interaction-component/description])
+   (restrict-keys :interaction-component/id
+                  :interaction-component/description)))
 
 (s/def ::interaction-component
   (s/and (map-ns-conformer "interaction-component")
@@ -243,6 +253,18 @@
                  :definition/target
                  :definition/steps
                  :definition/extensions])
+   (restrict-keys :definition/name
+                  :definition/description
+                  :definition/correctResponsesPattern
+                  :definition/interactionType
+                  :definition/type
+                  :definition/moreInfo
+                  :definition/choices
+                  :definition/scale
+                  :definition/source
+                  :definition/target
+                  :definition/steps
+                  :definition/extensions)
    valid-definition-component-keys?))
 
 (s/def :activity/definition
@@ -257,9 +279,13 @@
   ::iri)
 
 (s/def ::activity*
-  (s/keys :req [:activity/id]
-          :opt [:activity/objectType
-                :activity/definition]))
+  (s/and
+   (s/keys :req [:activity/id]
+           :opt [:activity/objectType
+                 :activity/definition])
+   (restrict-keys :activity/id
+                  :activity/objectType
+                  :activity/definition)))
 
 (s/def ::activity
   (s/and
@@ -275,8 +301,11 @@
   ::irl)
 
 (s/def ::account*
-  (s/keys :req [:account/name
-                :account/homePage]))
+  (s/and
+   (s/keys :req [:account/name
+                 :account/homePage])
+   (restrict-keys :account/name
+                  :account/homePage)))
 
 (s/def ::account
   (s/and (map-ns-conformer "account")
@@ -316,12 +345,19 @@
                                :group/account]))))
 
 (s/def ::agent*
-  (s/keys :req [(or :agent/mbox
-                    :agent/mbox_sha1sum
-                    :agent/openid
-                    :agent/account)]
-          :opt [:agent/name
-                :agent/objectType]))
+  (s/and
+   (s/keys :req [(or :agent/mbox
+                     :agent/mbox_sha1sum
+                     :agent/openid
+                     :agent/account)]
+           :opt [:agent/name
+                 :agent/objectType])
+   (restrict-keys :agent/name
+                  :agent/objectType
+                  :agent/mbox
+                  :agent/mbox_sha1sum
+                  :agent/openid
+                  :agent/account)))
 
 (s/def ::agent
   (s/and
@@ -387,8 +423,16 @@
 
 
 (s/def ::group*
-  (s/multi-spec group-type (fn [gen-val _]
-                             gen-val)))
+  (s/and
+   (s/multi-spec group-type (fn [gen-val _]
+                              gen-val))
+   (restrict-keys :group/member
+                  :group/name
+                  :group/objectType
+                  :group/mbox
+                  :group/mbox_sha1sum
+                  :group/openid
+                  :group/account)))
 
 (s/def ::group
   (s/and
@@ -422,8 +466,11 @@
 
 (s/def
   ::verb*
-  (s/keys :req [:verb/id]
-          :opt [:verb/display]))
+  (s/and
+   (s/keys :req [:verb/id]
+           :opt [:verb/display])
+   (restrict-keys :verb/id
+                  :verb/display)))
 
 (s/def ::verb
   (s/and
@@ -449,6 +496,10 @@
                        :score/raw
                        :score/min
                        :score/max])
+         (restrict-keys :score/scaled
+                        :score/raw
+                        :score/min
+                        :score/max)
          (fn [{raw :score/raw
                min :score/min
                max :score/max}]
@@ -477,12 +528,19 @@
   ::extensions)
 
 (s/def ::result*
-  (s/keys :opt [:result/score
-                :result/success
-                :result/completion
-                :result/response
-                :result/duration
-                :result/extensions]))
+  (s/and
+   (s/keys :opt [:result/score
+                 :result/success
+                 :result/completion
+                 :result/response
+                 :result/duration
+                 :result/extensions])
+   (restrict-keys :result/score
+                  :result/success
+                  :result/completion
+                  :result/response
+                  :result/duration
+                  :result/extensions)))
 
 (s/def ::result
   (s/and (map-ns-conformer "result")
@@ -496,8 +554,11 @@
   #{"StatementRef"})
 
 (s/def ::statement-ref*
-  (s/keys :req [:statement-ref/id
-                :statement-ref/objectType]))
+  (s/and
+   (s/keys :req [:statement-ref/id
+                 :statement-ref/objectType])
+   (restrict-keys :statement-ref/id
+                  :statement-ref/objectType)))
 
 (s/def ::statement-ref
   (s/and (map-ns-conformer "statement-ref")
@@ -527,10 +588,15 @@
   ::context-activities)
 
 (s/def :context/contextActivities*
-  (s/keys :opt [:contextActivities/parent
-                :contextActivities/grouping
-                :contextActivities/category
-                :contextActivities/other]))
+  (s/and
+   (s/keys :opt [:contextActivities/parent
+                 :contextActivities/grouping
+                 :contextActivities/category
+                 :contextActivities/other])
+   (restrict-keys :contextActivities/parent
+                  :contextActivities/grouping
+                  :contextActivities/category
+                  :contextActivities/other)))
 
 (s/def :context/contextActivities
   (s/and (map-ns-conformer "contextActivities")
@@ -561,15 +627,25 @@
   ::extensions)
 
 (s/def ::context*
-  (s/keys :opt [:context/registration
-                :context/instructor
-                :context/team
-                :context/contextActivities
-                :context/revision
-                :context/platform
-                :context/language
-                :context/statement
-                :context/extensions]))
+  (s/and
+   (s/keys :opt [:context/registration
+                 :context/instructor
+                 :context/team
+                 :context/contextActivities
+                 :context/revision
+                 :context/platform
+                 :context/language
+                 :context/statement
+                 :context/extensions])
+   (restrict-keys :context/registration
+                  :context/instructor
+                  :context/team
+                  :context/contextActivities
+                  :context/revision
+                  :context/platform
+                  :context/language
+                  :context/statement
+                  :context/extensions)))
 
 (s/def ::context
   (s/and (map-ns-conformer "context")
@@ -617,13 +693,22 @@
           :opt [:attachment/description]))
 
 (s/def ::attachment*
-  (s/keys :req [:attachment/usageType
-                :attachment/display
-                :attachment/contentType
-                :attachment/length
-                :attachment/sha2]
-          :opt [:attachment/description
-                :attachment/fileUrl]))
+  (s/and
+   (s/keys :req [:attachment/usageType
+                 :attachment/display
+                 :attachment/contentType
+                 :attachment/length
+                 :attachment/sha2]
+           :opt [:attachment/description
+                 :attachment/fileUrl])
+   (restrict-keys
+    :attachment/usageType
+    :attachment/display
+    :attachment/contentType
+    :attachment/length
+    :attachment/sha2
+    :attachment/description
+    :attachment/fileUrl)))
 
 (s/def ::attachment
   (s/and (map-ns-conformer "attachment")
@@ -688,10 +773,15 @@
                        :sub-statement/context
                        :sub-statement/attachments
                        :sub-statement/timestamp])
-         #(empty? (select-keys % [:sub-statement/id
-                                  :sub-statement/stored
-                                  :sub-statement/version
-                                  :sub-statement/authority]))))
+         (restrict-keys
+          :sub-statement/actor
+          :sub-statement/verb
+          :sub-statement/object
+          :sub-statement/objectType
+          :sub-statement/result
+          :sub-statement/context
+          :sub-statement/attachments
+          :sub-statement/timestamp)))
 
 (s/def ::sub-statement
   (s/and (map-ns-conformer "sub-statement")
@@ -728,6 +818,13 @@
                        :group/mbox_sha1sum
                        :group/openid
                        :group/account])
+         (restrict-keys :group/objectType
+                        :group/member
+                        :group/name
+                        :group/mbox
+                        :group/mbox_sha1sum
+                        :group/openid
+                        :group/account)
          #(some-> % :group/member count (= 2))
          ))
 
@@ -743,13 +840,13 @@
   ::actor)
 
 (defmulti statement-object-type (fn [ss-o]
-                                      (case (get ss-o "objectType")
-                                        "Activity" :statement-object/activity
-                                        nil :statement-object/activity
-                                        "Agent" :statement-object/agent
-                                        "Group" :statement-object/group
-                                        "StatementRef" :statement-object/statement-ref
-                                        "SubStatement" :statement-object/sub-statement)))
+                                  (case (get ss-o "objectType")
+                                    "Activity" :statement-object/activity
+                                    nil :statement-object/activity
+                                    "Agent" :statement-object/agent
+                                    "Group" :statement-object/group
+                                    "StatementRef" :statement-object/statement-ref
+                                    "SubStatement" :statement-object/sub-statement)))
 
 (defmethod statement-object-type :statement-object/activity [_]
   ::activity)
@@ -817,7 +914,20 @@
                  :statement/timestamp
                  :statement/stored
                  :statement/authority
-                 :statement/attachments])
+                 :statement/attachments
+                 :statement/version])
+   (restrict-keys
+    :statement/actor
+    :statement/verb
+    :statement/object
+    :statement/id
+    :statement/result
+    :statement/context
+    :statement/timestamp
+    :statement/stored
+    :statement/authority
+    :statement/attachments
+    :statement/version)
    (fn valid-context? [s]
      (if (some-> s
                  :statement/object
