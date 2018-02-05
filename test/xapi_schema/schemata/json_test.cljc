@@ -514,7 +514,7 @@
 (deftest three-legged-oauth-group-test
   (testing "must be a group with two agents"
     (should-satisfy+
-     ThreeLeggedOAuthGroup ::xs/three-legged-oauth-group
+     ThreeLeggedOAuthGroup ::xs/tlo-group
      d/authority-group
      :bad
      (update-in d/authority-group ["member"] (comp vector first))))

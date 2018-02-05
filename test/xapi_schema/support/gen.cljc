@@ -90,9 +90,10 @@
    #?(:clj #(cgen/string-from-regex (remove-re-anchors re/Base64RegEx))
       :cljs #(gen/let [rs (gen/not-empty gen/string-alphanumeric)]
                (.btoa js/window rs)))
-   ::xapispec/sha1sum
+   ::xapispec/sha1sum ;; todo, make actually random
    #?(:clj #(cgen/string-from-regex (remove-re-anchors re/Sha1RegEx))
-      :cljs #(gen/elements ["Fba13C82BED3586AAffcC1254f7dbE0cfBD7568E"]))}) ;; todo, make actually random
+      :cljs #(gen/elements ["Fba13C82BED3586AAffcC1254f7dbE0cfBD7568E"]))
+   :score/scaled #(gen/double* {:min -1.0 :max 1.0})})
 
 (defn unform-gen [spec-kw overrides & [select-map-keys]]
   (let [[kns kname] ((juxt namespace name)
@@ -223,16 +224,25 @@
     {::xapispec/oauth-consumer
      #(unform-gen ::xapispec/oauth-consumer
                   (merge primitive-overrides
-                         agent-overrides)
-                  [:agent/account])})
+                         account-overrides)
+                  [:agent/account
+                   :agent/name
+                   :agent/objectType])})
 
   (def three-legged-oauth-group-overrides
-    {::xapispec/three-legged-oauth-group
-     #(unform-gen ::xapispec/three-legged-oauth-group
+    {::xapispec/tlo-group
+     #(unform-gen ::xapispec/tlo-group
                   (merge primitive-overrides
-                         group-overrides
-                         oauth-consumer-overrides))})
-)
+                         account-overrides
+                         oauth-consumer-overrides)
+                  [:tlo-group/objectType
+                   :tlo-group/name
+                   :tlo-group/member])}))
+
+(def authority-overrides
+  {:statement/authority
+   (::xapispec/agent agent-overrides)})
+
 (def statement-overrides
   {::xapispec/statement
    #(unform-gen ::xapispec/statement
@@ -245,7 +255,10 @@
                        statement-ref-overrides
                        context-overrides
                        attachment-overrides
-                       sub-statement-overrides))})
+                       sub-statement-overrides
+                       authority-overrides
+                       #_oauth-consumer-overrides
+                       #_three-legged-oauth-group-overrides))})
 
 (def gen-overrides
   (merge primitive-overrides
@@ -263,6 +276,9 @@
          context-overrides
          attachment-overrides
          sub-statement-overrides
+         authority-overrides
+         #_oauth-consumer-overrides
+         #_three-legged-oauth-group-overrides
          statement-overrides))
 
 (defn spec-gen [spec-kw & [overrides]]

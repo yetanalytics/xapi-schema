@@ -933,15 +933,11 @@
    ::oauth-consumer*))
 
 (s/def :tlo-group/member
-  (s/and :group/member
-         (s/coll-of ::agent
-                    :kind vector?
-                    :count 2)
-         (s/cat
-          :oauth-consumer
-          ::oauth-consumer
-          :agent
-          ::agent)))
+  (s/cat
+   :oauth-consumer
+   ::oauth-consumer
+   :agent
+   ::agent))
 
 (s/def :tlo-group/objectType #{"Group"})
 
@@ -949,7 +945,6 @@
 (s/def :tlo-group/mbox_sha1sum :group/mbox_sha1sum)
 (s/def :tlo-group/openid :group/openid)
 (s/def :tlo-group/account :group/account)
-
 
 (s/def ::tlo-group*
   (s/and (s/keys :req [:tlo-group/member]
@@ -959,7 +954,7 @@
                         :tlo-group/member
                         :tlo-group/name)))
 
-(s/def ::three-legged-oauth-group
+(s/def ::tlo-group
   (s/and (map-ns-conformer "tlo-group")
          ::tlo-group*))
 
@@ -972,7 +967,7 @@
         :oauth-consumer
         ::oauth-consumer
         :three-legged-oauth-group
-        ::three-legged-oauth-group))
+        ::tlo-group))
 
 (defmulti statement-object-type (fn [ss-o]
                                   (case (get ss-o "objectType")
