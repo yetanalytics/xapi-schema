@@ -354,25 +354,13 @@
    (s/keys
     :opt [:definition/name
           :definition/description
-          :definition/correctResponsesPattern
           :definition/type
           :definition/moreInfo
-          :definition/choices
-          :definition/scale
-          :definition/source
-          :definition/target
-          :definition/steps
           :definition/extensions])
    (restrict-keys :definition/name
                   :definition/description
-                  :definition/correctResponsesPattern
                   :definition/type
                   :definition/moreInfo
-                  :definition/choices
-                  :definition/scale
-                  :definition/source
-                  :definition/target
-                  :definition/steps
                   :definition/extensions)))
 
 (defmethod interaction-type :default [_]
