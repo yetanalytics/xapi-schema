@@ -81,26 +81,27 @@
          (partial re-find AbsoluteIRIRegEx)))
 
 (s/def ::any-json
-  (s/or :scalar
-        (s/or :string
-              string?
-              :number
-              (s/or :double
-                    double?
-                    :int
-                    int?))
-        :coll
-        (s/or :map
-              (s/map-of
+  (s/nilable
+   (s/or :scalar
+         (s/or :string
                string?
-               ::any-json
-               :gen-max 4)
-              :vector
-              (s/coll-of
-               ::any-json
-               :kind vector?
-               :into []
-               :gen-max 4))))
+               :number
+               (s/or :double
+                     double?
+                     :int
+                     int?))
+         :coll
+         (s/or :map
+               (s/map-of
+                string?
+                ::any-json
+                :gen-max 4)
+               :vector
+               (s/coll-of
+                ::any-json
+                :kind vector?
+                :into []
+                :gen-max 4)))))
 
 (s/def ::extensions
   (s/map-of ::iri
