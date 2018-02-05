@@ -606,15 +606,7 @@
                 :attachment/length
                 :attachment/sha2]
           :opt [:attachment/description
-                :attachment/fileUrl])
-  #_(s/and (map-ns-conformer "attachment")
-         (s/keys :req [:attachment/usageType
-                       :attachment/display
-                       :attachment/contentType
-                       :attachment/length
-                       :attachment/sha2]
-                 :opt [:attachment/description
-                           :attachment/fileUrl])))
+                :attachment/fileUrl]))
 
 (s/def ::url-attachment
   (s/keys :req [:attachment/usageType
@@ -623,27 +615,18 @@
                 :attachment/length
                 :attachment/sha2
                 :attachment/fileUrl]
-          :opt [:attachment/description])
-  #_(s/and (map-ns-conformer "attachment")
-         (s/keys :req [:attachment/usageType
-                       :attachment/display
-                       :attachment/contentType
-                       :attachment/length
-                       :attachment/sha2
-                       :attachment/fileUrl]
-                 :req-opt [:attachment/description])))
+          :opt [:attachment/description]))
 
 (s/def ::attachment*
-  (s/or ::file-attachment
-        ::file-attachment
-        ::url-attachment
-        ::url-attachment))
+  (s/keys :req [:attachment/usageType
+                :attachment/display
+                :attachment/contentType
+                :attachment/length
+                :attachment/sha2]
+          :opt [:attachment/description
+                :attachment/fileUrl]))
 
 (s/def ::attachment
-  #_(s/or ::file-attachment
-        ::file-attachment
-        ::url-attachment
-        ::url-attachment)
   (s/and (map-ns-conformer "attachment")
          ::attachment*))
 
