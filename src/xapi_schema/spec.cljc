@@ -94,7 +94,9 @@
                (s/or :double
                      double?
                      :int
-                     int?))
+                     int?)
+               :boolean
+               boolean?)
          :coll
          (s/or :map
                (s/map-of
