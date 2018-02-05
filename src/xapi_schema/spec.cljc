@@ -917,16 +917,20 @@
 ;; Authority
 
 (s/def ::oauth-consumer*
-  (s/keys :req [:agent/account]))
+  (s/and
+   (s/keys :req [:agent/account]
+           :opt [:agent/objectType
+                 :agent/name])
+   (restrict-keys :agent/account
+                  :agent/objectType
+                  :agent/name)))
 
 (s/def ::oauth-consumer
   (s/and
    (map-ns-conformer "agent")
    ::oauth-consumer*))
 
-(comment
-  ;; three-legged oauth grp
-  ;; FIXME: express these extra constraints
+(s/def :tlo-group/member
   (s/and :group/member
          (s/coll-of ::agent
                     :kind vector?
@@ -937,34 +941,36 @@
           :agent
           ::agent)))
 
-(s/def ::three-legged-oauth-group*
-  (s/and (s/keys :req [:group/objectType
-                       :group/member]
-                 :opt [:group/name
-                       :group/mbox
-                       :group/mbox_sha1sum
-                       :group/openid
-                       :group/account])
-         (restrict-keys :group/objectType
-                        :group/member
-                        :group/name
-                        :group/mbox
-                        :group/mbox_sha1sum
-                        :group/openid
-                        :group/account)
-         #(some-> % :group/member count (= 2))
-         ))
+(s/def :tlo-group/objectType #{"Group"})
+
+(s/def :tlo-group/mbox :group/mbox)
+(s/def :tlo-group/mbox_sha1sum :group/mbox_sha1sum)
+(s/def :tlo-group/openid :group/openid)
+(s/def :tlo-group/account :group/account)
+
+
+(s/def ::tlo-group*
+  (s/and (s/keys :req [:tlo-group/member]
+                 :opt [:tlo-group/objectType
+                       :tlo-group/name])
+         (restrict-keys :tlo-group/objectType
+                        :tlo-group/member
+                        :tlo-group/name)))
 
 (s/def ::three-legged-oauth-group
-  (s/and (map-ns-conformer "group")
-         ::three-legged-oauth-group*
-         ))
+  (s/and (map-ns-conformer "tlo-group")
+         ::tlo-group*))
 
 
 ;; Statement!
 
 (s/def :statement/authority
-  ::actor)
+  (s/or :agent
+        ::agent
+        :oauth-consumer
+        ::oauth-consumer
+        :three-legged-oauth-group
+        ::three-legged-oauth-group))
 
 (defmulti statement-object-type (fn [ss-o]
                                   (case (get ss-o "objectType")
