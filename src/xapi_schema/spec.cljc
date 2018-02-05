@@ -873,29 +873,8 @@
 (s/def :sub-statement/result
   ::result)
 
-#_(s/def :sub-statement/context*
-  (s/and
-   (s/keys :opt [:context/registration
-                 :context/instructor
-                 :context/team
-                 :context/contextActivities
-                 :context/platform
-                 :context/language
-                 :context/statement
-                 :context/extensions])
-   (restrict-keys :context/registration
-                  :context/instructor
-                  :context/team
-                  :context/contextActivities
-                  :context/platform
-                  :context/language
-                  :context/statement
-                  :context/extensions)))
-
 (s/def :sub-statement/context
-  ::context
-  #_(s/and (map-ns-conformer "context")
-         :sub-statement/context*))
+  ::context)
 
 (s/def :sub-statement/attachments
   ::attachments)
