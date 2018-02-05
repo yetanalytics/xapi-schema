@@ -2,7 +2,6 @@
   (:require
    [clojure.spec.alpha :as s :include-macros true]
    [xapi-schema.spec :as xapispec]
-   [com.gfredericks.test.chuck :as chuck]
    [com.gfredericks.test.chuck.generators :as cgen]
    [xapi-schema.schemata.regex :as re]
    [clojure.test.check.generators :as gen :include-macros true]
