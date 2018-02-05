@@ -351,7 +351,6 @@
 (s/def :group/member
   (s/coll-of ::agent :kind vector? :into [] :gen-max 3))
 
-
 (s/def ::identified-group
   (s/keys :req [:group/objectType
                 (or :group/mbox
@@ -663,14 +662,7 @@
 
 (s/def :sub-statement/object
   (s/multi-spec sub-statement-object-type (fn [gen-val _]
-                                            gen-val))
-  #_(s/or
-   ::activity
-   ::activity
-   ::actor
-   ::actor
-   ::statement-ref
-   ::statement-ref))
+                                            gen-val)))
 
 (s/def :sub-statement/result
   ::result)
