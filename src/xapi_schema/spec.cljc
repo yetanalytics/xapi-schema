@@ -44,14 +44,6 @@
    (partial conform-ns-map map-ns)
    unform-ns-map))
 
-(comment
-  (s/def ::foo string?)
-
-  (let [spec (s/or :string string? :num number?)]
-
-   (s/unform spec (s/conform spec "foo")))
-  )
-
 ;; primitives - useful to hook into for generation
 (s/def ::string-not-empty
   (s/and string?
@@ -376,12 +368,28 @@
            :opt [:group/name])
    #(-> % :group/member seq)))
 
+(def identified-group?
+  (comp
+   some?
+   (some-fn :group/mbox
+            :group/mbox_sha1sum
+            :group/openid
+            :group/account)))
+
+(defmulti group-type #(if (identified-group? %)
+                        :group/identified
+                        :group/anonymous))
+
+(defmethod group-type :group/identified [_]
+  ::identified-group)
+
+(defmethod group-type :group/anonymous [_]
+  ::anonymous-group)
+
+
 (s/def ::group*
-  (s/or :identified-group
-        ::identified-group
-        :anonymous-group
-        ::anonymous-group
-        ))
+  (s/multi-spec group-type (fn [gen-val _]
+                             gen-val)))
 
 (s/def ::group
   (s/and
@@ -390,11 +398,22 @@
 
 ;; Actor
 
+(defmulti actor-type (fn [a]
+                       (case (get a "objectType")
+                         "Agent" :actor/agent
+                         "Group" :actor/group
+                         :actor/agent)))
+
+(defmethod actor-type :actor/agent [_]
+  ::agent)
+
+(defmethod actor-type :actor/group [_]
+  ::group)
+
+
 (s/def ::actor
-  (s/or ::agent
-        ::agent
-        ::group
-        ::group))
+  (s/multi-spec actor-type (fn [gen-val _]
+                             gen-val)))
 
 ;; Verb
 
@@ -639,8 +658,30 @@
 (s/def :sub-statement/verb
   ::verb)
 
+(defmulti sub-statement-object-type (fn [ss-o]
+                                      (case (get ss-o "objectType")
+                                        "Activity" :sub-statement-object/activity
+                                        nil :sub-statement-object/activity
+                                        "Agent" :sub-statement-object/agent
+                                        "Group" :sub-statement-object/group
+                                        "StatementRef" :sub-statement-object/statement-ref)))
+
+(defmethod sub-statement-object-type :sub-statement-object/activity [_]
+  ::activity)
+
+(defmethod sub-statement-object-type :sub-statement-object/agent [_]
+  ::agent)
+
+(defmethod sub-statement-object-type :sub-statement-object/group [_]
+  ::group)
+
+(defmethod sub-statement-object-type :sub-statement-object/statement-ref [_]
+  ::statement-ref)
+
 (s/def :sub-statement/object
-  (s/or
+  (s/multi-spec sub-statement-object-type (fn [gen-val _]
+                                            gen-val))
+  #_(s/or
    ::activity
    ::activity
    ::actor
@@ -724,19 +765,36 @@
 ;; Statement!
 
 (s/def :statement/authority
-  ::actor
-  #_(s/or ::agent
-        ::agent
-        ::group
-        ::three-legged-oauth-group))
+  ::actor)
+
+(defmulti statement-object-type (fn [ss-o]
+                                      (case (get ss-o "objectType")
+                                        "Activity" :statement-object/activity
+                                        nil :statement-object/activity
+                                        "Agent" :statement-object/agent
+                                        "Group" :statement-object/group
+                                        "StatementRef" :statement-object/statement-ref
+                                        "SubStatement" :statement-object/sub-statement)))
+
+(defmethod statement-object-type :statement-object/activity [_]
+  ::activity)
+
+(defmethod statement-object-type :statement-object/agent [_]
+  ::agent)
+
+(defmethod statement-object-type :statement-object/group [_]
+  ::group)
+
+(defmethod statement-object-type :statement-object/statement-ref [_]
+  ::statement-ref)
+
+(defmethod statement-object-type :statement-object/sub-statement [_]
+  ::sub-statement)
+
 
 (s/def :statement/object
-  (s/or
-   ::activity ::activity
-   ::agent ::agent
-   ::group ::group
-   ::sub-statement ::sub-statement
-   ::statement-ref ::statement-ref))
+  (s/multi-spec statement-object-type (fn [gen-val _]
+                                        gen-val)))
 
 (s/def :statement/id
   ::uuid)
@@ -784,19 +842,16 @@
                  :statement/timestamp
                  :statement/stored
                  :statement/authority
-                 :statement/attachments
-                 ;; :statement/objectType
-                 ])
+                 :statement/attachments])
    (fn valid-context? [s]
      (if (some-> s
                  :statement/object
-                 first
-                 (= ::activity))
+                 :activity/objectType)
        true
        (not (some-> s :statement/context revision-or-platform?))))
    (fn valid-void? [s]
      (if (some-> s :statement/verb :verb/id (= "http://adlnet.gov/expapi/verbs/voided"))
-       (some-> s :statement/object first (= ::statement-ref))
+       (some-> s :statement/object :statement-ref/objectType)
        true))))
 
 (s/def ::statement
