@@ -51,6 +51,11 @@
   [& ks]
   (fn [m] (every? (set ks) (keys m))))
 
+(def revision-or-platform?
+  (comp some?
+        (some-fn :context/revision
+                 :context/platform)))
+
 ;; primitives - useful to hook into for generation
 (s/def ::string-not-empty
   (s/and string?
@@ -878,8 +883,29 @@
 (s/def :sub-statement/result
   ::result)
 
+#_(s/def :sub-statement/context*
+  (s/and
+   (s/keys :opt [:context/registration
+                 :context/instructor
+                 :context/team
+                 :context/contextActivities
+                 :context/platform
+                 :context/language
+                 :context/statement
+                 :context/extensions])
+   (restrict-keys :context/registration
+                  :context/instructor
+                  :context/team
+                  :context/contextActivities
+                  :context/platform
+                  :context/language
+                  :context/statement
+                  :context/extensions)))
+
 (s/def :sub-statement/context
-  ::context)
+  ::context
+  #_(s/and (map-ns-conformer "context")
+         :sub-statement/context*))
 
 (s/def :sub-statement/attachments
   ::attachments)
@@ -907,7 +933,13 @@
           :sub-statement/result
           :sub-statement/context
           :sub-statement/attachments
-          :sub-statement/timestamp)))
+          :sub-statement/timestamp)
+         (fn valid-context? [s]
+           (if (let [s-o (:sub-statement/object s)]
+                 (or (:activity/objectType s-o)
+                     (:activity/id s-o)))
+             true
+             (not (some-> s :sub-statement/context revision-or-platform?))))))
 
 (s/def ::sub-statement
   (s/and (map-ns-conformer "sub-statement")
@@ -1025,11 +1057,6 @@
 (s/def :statement/objectType
   #{"SubStatement"})
 
-(def revision-or-platform?
-  (some-fn :context/revision
-           :context/platform
-           ))
-
 (s/def ::statement*
   (s/and
    (s/keys :req [:statement/actor
@@ -1056,9 +1083,9 @@
     :statement/attachments
     :statement/version)
    (fn valid-context? [s]
-     (if (some-> s
-                 :statement/object
-                 :activity/objectType)
+     (if (let [s-o (:statement/object s)]
+           (or (:activity/objectType s-o)
+               (:activity/id s-o)))
        true
        (not (some-> s :statement/context revision-or-platform?))))
    (fn valid-void? [s]
