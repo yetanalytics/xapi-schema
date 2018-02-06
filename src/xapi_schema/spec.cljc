@@ -13,7 +13,6 @@
                                        Sha1RegEx]]
    [clojure.set :refer [intersection
                         difference]]
-   [clojure.walk :refer [stringify-keys]]
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]))
 
 ;; Utils
@@ -214,37 +213,6 @@
     "likert"
     "numeric"
     "other"})
-
-(def component-keys
-  #{:definition/choices
-    :definition/scale
-    :definition/target
-    :definition/steps
-    :definition/source})
-
-(def valid-component-keys
-  "Given an interactionType, what component keys are valid?"
-  {"choice"      #{:definition/choices}
-   "sequencing"  #{:definition/choices}
-   "likert"      #{:definition/scale}
-   "matching"    #{:definition/source :definition/target}
-   "performance" #{:definition/steps}
-   "true-false"  #{}
-   "fill-in"     #{}
-   "numeric"     #{}
-   "other"       #{}})
-
-(defn valid-definition-component-keys?
-  [data]
-  "Predicate to ensure valid component list keys"
-  (let [interaction-type (:definition/interactionType data)
-        submitted-keys (intersection (set (keys data)) component-keys)
-        valid-for-type (valid-component-keys interaction-type)
-        invalid (difference submitted-keys valid-for-type)]
-
-    (if (and interaction-type (seq invalid))
-      false
-      true)))
 
 (defmulti interaction-type :definition/interactionType)
 
