@@ -1,39 +1,32 @@
 (ns xapi-schema.core
   (:require
-   #?@(:clj
-       [[schema.core :as s]
-        [cheshire.core :as c]])
-   #?(:cljs [schema.core :as s
-             :include-macros true])
-   [xapi-schema.schemata.json :refer [Statement Statements]]
-   [schema.utils :as su]
-   [xapi-schema.schemata.util :as u]))
+   [clojure.spec.alpha :as s :include-macros true]
+   [xapi-schema.spec :as xapispec]
+   #?(:clj [cheshire.core :as c])))
 
 (def statement-checker
-  (s/checker Statement))
+  (partial s/explain-data ::xapispec/statement))
 
 (def statements-checker
-  (s/checker Statements))
-
-(def errors->data
-  u/errors->data)
-
-(def errors->paths
-  u/errors->paths)
+  (partial s/explain-data ::xapispec/statements))
 
 (defn validate-statement [s]
-  (if-let [error (statement-checker s)]
+  (if (s/valid? ::xapispec/statement s)
+    s
     (throw
-     #?(:clj (Exception. (str error))
-        :cljs (js/Error. (str error))))
-    s))
+     (ex-info "Statement Invalid"
+              {:type ::statement-invalid
+               :statement s
+               :error (statement-checker s)}))))
 
 (defn validate-statements [ss]
-  (if-let [error (statements-checker ss)]
+  (if (s/valid? ::xapispec/statements ss)
+    ss
     (throw
-     #?(:clj (Exception. (str error))
-        :cljs (js/Error. (str error))))
-    ss))
+     (ex-info "Statements Invalid"
+              {:type ::statements-invalid
+               :statements ss
+               :error (statements-checker ss)}))))
 
 (defn validate-statement-data* [sd]
   (if (map? sd)

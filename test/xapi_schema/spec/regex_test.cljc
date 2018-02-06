@@ -1,18 +1,16 @@
-(ns xapi-schema.schemata.regex-test
+(ns xapi-schema.spec.regex-test
   (:require
-   #?@(:cljs [[cljs.test :refer-macros [deftest is testing run-tests]]
-              [xapi-schema.schemata.regex :refer [LanguageTagRegEx
-                                                  AbsoluteIRIRegEx
-                                                  MailToIRIRegEx
-                                                  UuidRegEx
-                                                  TimestampRegEx
-                                                  xAPIVersionRegEx
-                                                  DurationRegEx
-                                                  Base64RegEx
-                                                  Sha1RegEx
-                                                  OpenIdRegEx]]]
-       :clj [[clojure.test :refer :all]
-            [xapi-schema.schemata.regex :refer :all]])))
+   [clojure.test :refer [deftest is testing] :include-macros true]
+   [xapi-schema.spec.regex :refer [LanguageTagRegEx
+                                   AbsoluteIRIRegEx
+                                   MailToIRIRegEx
+                                   UuidRegEx
+                                   TimestampRegEx
+                                   xAPIVersionRegEx
+                                   DurationRegEx
+                                   Base64RegEx
+                                   Sha1RegEx
+                                   OpenIdRegEx]]))
 
 (deftest language-tag-regex-test
   (testing "matches valid Language Tags"
@@ -40,7 +38,8 @@
   (testing "matches IRIs with fragments"
     (is (re-matches AbsoluteIRIRegEx "http://example.com/xapi/verbs#sent-a-statement"))
     (is (re-matches AbsoluteIRIRegEx "http://example.com/xapi/foo/#bar?my_jimmies=rustled"))
-    (is (re-matches AbsoluteIRIRegEx "http://a_b/#foo"))))
+    (is (re-matches AbsoluteIRIRegEx "http://a_b/#foo"))
+    (is (re-matches AbsoluteIRIRegEx "https://foo-baz.app.com/xapi/def/emb/qux*ROOT"))))
 
 (deftest mailto-iri-regex-test
   (testing "matches valid mailto IRIs"
