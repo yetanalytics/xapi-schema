@@ -13,7 +13,11 @@
                                        Sha1RegEx]]
    [clojure.set :refer [intersection
                         difference]]
-   [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]))
+   [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]
+   [clojure.spec.gen.alpha :as sgen :include-macros true]
+   #?@(:cljs [[goog.string :as gstring]
+              [goog.string.format]]))
+  #?(:clj (:import [java.util Base64])))
 
 ;; Utils
 
@@ -57,14 +61,18 @@
 
 ;; primitives - useful to hook into for generation
 (s/def ::string-not-empty
-  (s/and string?
-         (complement empty?)))
+  (s/with-gen
+    (s/and string?
+           (complement empty?))
+    #(sgen/not-empty sgen/string-alphanumeric)))
 
 ;; Leaves
 
 (s/def ::language-tag
-  (s/and ::string-not-empty
-         (partial re-matches LanguageTagRegEx)))
+  (s/with-gen
+    (s/and ::string-not-empty
+           (partial re-matches LanguageTagRegEx))
+    #(sgen/elements ["en" "en-US" "en-GB" "fr"])))
 
 (s/def ::language-map
   (s/map-of ::language-tag
@@ -73,16 +81,41 @@
             :min-count 1))
 
 (s/def ::iri
-  (s/and string?
-         (partial re-matches AbsoluteIRIRegEx)))
+  (s/with-gen
+    (s/and string?
+           (partial re-matches AbsoluteIRIRegEx))
+    #(sgen/fmap
+      (fn [[protocol host domain tld path]]
+        (str protocol "://" host "." domain "." tld "/" path))
+      (sgen/tuple (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))))))
 
 (s/def ::mailto-iri
-  (s/and string?
-         (partial re-matches MailToIRIRegEx)))
+  (s/with-gen
+    (s/and string?
+           (partial re-matches MailToIRIRegEx))
+    #(sgen/fmap
+      (fn [[mbox domain tld]]
+        (str "mailto:" mbox "@" domain "." tld))
+      (sgen/tuple (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))))))
 
 (s/def ::irl
-  (s/and string?
-         (partial re-matches AbsoluteIRIRegEx)))
+  (s/with-gen
+    (s/and string?
+           (partial re-matches AbsoluteIRIRegEx))
+    #(sgen/fmap
+      (fn [[protocol host domain tld path]]
+        (str protocol "://" host "." domain "." tld "/" path))
+      (sgen/tuple (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))))))
 
 (s/def ::any-json
   (s/nilable
@@ -114,32 +147,86 @@
             ::any-json))
 
 (s/def ::openid
-  (s/and string?
-         (partial re-matches OpenIdRegEx)))
+  (s/with-gen
+    (s/and string?
+           (partial re-matches OpenIdRegEx))
+    #(sgen/fmap
+      (fn [[protocol host domain tld path]]
+        (str protocol "://" host "." domain "." tld "/" path))
+      (sgen/tuple (sgen/elements ["http" "https"])
+                  (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))
+                  (sgen/not-empty (sgen/string-alphanumeric))))))
 
 (s/def ::uuid
-  (s/and string?
-         (partial re-matches UuidRegEx)))
+  (s/with-gen
+    (s/and string?
+           (partial re-matches UuidRegEx))
+    #(sgen/fmap
+      str
+      (sgen/uuid))))
+
 
 (s/def ::timestamp
-  (s/and string?
-         (partial re-matches TimestampRegEx)))
+  (s/with-gen
+    (s/and string?
+           (partial re-matches TimestampRegEx))
+    #(sgen/fmap (fn [[yyyy mm dd h m s ms]]
+                  (#?(:clj format
+                      :cljs gstring/format) "%d-%02d-%02dT%02d:%02d:%02d.%dZ" yyyy mm dd h m s ms))
+               (sgen/tuple (sgen/elements (range 1970 2020))
+                           (sgen/elements (range 1 12))
+                           (sgen/elements (range 1 28))
+                           (sgen/elements (range 0 24))
+                           (sgen/elements (range 0 60))
+                           (sgen/elements (range 0 60))
+                           (sgen/elements (range 0 999))))))
 
 (s/def ::duration
-  (s/and string?
-         (partial re-matches DurationRegEx)))
+  (s/with-gen
+    (s/and string?
+           (partial re-matches DurationRegEx))
+    #(sgen/fmap (fn [[h m s]]
+                  (#?(:clj format
+                      :cljs gstring/format) "PT%dH%sM%dS" h m s))
+                (sgen/tuple (sgen/elements (range 1 24))
+                            (sgen/elements (range 1 60))
+                            (sgen/elements (range 1 60))))))
 
 (s/def ::version
-  (s/and string?
-         (partial re-matches xAPIVersionRegEx)))
+  (s/with-gen
+    (s/and string?
+           (partial re-matches xAPIVersionRegEx))
+    #(sgen/fmap (fn [i]
+                  (#?(:clj format
+                      :cljs gstring/format) "1.0.%d" i))
+                (sgen/int))))
 
 (s/def ::sha2
-  (s/and string?
-         (partial re-matches Base64RegEx)))
+  (s/with-gen
+    (s/and string?
+           (partial re-matches Base64RegEx))
+    #(sgen/fmap
+      (fn [^String s]
+        #?(:clj (String. (.encode
+                          (java.util.Base64/getEncoder)
+                          (.getBytes s)))))
+      (sgen/not-empty (sgen/string-alphanumeric)))))
 
 (s/def ::sha1sum
-  (s/and string?
-         (partial re-matches Sha1RegEx)))
+  (s/with-gen
+    (s/and string?
+           (partial re-matches Sha1RegEx))
+    #(sgen/fmap
+      (fn [is]
+        (apply str
+               (map char
+                    is)))
+      (sgen/vector (sgen/elements (concat
+                                   (range 65 71)
+                                   (range 48 58)))
+                40))))
 
 ;; Activity Definition
 
