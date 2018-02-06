@@ -44,7 +44,7 @@
 (def openid
   iri)
 
-(def uuid
+(def uuid-str
   "f47ac10b-58cc-4372-a567-0e02b2c3d479")
 
 (def timestamp
@@ -94,7 +94,7 @@
   {"homePage" irl
    "name" "bob"})
 
-(def agent
+(def agente
   {"mbox" mailto
    "objectType" "Agent"})
 
@@ -104,7 +104,7 @@
 
 (def anon-group
   {"objectType" "Group"
-   "member" [agent]})
+   "member" [agente]})
 
 (def verb
   {"id" iri
@@ -126,7 +126,7 @@
 
 (def statement-ref
   {"objectType" "StatementRef"
-   "id" uuid})
+   "id" uuid-str})
 
 (def context-activities
   {"parent" [activity]
@@ -135,8 +135,8 @@
    "other" [activity]})
 
 (def context
-  {"registration" uuid
-   "instructor" agent
+  {"registration" uuid-str
+   "instructor" agente
    "team" group
    "contextActivities" context-activities
    "revision" "whatever"
@@ -154,19 +154,19 @@
    "fileUrl" "http://foo.bar/baz"})
 
 (def sub-statement
-  {"actor" agent
+  {"actor" agente
    "verb" verb
    "object" activity
    "objectType" "SubStatement"})
 
 (def statement
-  {"id" uuid
-   "actor" agent
+  {"id" uuid-str
+   "actor" agente
    "verb" verb
    "object" activity
    "timestamp" timestamp
    "stored" timestamp
-   "authority" agent
+   "authority" agente
    "version" version})
 
 (def simple-statement

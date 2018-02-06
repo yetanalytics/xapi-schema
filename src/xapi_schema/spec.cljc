@@ -1,16 +1,15 @@
 (ns xapi-schema.spec
   (:require
-   [xapi-schema.schemata.predicates :refer [re-pred]]
-   [xapi-schema.schemata.regex :refer [LanguageTagRegEx
-                                       OpenIdRegEx
-                                       AbsoluteIRIRegEx
-                                       MailToIRIRegEx
-                                       UuidRegEx
-                                       TimestampRegEx
-                                       xAPIVersionRegEx
-                                       DurationRegEx
-                                       Base64RegEx
-                                       Sha1RegEx]]
+   [xapi-schema.spec.regex :refer [LanguageTagRegEx
+                                   OpenIdRegEx
+                                   AbsoluteIRIRegEx
+                                   MailToIRIRegEx
+                                   UuidRegEx
+                                   TimestampRegEx
+                                   xAPIVersionRegEx
+                                   DurationRegEx
+                                   Base64RegEx
+                                   Sha1RegEx]]
    [clojure.set :refer [intersection
                         difference]]
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]
@@ -1162,30 +1161,3 @@
 
 (s/def ::statements
   (s/coll-of ::statement :into [] :min-count 1))
-
-;; Shadow Core API
-(def statement-checker
-  (partial s/explain-data ::statement))
-
-(def statements-checker
-  (partial s/explain-data ::statements))
-
-(def errors->data
-  (comp ::spec-error ex-data))
-
-(def errors->paths
-  identity) ;; TODO: fix this if it is actually needed
-
-(defn validate-statement [s]
-  (if-let [error (statement-checker s)]
-    (throw (ex-info "Invalid Statement"
-                    {:type ::invalid-statement
-                     ::spec-error error}))
-    s))
-
-(defn validate-statements [ss]
-  (if-let [error (statements-checker ss)]
-    (throw (ex-info "Invalid Statements"
-                    {:type ::invalid-statements
-                     ::spec-error error}))
-    ss))
