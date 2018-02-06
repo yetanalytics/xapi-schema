@@ -773,7 +773,7 @@
           :opt [:attachment/description
                 :attachment/fileUrl]))
 
-(s/def ::url-attachment
+(s/def ::url-attachment*
   (s/keys :req [:attachment/usageType
                 :attachment/display
                 :attachment/contentType
@@ -781,6 +781,10 @@
                 :attachment/sha2
                 :attachment/fileUrl]
           :opt [:attachment/description]))
+
+(s/def ::url-attachment
+  (s/and (map-ns-conformer "attachment")
+         ::url-attachment*))
 
 (s/def ::attachment*
   (s/and
