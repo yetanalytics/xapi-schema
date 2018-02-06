@@ -18,13 +18,12 @@ You can use xapi-schema to validate statements in real-time [[http://yetanalytic
 ** Getting Started
 1. Add to your project dependencies:
   #+BEGIN_SRC clojure
-  [[com.yetanalytics/xapi-schema "0.1.15"]]
+  [[com.yetanalytics/xapi-schema "1.0.0-alpha1"]]
   #+END_SRC
 2. Require in your project:
   #+BEGIN_SRC clojure
     (ns your-project.core
-      (:require [xapi-schema.core :as xs]
-                [xapi-schema.schemata.json :as json]))
+      (:require [xapi-schema.core :as xs]))
   #+END_SRC
 
 ** Usage
@@ -92,28 +91,6 @@ Checking a statement will return nil if it is valid, or a map of errors.
   ;;            "id" (named (not (instance? java.lang.String 123)) "Uuid")} "Statement")
 #+END_SRC
 
-**** Coerce Errors to Data
-
-You can use the =errors->data= fn to coerce errors into nested data that looks like your statement.
-
-#+BEGIN_SRC clojure
-(let [bad-statement (-> statement
-                        (dissoc "actor")
-                        (assoc "id" 123)]
-  (xs/errors->data (xs/statement-checker bad-statement :en)))) ;; ltag is optional, defaults to :en
-  ;; => {"actor" "Missing required key", "id" "Not a string: 123"}
-#+END_SRC
-
-If you want a map of errors to their paths in the nested data, use =errors->paths=:
-
-#+BEGIN_SRC clojure
-(let [bad-statement (-> statement
-                        (dissoc "actor")
-                        (assoc "id" 123)]
-  (xs/errors->paths (xs/statement-checker bad-statement :en))))
-  ;; => {"Missing required key" ["actor"], "Not a string: 123" ["id"]}
-#+END_SRC
-
 **** Use SubSchemata
 
 All of the subschemata in =xapi-schema.schemata.json= are valid [[https://github.com/Prismatic/schema][Prismatic Schemas]]:
@@ -121,9 +98,9 @@ All of the subschemata in =xapi-schema.schemata.json= are valid [[https://github
 #+BEGIN_SRC clojure
 (ns your-project.core
   (:require [xapi-schema.core :as xs]
-            [xapi-schema.schemata.json :as json]
-            [schema.core :as s]))
-(s/check json/Agent {"mbox" "mailto:bob@example.com"}) ;; => nil
+            [xapi-schema.spec :as json]
+            [clojure.spec.alpha :as s]))
+(s/explain-data ::json/agent {"mbox" "mailto:bob@example.com"}) ;; => nil
 #+END_SRC
 
 *** Plain ol' JavaScript
@@ -151,7 +128,7 @@ xapi_schema.core.validate_statement_data_js(statement_json); // => statement JSO
 
 ** License
 
-Copyright © 2017 Yet Analytics, Inc.
+Copyright © 2018 Yet Analytics, Inc.
 
 Distributed under the Eclipse Public License, the same as Clojure.
 See the file [[file:LICENSE][LICENSE]] for details.
