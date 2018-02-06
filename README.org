@@ -13,7 +13,7 @@ Clojure(script) schema for Experience API 1.0.3. Provides validation of Statemen
 
 ** Demo
 
-You can use xapi-schema to validate statements in real-time [[http://yetanalytics.github.io/xapi-schema-demo/][with this demo]].
+You can use xapi-schema to validate (and generate) statements in real-time [[http://yetanalytics.github.io/xapi-schema-demo/][with this demo]].
 
 ** Getting Started
 1. Add to your project dependencies:
@@ -50,7 +50,7 @@ You can use xapi-schema to validate statements in real-time [[http://yetanalytic
   (xs/validate-statement-data [stmt1 stmt2 stmt3]) ;; => returns the statements
 
   (let [bad-statement (dissoc statement "actor")]
-    (xs/validate-statement-data bad-statement))  ;; => throws Exception or js/Error
+    (xs/validate-statement-data bad-statement))  ;; => throws ExceptionInfo
 
 #+END_SRC
 
@@ -87,13 +87,12 @@ Checking a statement will return nil if it is valid, or a map of errors.
                         (dissoc "actor")
                         (assoc "id" 123)]
   (xs/statement-checker bad-statement)))
-  ;; => (named {"actor" missing-required-key,
-  ;;            "id" (named (not (instance? java.lang.String 123)) "Uuid")} "Statement")
+  ;; => {:cljs.spec.alpha/problems (...
 #+END_SRC
 
 **** Use SubSchemata
 
-All of the subschemata in =xapi-schema.schemata.json= are valid [[https://github.com/Prismatic/schema][Prismatic Schemas]]:
+All of the subschemata in =xapi-schema.spec= are valid [[https://clojure.org/guides/spec][Clojure Specs]]:
 
 #+BEGIN_SRC clojure
 (ns your-project.core
@@ -102,6 +101,25 @@ All of the subschemata in =xapi-schema.schemata.json= are valid [[https://github
             [clojure.spec.alpha :as s]))
 (s/explain-data ::json/agent {"mbox" "mailto:bob@example.com"}) ;; => nil
 #+END_SRC
+
+**** Generate Statements
+
+You can use spec's generation functions to generate conformant statements containing random data:
+
+1. Include the =test.check= dependency:
+  #+BEGIN_SRC clojure
+  [[com.yetanalytics/xapi-schema "1.0.0-alpha2"]
+   [org.clojure/test.check "0.10.0-alpha2"]]
+  #+END_SRC
+2. Include the extra namespaces and generate!
+  #+BEGIN_SRC clojure
+  (ns your-project.core
+    (:require [xapi-schema.spec :as xapispec]
+              [clojure.spec.alpha :as s :include-macros true]
+              [clojure.spec.gen.alpha :as sgen :include-macros true]
+               clojure.test.check.generators))
+  (sgen/generate (s/gen ::xapispec/statement)) ;; => {"actor" {...
+  #+END_SRC
 
 *** Plain ol' JavaScript
 
@@ -124,7 +142,11 @@ xapi_schema.core.validate_statement_data_js(statement_json); // => statement JSO
 
 *** ClojureScript
 
-=$ lein test=
+=$ lein doo phantom test once=
+
+*** Both
+
+=$ lein ci=
 
 ** License
 
