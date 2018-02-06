@@ -154,7 +154,7 @@
                string?
                :number
                (s/or :double
-                     double?
+                     (s/double-in :infinite? false :NaN? false)
                      :int
                      int?)
                :boolean
@@ -720,8 +720,10 @@
   (s/with-gen
     (s/and
      (s/conformer double)
-     (s/double-in :min -1.0 :max 1.0))
-    #(sgen/double* {:min -1.0 :max 1.0})))
+     (s/double-in :min -1.0 :max 1.0 :infinite? false :NaN? false))
+    #(sgen/double* {:min -1.0 :max 1.0
+                    :infinite? false
+                    :NaN? false})))
 
 (s/def :score/raw
   number?)
@@ -1028,11 +1030,17 @@
                               :agent/name))))
 
 (s/def :tlo-group/member
-  (s/cat
-   :oauth-consumer
-   ::oauth-consumer
-   :agent
-   ::agent))
+  (s/with-gen
+    (s/cat
+     :oauth-consumer
+     ::oauth-consumer
+     :agent
+     ::agent)
+    #(sgen/fmap vec (s/gen (s/cat
+                            :oauth-consumer
+                            ::oauth-consumer
+                            :agent
+                            ::agent)))))
 
 (s/def :tlo-group/objectType #{"Group"})
 (s/def :tlo-group/name ::string-not-empty)
