@@ -154,7 +154,8 @@
                string?
                :number
                (s/or :double
-                     (s/double-in :infinite? false :NaN? false)
+                     (s/double-in :infinite? false :NaN? false
+                                  :max 1000.0 :min -1000.0)
                      :int
                      int?)
                :boolean
@@ -726,13 +727,18 @@
                     :NaN? false})))
 
 (s/def :score/raw
-  number?)
+  (s/with-gen number? #(sgen/double* {:min 30.0 :max 70.0
+                                      :NaN? false})))
 
 (s/def :score/min
-  number?)
+  (s/with-gen number? #(sgen/double* {:max 29.0
+                                      :min -1000.0
+                                      :Nan? false})))
 
 (s/def :score/max
-  number?)
+  (s/with-gen number? #(sgen/double {:min 71.0
+                                     :max 1000.0
+                                     :NaN? false})))
 
 (s/def :result/score
   (conform-ns "score"
