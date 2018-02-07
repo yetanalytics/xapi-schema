@@ -726,36 +726,54 @@
                     :infinite? false
                     :NaN? false})))
 
+(def safe-double-spec
+  (s/with-gen
+    (s/and
+     (s/conformer double)
+     (s/double-in :infinite? false :NaN? false))
+    #(sgen/double* {:infinite? false
+                    :NaN? false})))
+
 (s/def :score/raw
-  (s/with-gen number? #(sgen/double* {:min 30.0 :max 70.0
-                                      :NaN? false})))
+  safe-double-spec)
 
 (s/def :score/min
-  (s/with-gen number? #(sgen/double* {:max 29.0
-                                      :min -1000.0
-                                      :Nan? false})))
+  safe-double-spec)
 
 (s/def :score/max
-  (s/with-gen number? #(sgen/double {:min 71.0
-                                     :max 1000.0
-                                     :NaN? false})))
+  safe-double-spec)
+
+(defn valid-min-max-raw?
+  [{raw :score/raw
+    min :score/min
+    max :score/max}]
+  (if (or min raw max)
+    (apply <= (filter identity [min raw max]))
+    true))
 
 (s/def :result/score
-  (conform-ns "score"
-              (s/and (s/keys :opt [:score/scaled
-                                   :score/raw
-                                   :score/min
-                                   :score/max])
-                     (restrict-keys :score/scaled
-                                    :score/raw
-                                    :score/min
-                                    :score/max)
-                     (fn [{raw :score/raw
-                           min :score/min
-                           max :score/max}]
-                       (if (or min raw max)
-                         (apply <= (filter identity [min raw max]))
-                         true)))))
+  (s/with-gen (s/and
+                (s/conformer
+                 (partial conform-ns-map "score")
+                 unform-ns-map)
+                (s/keys :opt [:score/scaled
+                              :score/raw
+                              :score/min
+                              :score/max])
+                (restrict-keys :score/scaled
+                               :score/raw
+                               :score/min
+                               :score/max)
+                valid-min-max-raw?)
+     #(sgen/fmap
+       unform-ns-map
+       (sgen/such-that
+        valid-min-max-raw?
+        (sgen/not-empty
+         (s/gen (s/keys :opt [:score/scaled
+                              :score/raw
+                              :score/min
+                              :score/max])))))))
 
 (s/def :result/success
   boolean?)
