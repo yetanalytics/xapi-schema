@@ -22,6 +22,13 @@
 
 ;; Utils
 
+(def double-conformer
+  (s/conformer (fn [n]
+                 (try (double n)
+                      (catch #?(:clj Exception
+                                :cljs js/Error) e
+                        ::s/invalid)))))
+
 (defn conform-ns-map [map-ns string-map]
   (try (reduce-kv (fn [m k v]
                     (assoc m (if (string? k)
@@ -720,7 +727,7 @@
 (s/def :score/scaled
   (s/with-gen
     (s/and
-     (s/conformer double)
+     double-conformer
      (s/double-in :min -1.0 :max 1.0 :infinite? false :NaN? false))
     #(sgen/double* {:min -1.0 :max 1.0
                     :infinite? false
@@ -729,7 +736,7 @@
 (def safe-double-spec
   (s/with-gen
     (s/and
-     (s/conformer double)
+     double-conformer
      (s/double-in :infinite? false :NaN? false))
     #(sgen/double* {:infinite? false
                     :NaN? false})))
