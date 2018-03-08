@@ -39,7 +39,8 @@
     (is (re-matches AbsoluteIRIRegEx "http://example.com/xapi/verbs#sent-a-statement"))
     (is (re-matches AbsoluteIRIRegEx "http://example.com/xapi/foo/#bar?my_jimmies=rustled"))
     (is (re-matches AbsoluteIRIRegEx "http://a_b/#foo"))
-    (is (re-matches AbsoluteIRIRegEx "https://foo-baz.app.com/xapi/def/emb/qux*ROOT"))))
+    (is (re-matches AbsoluteIRIRegEx "https://foo-baz.app.com/xapi/def/emb/qux*ROOT"))
+    (is (re-matches AbsoluteIRIRegEx "https://foo-baz.app.com/xapi#foo:bar"))))
 
 (deftest mailto-iri-regex-test
   (testing "matches valid mailto IRIs"
