@@ -1,0 +1,198 @@
+{:scalars
+ {:iri
+  {:parse :xapi-schema.spec/iri
+   :serialize :xapi-schema.spec/iri}
+  :mailto_iri
+  {:parse :xapi-schema.spec/mailto-iri
+   :serialize :xapi-schema.spec/mailto-iri}
+  :irl
+  {:parse :xapi-schema.spec/irl
+   :serialize :xapi-schema.spec/irl}
+  :json
+  {:parse :xapi-schema.spec/any-json
+   :serialize :xapi-schema.spec/any-json}
+  :openid
+  {:parse :xapi-schema.spec/openid
+   :serialize :xapi-schema.spec/openid}
+  :uuid
+  {:parse :xapi-schema.spec/uuid
+   :serialize :xapi-schema.spec/uuid}
+  :timestamp
+  {:parse :xapi-schema.spec/timestamp
+   :serialize :xapi-schema.spec/timestamp}
+  :duration
+  {:parse :xapi-schema.spec/duration
+   :serialize :xapi-schema.spec/duration}
+  :version
+  {:parse :xapi-schema.spec/version
+   :serialize :xapi-schema.spec/version}
+  :sha2
+  {:parse :xapi-schema.spec/sha2
+   :serialize :xapi-schema.spec/sha2}
+  :sha1sum
+  {:parse :xapi-schema.spec/sha1sum
+   :serialize :xapi-schema.spec/sha1sum}}
+ :enums
+ {:interactionType
+  {:values [:true_false
+            :choice
+            :fill_in
+            :long_fill_in
+            :matching
+            :performance
+            :sequencing
+            :likert
+            :numeric
+            :other]}
+  :objectType
+  {:values [:Activity
+            :Agent
+            :Group
+            :SubStatement
+            :StatementRef]}}
+
+ :interfaces
+ {:actor
+  {:fields {:name {:type String}
+            :mbox {:type :mailto_iri}
+            :mbox_sha1sum {:type :sha1sum}
+            :openid {:type :openid}
+            :account {:type :account}}}
+  :object
+  {:fields {:objectType {:type :objectType}}}}
+
+ :objects
+ {;; Common
+  ;; Unsure about lmaps + extensions, maybe should just be an arg on the parent field
+  :language_map_entry
+  {:fields {:language_tag {:type (non-null String)}
+            :text {:type String}}}
+  :language_map
+  {:fields {:entries {:type (list :language_map_entry)
+                      :args {:select_language_tags {:type (list String)}}}}}
+  :extension_map_entry
+  {:fields {:iri {:type (non-null :iri)}
+            :json {:type :json}}}
+  :extension_map
+  {:fields {:entries {:type (list :extension_map_entry)
+                      :args {:select_iris {:type (list :iri)}}}}}
+
+  ;; Activity
+  :interaction_component
+  {:fields {:id {:type (non-null String)}
+            :description {:type :language_map}}}
+  :definition
+  {:fields {:name {:type :language_map}
+            :description {:type :language_map}
+            :correctResponsesPattern {:type (list String)}
+            :type {:type :iri}
+            :moreInfo {:type :irl}
+            :choices {:type (list :interaction_component)}
+            :scale {:type (list :interaction_component)}
+            :source {:type (list :interaction_component)}
+            :target {:type (list :interaction_component)}
+            :steps {:type (list :interaction_component)}
+            :extensions {:type :extension_map}
+            :interactionType {:type :interactionType}}}
+  :activity
+  {:implements [:object]
+   :fields {:id {:type (non-null :iri)}
+            :definition {:type :definition}
+            :objectType {:type :objectType}}}
+  ;; Actors
+  :account
+  {:fields {:name {:type (non-null String)}
+            :homePage {:type (non-null :irl)}}}
+  :agent
+  {:implements [:actor :object]
+   :fields {:name {:type String}
+            :mbox {:type :mailto_iri}
+            :mbox_sha1sum {:type :sha1sum}
+            :openid {:type :openid}
+            :account {:type :account}
+            :objectType {:type :objectType}}}
+  :group
+  {:implements [:actor :object]
+   :fields {:name {:type String}
+            :mbox {:type :mailto_iri}
+            :mbox_sha1sum {:type :sha1sum}
+            :openid {:type :openid}
+            :account {:type :account}
+            :objectType {:type :objectType}
+            :member {:type (list :agent)}}}
+  ;; Verb
+  :verb
+  {:fields {:id {:type (non-null :iri)}
+            :display {:type :language_map}}}
+  ;; Score
+  :score
+  {:fields {:scaled {:type Float}
+            :raw {:type Float}
+            :min {:type Float}
+            :max {:type Float}}}
+  ;; Result
+  :result
+  {:fields {:success {:type Boolean}
+            :completion {:type Boolean}
+            :response {:type String}
+            :duration {:type :duration}
+            :extensions {:type :extension_map}
+            :score {:type :score}}}
+  ;; Statement Ref
+  :statement_ref
+  {:implements [:object]
+   :fields {:id {:type (non-null :uuid)}
+            :objectType {:type :objectType}}}
+  ;; Context
+  :context_activities
+  {:fields {:parent {:type (list :activity)}
+            :grouping {:type (list :activity)}
+            :category {:type (list :activity)}
+            :other {:type (list :activity)}}}
+  :context
+  {:fields {:registration {:type :uuid}
+            :instructor {:type :actor}
+            :team {:type :group}
+            :revision {:type String}
+            :platform {:type String}
+            :language {:type String}
+            :statement {:type :statement_ref}
+            :extensions {:type :extension_map}
+            :contextActivities {:type :context_activities}
+            }}
+  ;; Attachment(s)
+  :attachment
+  {:fields {:usageType {:type :iri}
+            :display {:type :language_map}
+            :description {:type :language_map}
+            :contentType {:type String}
+            :length {:type Int}
+            :sha2 {:type :sha2}
+            :fileUrl {:type :irl}}}
+  ;; Substatement
+  :sub_statement
+  {:implements [:object]
+   :fields {:actor {:type :actor}
+            :verb {:type :verb}
+            :object {:type :object}
+            :objectType {:type :objectType}
+            :result {:type :result}
+            :context {:type :context}
+            :attachments {:type (list :attachment)}
+            :timestamp {:type :timestamp}}}
+  ;; The main event!
+  :statement
+  {:fields {:id {:type (non-null :uuid)}
+            :actor {:type (non-null :actor)}
+            :verb {:type (non-null :verb)}
+            :object {:type (non-null :object)}
+            :result {:type :result}
+            :context {:type :context}
+            :timestamp {:type :timestamp}
+            :stored {:type :timestamp}
+            :authority {:type :actor}
+            :attachments {:type (list :attachment)}
+            :version {:type :version}}}}
+
+ :queries
+ {}}
