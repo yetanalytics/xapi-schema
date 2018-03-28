@@ -1,215 +1,401 @@
 {:enums
  {:ObjectType
-  {:values [:Activity
+  {:description "Enum of values for xAPI [objectType](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#244-object)"
+   :values [:Activity
             :Agent
             :Person
             :Group
             :SubStatement
             :StatementRef]}
   :ParamFormat
-  {:values [:ids
+  {:description "Enum of values for xAPI Statements GET [format param](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements)"
+   :values [:ids
             :exact
             :canonical]}}
 
  :unions
- {:Actor {:members [:Agent :Group]}
-  :StatementObject {:members [:Activity
-                              :SubStatement
-                              :StatementRef
-                              :Agent
-                              :Group]}
-  :SubStatementObject {:members [:Activity
-                                 :StatementRef
-                                 :Agent
-                                 :Group]}}
+ {:Actor
+  {:description "Union of xAPI [Agent and Group](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#242-actor)"
+   :members [:Agent :Group]}
+  :StatementObject
+  {:description "Union of xAPI types that can be a [Statement Object](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#244-object)"
+   :members [:Activity
+             :SubStatement
+             :StatementRef
+             :Agent
+             :Group]}
+  :SubStatementObject
+  {:description "Union of xAPI types that can be a [SubStatement Object](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#substatements)"
+   :members [:Activity
+             :StatementRef
+             :Agent
+             :Group]}}
 
  :objects
  {;; Common
   :_language_map_entry
-  {:fields {:_language_tag {:type (non-null String)}
-            :_text {:type String}}}
+  {:description "Abstract representation of an entry in a [Language Map](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#lang-maps)"
+   :fields
+   {:_language_tag {:description "A RFC 5646 Language Tag"
+                    :type (non-null String)}
+    :_text {:description "A Language Map entry value"
+            :type String}}}
   :LanguageMap
-  {:fields {:_entries {:type (list :_language_map_entry)}}}
+  {:description "An xAPI [Language Map](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#lang-maps)"
+   :fields {:_entries
+            {:description "A list of xAPI Language Map entries"
+             :type (list :_language_map_entry)}}}
   :_extension_map_entry
-  {:fields {:_iri {:type (non-null String)}
-            :_json {:type String}}}
+  {:description "An abstract representation of an entry in an [Extension Map](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#miscext)"
+   :fields {:_iri {:description "An IRI"
+                   :type (non-null String)}
+            :_json {:description "A JSON string"
+                    :type String}}}
   :ExtensionMap
-  {:fields {:_entries {:type (list :_extension_map_entry)}}}
+  {:description "An xAPI [Extension Map](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#miscext)"
+   :fields {:_entries {:descrption "A list of Extension Map entries"
+                       :type (list :_extension_map_entry)}}}
 
   ;; Activity
   :InteractionComponent
-  {:fields {:id {:type (non-null String)}
-            :description {:type :LanguageMap}}}
+  {:description "An xAPI [Interaction Component](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#interaction-components)"
+   :fields {:id {:description "Identifies the interaction component within the list."
+                 :type (non-null String)}
+            :description {:description "A description of the interaction component (for example, the text for a given choice in a multiple-choice interaction)"
+                          :type :LanguageMap}}}
   :ActivityDefinition
-  {:fields {:name {:type :LanguageMap}
-            :description {:type :LanguageMap}
-            :correctResponsesPattern {:type (list String)}
-            :type {:type String}
-            :moreInfo {:type String}
-            :choices {:type (list :InteractionComponent)}
-            :scale {:type (list :InteractionComponent)}
-            :source {:type (list :InteractionComponent)}
-            :target {:type (list :InteractionComponent)}
-            :steps {:type (list :InteractionComponent)}
-            :extensions {:type :ExtensionMap}
-            :interactionType {:type String}}}
+  {:description "An xAPI [Activity Definition](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#activity-definition)"
+   :fields {:name {:description "The human readable/visual name of the Activity"
+                   :type :LanguageMap}
+            :description {:description "A description of the Activity"
+                          :type :LanguageMap}
+            :correctResponsesPattern {:description "A pattern representing the correct response to the interaction. The structure of this pattern varies depending on the interactionType."
+                                      :type (list String)}
+            :type {:description "The type of Activity."
+                   :type String}
+            :moreInfo {:description "Resolves to a document with human-readable information about the Activity, which could include a way to launch the activity."
+                       :type String}
+            :choices {:description "Specific to the given interactionType"
+                      :type (list :InteractionComponent)}
+            :scale {:description "Specific to the given interactionType"
+                    :type (list :InteractionComponent)}
+            :source {:description "Specific to the given interactionType"
+                     :type (list :InteractionComponent)}
+            :target {:description "Specific to the given interactionType"
+                     :type (list :InteractionComponent)}
+            :steps {:description "Specific to the given interactionType"
+                    :type (list :InteractionComponent)}
+            :extensions {:description "A map of other properties as needed"
+                         :type :ExtensionMap}
+            :interactionType {:description "The type of interaction. Possible values are: true-false, choice, fill-in, long-fill-in, matching, performance, sequencing, likert, numeric or other."
+                              :type String}}}
   :Activity
-  {:fields {:id {:type (non-null String)}
-            :definition {:type :ActivityDefinition}
-            :objectType {:type :ObjectType}
-            :_statements {:type (list :Statement)}}}
+  {:description "An xAPI [Activity](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2441-when-the-objecttype-is-activity)"
+   :fields {:id {:description "An identifier for a single unique Activity"
+                 :type (non-null String)}
+            :definition {:description "Metadata"
+                         :type :ActivityDefinition}
+            :objectType {:description "MUST be Activity when present"
+                         :type :ObjectType}
+            :_statements {:description "A list of xAPI Statements that reference this Activity"
+                          :type (list :Statement)}}}
   :Account
-  {:fields {:name {:type (non-null String)}
-            :homePage {:type (non-null String)}}}
+  {:description "xAPI [Account IFI](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2424-account-object)"
+   :fields {:name {:description "The unique id or name used to log in to this account. This is based on FOAF's accountName."
+                   :type (non-null String)}
+            :homePage {:description "The canonical home page for the system the account is on. This is based on FOAF's accountServiceHomePage."
+                       :type (non-null String)}}}
   :Agent
-  {:fields {:name {:type String}
-            :mbox {:type String}
-            :mbox_sha1sum {:type String}
-            :openid {:type String}
-            :account {:type :Account}
-            :objectType {:type :ObjectType}
-            :_statements {:type (list :Statement)}
-            :_ifi_key {:type (non-null String)}}}
+  {:description "xAPI [Agent](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2421-when-the-actor-objecttype-is-agent)"
+   :fields {:name {:description "Full name of the Agent."
+                   :type String}
+            :mbox {:description "The required format is \"mailto:email address\".
+Only email addresses that have only ever been and will ever be assigned to this Agent, but no others, SHOULD be used for this property and mbox_sha1sum."
+                   :type String}
+            :mbox_sha1sum {:description "The hex-encoded SHA1 hash of a mailto IRI (i.e. the value of an mbox property). An LRS MAY include Agents with a matching hash when a request is based on an mbox."
+                           :type String}
+            :openid {:description "An openID that uniquely identifies the Agent."
+                     :type String}
+            :account {:description "A user account on an existing system e.g. an LMS or intranet."
+                      :type :Account}
+            :objectType {:description "MUST be Agent. This property is optional except when the Agent is used as a Statement's object."
+                         :type :ObjectType}
+            :_statements {:description "A list of statements that refer to this Agent."
+                          :type (list :Statement)}
+            :_ifi_key {:description "The IFI property used to identify this Agent."
+                       :type (non-null String)}}}
   :Person
-  {:fields
-   {:name {:type (list String)}
-    :mbox {:type (list String)}
-    :mbox_sha1sum {:type (list String)}
-    :openid {:type (list String)}
-    :account {:type (list :Account)}
-    :objectType {:type :ObjectType}}}
+  {:description "The [Person](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#person-properties) object retrieved from the xAPI [Agents Resource](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#24-agents-resource)"
+   :fields
+   {:name {:description "List of names of Agents retrieved."
+           :type (list String)}
+    :mbox {:description "List of e-mail addresses of Agents retrieved."
+           :type (list String)}
+    :mbox_sha1sum {:description "List of the SHA1 hashes of mailto IRIs (such as go in an mbox property)."
+                   :type (list String)}
+    :openid {:description "List of openids that uniquely identify the Agents retrieved."
+             :type (list String)}
+    :account {:description "List of accounts to match. Complete account Objects (homePage and name) MUST be provided."
+              :type (list :Account)}
+    :objectType {:description "MUST be Person"
+                 :type :ObjectType}}}
   :Group
-  {:fields {:name {:type String}
-            :mbox {:type String}
-            :mbox_sha1sum {:type String}
-            :openid {:type String}
-            :account {:type :Account}
-            :objectType {:type :ObjectType}
-            :member {:type (list :Agent)}
-            :_statements {:type (list :Statement)}
-            :_ifi_key {:type String}}}
+  {:description "An xAPI [Group](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2422-when-the-actor-objecttype-is-group)"
+   :fields {:name {:description "Name of the Group."
+                   :type String}
+            :mbox {:description "The required format is \"mailto:email address\".
+Only email addresses that have only ever been and will ever be assigned to this Group, but no others, SHOULD be used for this property and mbox_sha1sum."
+                   :type String}
+            :mbox_sha1sum {:description "The hex-encoded SHA1 hash of a mailto IRI (i.e. the value of an mbox property). An LRS MAY include Groups with a matching hash when a request is based on an mbox."
+                           :type String}
+            :openid {:description "An openID that uniquely identifies the Group."
+                     :type String}
+            :account {:description "A user account on an existing system e.g. an LMS or intranet."
+                      :type :Account}
+            :objectType {:description "MUST be Group"
+                         :type :ObjectType}
+            :member {:description "The members of this Group. This is an unordered list."
+                     :type (list :Agent)}
+            :_statements {:description "A list of statements that refer to this Group."
+                          :type (list :Statement)}
+            :_ifi_key {:description "The IFI property used to identify this Group."
+                       :type String}}}
   ;; Verb
   :Verb
-  {:fields {:id {:type (non-null String)}
-            :display {:type :LanguageMap}
-            :_statements {:type (list :Statement)}}}
+  {:description "An xAPI [Verb](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#243-verb)"
+   :fields {:id {:description "Corresponds to a Verb definition. Each Verb definition corresponds to the meaning of a Verb, not the word."
+                 :type (non-null String)}
+            :display {:description "The human readable representation of the Verb in one or more languages. This does not have any impact on the meaning of the Statement, but serves to give a human-readable display of the meaning already determined by the chosen Verb."
+                      :type :LanguageMap}
+            :_statements {:description "A list of statements that refer to this Verb."
+                          :type (list :Statement)}}}
   ;; Score
   :Score
-  {:fields {:scaled {:type Float}
-            :raw {:type Float}
-            :min {:type Float}
-            :max {:type Float}}}
+  {:description "An xAPI Statement Result [Score](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2451-score)"
+   :fields {:scaled {:description "The score related to the experience as modified by scaling and/or normalization."
+                     :type Float}
+            :raw {:description "The score achieved by the Actor in the experience described by the Statement. This is not modified by any scaling or normalization."
+                  :type Float}
+            :min {:description "The lowest possible score for the experience described by the Statement."
+                  :type Float}
+            :max {:description "The highest possible score for the experience described by the Statement."
+                  :type Float}}}
   ;; Result
   :Result
-  {:fields {:success {:type Boolean}
-            :completion {:type Boolean}
-            :response {:type String}
-            :duration {:type String}
-            :extensions {:type :ExtensionMap}
-            :score {:type :Score}}}
+  {:description "An xAPI Statement [Result](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#245-result)"
+   :fields {:success {:description "Indicates whether or not the attempt on the Activity was successful."
+                      :type Boolean}
+            :completion {:description "Indicates whether or not the Activity was completed."
+                         :type Boolean}
+            :response {:description "A response appropriately formatted for the given Activity."
+                       :type String}
+            :duration {:description "Period of time over which the Statement occurred."
+                       :type String}
+            :extensions {:description "A map of other properties as needed."
+                         :type :ExtensionMap}
+            :score {:description "The score of the Agent in relation to the success or quality of the experience."
+                    :type :Score}}}
   ;; Statement Ref
   :StatementRef
-  {:fields {:id {:type (non-null ID)}
-            :objectType {:type :ObjectType}}}
+  {:description "An xAPI [Statement Reference](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#statement-references)"
+   :fields {:id {:description "The UUID of a Statement."
+                 :type (non-null ID)}
+            :objectType {:description "MUST be StatementRef."
+                         :type :ObjectType}}}
   ;; Context
   :ContextActivities
-  {:fields {:parent {:type (list :Activity)}
-            :grouping {:type (list :Activity)}
-            :category {:type (list :Activity)}
-            :other {:type (list :Activity)}}}
+  {:description "An xAPI [ContextActivities Object](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2462-contextactivities-property)"
+   :fields {:parent {:description "An Activity with a direct relation to the Activity which is the Object of the Statement. In almost all cases there is only one sensible parent or none, not multiple. For example: a Statement about a quiz question would have the quiz as its parent Activity."
+                     :type (list :Activity)}
+            :grouping {:description "An Activity with an indirect relation to the Activity which is the Object of the Statement. For example: a course that is part of a qualification. The course has several classes. The course relates to a class as the parent, the qualification relates to the class as the grouping."
+                       :type (list :Activity)}
+            :category {:description "An Activity used to categorize the Statement. \"Tags\" would be a synonym. Category SHOULD be used to indicate a profile of xAPI behaviors, as well as other categorizations. For example: Anna attempts a biology exam, and the Statement is tracked using the cmi5 profile. The Statement's Activity refers to the exam, and the category is the cmi5 profile."
+                       :type (list :Activity)}
+            :other {:description "A contextActivity that doesn't fit one of the other properties. For example: Anna studies a textbook for a biology exam. The Statement's Activity refers to the textbook, and the exam is a contextActivity of type other."
+                    :type (list :Activity)}}}
   :Context
-  {:fields {:registration {:type ID}
-            :instructor {:type :Actor}
-            :team {:type :Group}
-            :revision {:type String}
-            :platform {:type String}
-            :language {:type String}
-            :statement {:type :StatementRef}
-            :extensions {:type :ExtensionMap}
-            :contextActivities {:type :ContextActivities}
+  {:description "An xAPI Statement [Context](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#246-context)"
+   :fields {:registration {:description "The registration that the Statement is associated with."
+                           :type ID}
+            :instructor {:description "Instructor that the Statement relates to, if not included as the Actor of the Statement."
+                         :type :Actor}
+            :team {:description "Team that this Statement relates to, if not included as the Actor of the Statement."
+                   :type :Group}
+            :revision {:description "Revision of the learning activity associated with this Statement. Format is free."
+                       :type String}
+            :platform {:description "Platform used in the experience of this learning activity."
+                       :type String}
+            :language {:description "Code representing the language in which the experience being recorded in this Statement (mainly) occurred in, if applicable and known."
+                       :type String}
+            :statement {:description "Another Statement to be considered as context for this Statement."
+                        :type :StatementRef}
+            :extensions {:description "A map of any other domain-specific context relevant to this Statement. For example, in a flight simulator altitude, airspeed, wind, attitude, GPS coordinates might all be relevant."
+                         :type :ExtensionMap}
+            :contextActivities {:description "A map of the types of learning activity context that this Statement is related to. Valid context types are: parent, \"grouping\", \"category\" and \"other\"."
+                                :type :ContextActivities}
             }}
   ;; Attachment(s)
   :Attachment
-  {:fields {:usageType {:type String}
-            :display {:type :LanguageMap}
-            :description {:type :LanguageMap}
-            :contentType {:type String}
-            :length {:type Int}
-            :sha2 {:type String}
-            :fileUrl {:type String}}}
+  {:description "An xAPI [Attachment Object](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#2411-attachments)"
+   :fields {:usageType {:description "Identifies the usage of this Attachment. For example: one expected use case for Attachments is to include a \"completion certificate\". An IRI corresponding to this usage MUST be coined, and used with completion certificate attachments."
+                        :type String}
+            :display {:description "Display name (title) of this Attachment."
+                      :type :LanguageMap}
+            :description {:description "A description of the Attachment."
+                          :type :LanguageMap}
+            :contentType {:description "The content type of the Attachment."
+                          :type String}
+            :length {:description "The length of the Attachment data in octets."
+                     :type Int}
+            :sha2 {:description "The SHA-2 hash of the Attachment data.
+This property is always required, even if fileURL is also specified."
+                   :type String}
+            :fileUrl {:description "An IRL at which the Attachment data can be retrieved, or from which it used to be retrievable."
+                      :type String}}}
   ;; Substatement
   :SubStatement
-  {:fields {:actor {:type :Actor}
-            :verb {:type :Verb}
-            :object {:type :SubStatementObject}
-            :objectType {:type :ObjectType}
-            :result {:type :Result}
-            :context {:type :Context}
-            :attachments {:type (list :Attachment)}
-            :timestamp {:type String}}}
+  {:description "An xAPI [SubStatement](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#substatements)"
+   :fields {:actor {:description "Whom the SubStatement is about, as an Agent or Group Object."
+                    :type :Actor}
+            :verb {:description "Action taken by the Actor."
+                   :type :Verb}
+            :object {:description "Activity, Agent, or another Statement that is the Object of the SubStatement."
+                     :type :SubStatementObject}
+            :objectType {:description "MUST be SubStatement"
+                         :type :ObjectType}
+            :result {:description "Result Object, further details representing a measured outcome."
+                     :type :Result}
+            :context {:description "Context that gives the Statement more meaning. Examples: a team the Actor is working with, altitude at which a scenario was attempted in a flight simulator."
+                      :type :Context}
+            :attachments {:description "Headers for Attachments to the SubStatement"
+                          :type (list :Attachment)}
+            :timestamp {:description "Timestamp of when the events described within this Statement occurred. Set by the LRS if not provided."
+                        :type String}}}
   ;; The main event!
   :Statement
-  {:fields {:id {:type (non-null ID)}
-            :actor {:type (non-null :Actor)}
-            :verb {:type (non-null :Verb)}
-            :object {:type (non-null :StatementObject)}
-            :result {:type :Result}
-            :context {:type :Context}
-            :timestamp {:type String}
-            :stored {:type String}
-            :authority {:type :Actor}
-            :attachments {:type (list :Attachment)}
-            :version {:type String}}}}
+  {:description "An xAPI [Statement](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#24-statement-properties)"
+   :fields {:id {:description "UUID assigned by LRS if not set by the Learning Record Provider."
+                 :type (non-null ID)}
+            :actor {:description "Whom the Statement is about, as an Agent or Group Object."
+                    :type (non-null :Actor)}
+            :verb {:description "Action taken by the Actor."
+                   :type (non-null :Verb)}
+            :object {:description "Activity, Agent, or another Statement that is the Object of the Statement."
+                     :type (non-null :StatementObject)}
+            :result {:description "Result Object, further details representing a measured outcome."
+                     :type :Result}
+            :context {:description "Context that gives the Statement more meaning. Examples: a team the Actor is working with, altitude at which a scenario was attempted in a flight simulator."
+                      :type :Context}
+            :timestamp {:description "Timestamp of when the events described within this Statement occurred. Set by the LRS if not provided."
+                        :type String}
+            :stored {:description "Timestamp of when this Statement was recorded. Set by LRS."
+                     :type String}
+            :authority {:description "Agent or Group who is asserting this Statement is true. Verified by the LRS based on authentication. Set by LRS if not provided or if a strong trust relationship between the Learning Record Provider and LRS has not been established."
+                        :type :Actor}
+            :attachments {:description "Headers for Attachments to the Statement."
+                          :type (list :Attachment)}
+            :version {:description "The Statement’s associated xAPI version, formatted according to Semantic Versioning 1.0.0."
+                      :type String}}}}
  :input-objects
  {:ParamAccount
-  {:fields {:name {:type (non-null String)}
-            :homePage {:type (non-null String)}}}
+  {:description "An account IFI"
+   :fields {:name {:description "The unique id or name used to log in to this account. This is based on FOAF's accountName."
+                   :type (non-null String)}
+            :homePage {:description "The canonical home page for the system the account is on. This is based on FOAF's accountServiceHomePage."
+                       :type (non-null String)}}}
   :ParamAgentMember
-  {:fields {:name {:type String}
-            :mbox {:type String}
-            :mbox_sha1sum {:type String}
-            :openid {:type String}
-            :account {:type :ParamAccount}
-            :objectType {:type :ObjectType}}}
+  {:description "An Agent who is a member of a Group given as a parameter."
+   :fields {:name {:description "Full name of the Agent."
+                   :type String}
+            :mbox {:description "The required format is \"mailto:email address\".
+Only email addresses that have only ever been and will ever be assigned to this Agent, but no others, SHOULD be used for this property and mbox_sha1sum."
+                   :type String}
+            :mbox_sha1sum {:description "The hex-encoded SHA1 hash of a mailto IRI (i.e. the value of an mbox property). An LRS MAY include Agents with a matching hash when a request is based on an mbox."
+                           :type String}
+            :openid {:description "An openID that uniquely identifies the Agent."
+                     :type String}
+            :account {:description "A user account on an existing system e.g. an LMS or intranet."
+                      :type :ParamAccount}
+            :objectType {:description "MUST be Agent or Group."
+                         :type :ObjectType}}}
   :ParamAgent
-  {:fields {:name {:type String}
-            :mbox {:type String}
-            :mbox_sha1sum {:type String}
-            :openid {:type String}
-            :account {:type :ParamAccount}
-            :objectType {:type :ObjectType}
-            :member {:type (list :ParamAgentMember)}}}
-  :StatementsParams
-  {:fields {:statementId {:type ID}
-            :voidedStatementId {:type ID}
-            :agent {:type :ParamAgent}
-            :verb {:type ID}
-            :activity {:type String}
-            :registration {:type ID}
-            :related_activities {:type Boolean}
-            :related_agents {:type Boolean}
-            :since {:type String}
-            :until {:type String}
-            :limit {:type Int}
-            :format {:type :ParamFormat}
-            :attachments {:type Boolean}
-            :ascending {:type Boolean}}}
+  {:description "An Agent or Group suitable for use as a parameter in requests to xAPI [Resources](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#20-resources)"
+   :fields {:name {:description "Full name of the Agent/Group."
+                   :type String}
+            :mbox {:description "The required format is \"mailto:email address\".
+Only email addresses that have only ever been and will ever be assigned to this Agent/Group, but no others, SHOULD be used for this property and mbox_sha1sum."
+                   :type String}
+            :mbox_sha1sum {:description "The hex-encoded SHA1 hash of a mailto IRI (i.e. the value of an mbox property). An LRS MAY include Agents with a matching hash when a request is based on an mbox."
+                           :type String}
+            :openid {:description "An openID that uniquely identifies the Agent/Group."
+                     :type String}
+            :account {:description "A user account on an existing system e.g. an LMS or intranet."
+                      :type :ParamAccount}
+            :objectType {:description "MUST be Agent or Group"
+                         :type :ObjectType}
+            :member {:description "The members of this Group. This is an unordered list."
+                     :type (list :ParamAgentMember)}}}
+  :StatementParams
+  {:description "Params suitable to GET statements from an LRS's [Statement Resource](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements)"
+   :fields {:statementId {:description "Id of Statement to fetch."
+                          :type ID}
+            :voidedStatementId {:description "Id of voided Statement to fetch."
+                                :type ID}
+            :agent {:description "Filter, only return Statements for which the specified Agent or Group is the Actor or Object of the Statement.
+*  Agents or Identified Groups are equal when the same Inverse Functional Identifier is used in each Object compared and those Inverse Functional Identifiers have equal values.
+*  For the purposes of this filter, Groups that have members which match the specified Agent based on their Inverse Functional Identifier as described above are considered a match"
+                    :type :ParamAgent}
+            :verb {:description "Filter, only return Statements matching the specified Verb id."
+                   :type ID}
+            :activity {:description "Filter, only return Statements for which the Object of the Statement is an Activity with the specified id."
+                       :type String}
+            :registration {:description "Filter, only return Statements matching the specified registration id. Note that although frequently a unique registration will be used for one Actor assigned to one Activity, this cannot be assumed. If only Statements for a certain Actor or Activity are required, those parameters also need to be specified."
+                           :type ID}
+            :related_activities {:description "Apply the Activity filter broadly. Include Statements for which the Object, any of the context Activities, or any of those properties in a contained SubStatement match the Activity parameter, instead of that parameter's normal behavior. Matching is defined in the same way it is for the \"activity\" parameter."
+                                 :type Boolean}
+            :related_agents {:description "Apply the Agent filter broadly. Include Statements for which the Actor, Object, Authority, Instructor, Team, or any of these properties in a contained SubStatement match the Agent parameter, instead of that parameter's normal behavior. Matching is defined in the same way it is for the \"agent\" parameter.	"
+                             :type Boolean}
+            :since {:description "Only Statements stored since the specified Timestamp (exclusive) are returned."
+                    :type String}
+            :until {:description "Only Statements stored at or before the specified Timestamp are returned."
+                    :type String}
+            :limit {:description "Maximum number of Statements to return. 0 indicates return the maximum the server will allow."
+                    :type Int}
+            :format {:description "If ids, only include minimum information necessary in Agent, Activity, Verb and Group Objects to identify them. For Anonymous Groups this means including the minimum information needed to identify each member.
+
+If exact, return Agent, Activity, Verb and Group Objects populated exactly as they were when the Statement was received. An LRS requesting Statements for the purpose of importing them would use a format of \"exact\" in order to maintain Statement Immutability.
+
+If canonical, return Activity Objects and Verbs populated with the canonical definition of the Activity Objects and Display of the Verbs as determined by the LRS, after applying the language filtering process defined below, and return the original Agent and Group Objects as in \"exact\" mode."
+                     :type :ParamFormat}
+            :attachments {:description "**Not Implemented** If true, the LRS uses the multipart response format and includes all attachments as described previously. If false, the LRS sends the prescribed response with Content-Type application/json and does not send attachment data.	"
+                          :type Boolean}
+            :ascending {:description "If true, return results in ascending order of stored time"
+                        :type Boolean}}}
   :LRS
-  {:fields {:uri_root {:type (non-null String)}
-            :path_prefix {:type String
+  {:description "An xAPI [Learning Record Store](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-About.md#def-learning-record-store)"
+   :fields {:uri_root {:description "The root URI of the LRS, example: https://example.com"
+                       :type (non-null String)}
+            :path_prefix {:description "Any path that exists in between the root URI and the /xapi endpoint."
+                          :type String
                           :default-value ""}
-            :api_key {:type String}
-            :api_key_secret {:type String}}}}
+            :api_key {:description "The API key to access this LRS via Basic Auth"
+                      :type String}
+            :api_key_secret {:description "The API key secret to access this LRS via Basic Auth"
+                             :type String}}}}
  :queries
  {:statement
-  {:type :Statement
+  {:description "A query that returns a single Statement."
+   :type :Statement
    :resolve :xapi-schema.graphql.schema.queries/statement}
   :statements
-  {:type (list :Statement)
+  {:description "A query that returns a list of Statements"
+   :type (list :Statement)
    :resolve :xapi-schema.graphql.schema.queries/statements}
   :agent
-  {:type :Person
+  {:description "A query that returns a single xAPI Person object."
+   :type :Person
    :resolve :xapi-schema.graphql.schema.queries/agent}
   :activity
-  {:type :Activity
+  {:description "A query that returns a single Activity object."
+   :type :Activity
    :resolve :xapi-schema.graphql.schema.queries/activity}}}
