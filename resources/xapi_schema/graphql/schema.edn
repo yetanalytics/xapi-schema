@@ -179,6 +179,21 @@
             :account {:type :ParamAccount}
             :objectType {:type :ObjectType}
             :member {:type (list :ParamAgentMember)}}}
+  :StatementsParams
+  {:fields {:statementId {:type ID}
+            :voidedStatementId {:type ID}
+            :agent {:type :ParamAgent}
+            :verb {:type ID}
+            :activity {:type String}
+            :registration {:type ID}
+            :related_activities {:type Boolean}
+            :related_agents {:type Boolean}
+            :since {:type String}
+            :until {:type String}
+            :limit {:type Int}
+            :format {:type :ParamFormat}
+            :attachments {:type Boolean}
+            :ascending {:type Boolean}}}
   :LRS
   {:fields {:uri_root {:type (non-null String)}
             :path_prefix {:type String
@@ -190,7 +205,7 @@
   {:type :Statement}
   :statements
   {:type (list :Statement)}
-  :person
+  :agent
   {:type :Person}
   :activity
   {:type :Activity}}}
