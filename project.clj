@@ -1,4 +1,4 @@
-(defproject com.yetanalytics/xapi-schema "1.0.0-alpha5"
+(defproject com.yetanalytics/xapi-schema "1.0.0-alpha7"
   :description "Clojure(script) Schema for the Experience API v1.0.3"
   :url "https://github.com/yetanalytics/xapi-schema"
   :license {:name "Eclipse Public License"
@@ -7,12 +7,18 @@
                  [org.clojure/clojurescript "1.9.946"]
                  [cheshire "5.8.0"]]
   :plugins [[lein-cljsbuild "1.1.7"]
-            [lein-doo "0.1.8"]]
+            [lein-doo "0.1.8"]
+            [lein-auto "0.1.3"]]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.nrepl "0.2.10"]
                                   [com.cemerick/piggieback "0.2.2"]
-                                  [org.clojure/test.check "0.10.0-alpha2"]]
+                                  [org.clojure/test.check "0.10.0-alpha2"]
+                                  [com.walmartlabs/lacinia "0.25.0"
+                                   :exclusions [org.clojure/clojure
+                                                clojure-future-spec]]]
                    :source-paths ["dev"]
+                   :test-paths ["resources/xapi_schema"]
+                   :auto {:default {:file-pattern #"\.(clj|cljs|cljx|cljc|edn)$"}}
                    :repl-options {:init-ns user
                                   :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
 
