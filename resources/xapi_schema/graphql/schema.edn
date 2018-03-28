@@ -202,10 +202,14 @@
             :api_key_secret {:type String}}}}
  :queries
  {:statement
-  {:type :Statement}
+  {:type :Statement
+   :resolve :xapi-schema.graphql.schema.queries/statement}
   :statements
-  {:type (list :Statement)}
+  {:type (list :Statement)
+   :resolve :xapi-schema.graphql.schema.queries/statements}
   :agent
-  {:type :Person}
+  {:type :Person
+   :resolve :xapi-schema.graphql.schema.queries/agent}
   :activity
-  {:type :Activity}}}
+  {:type :Activity
+   :resolve :xapi-schema.graphql.schema.queries/activity}}}
