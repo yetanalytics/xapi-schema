@@ -8,24 +8,29 @@
 
 (defn parse-json [^String s]
   #?(:clj (json/parse-string-strict s)
-     :cljs (.parse js/JSON s)))
+     :cljs (js->clj (.parse js/JSON s))))
 
 (defn unparse-json [data]
   #?(:clj (json/generate-string data)
-     :cljs (.stringify js/JSON data)))
+     :cljs (.stringify js/JSON (clj->js data))))
 
 (def json-string-conformer
   (s/conformer (fn [s]
                  (if (string? s)
                    (if (not-empty s)
-                     (parse-json s)
+                     (try (parse-json s)
+                          (catch #?(:clj java.lang.Exception
+                                    :cljs js/Error) _
+                            ::s/invalid))
                      ::s/invalid)
                    s))
                (fn [data]
                  (if (string? data)
                    data
-                   (unparse-json data)))))
-
+                   (try (unparse-json data)
+                        (catch #?(:clj java.lang.Exception
+                                  :cljs js/Error) _
+                          ::s/invalid))))))
 
 ;; xAPI Resources
 
@@ -93,24 +98,41 @@
      :xapi.statements.GET.request.params/multiple))
 
 (defmethod query-type :xapi.statements.GET.request.params/singular [_]
-  (s/keys :req [(or :xapi.statements.GET.request.params/statementId
-                    :xapi.statements.GET.request.params/voidedStatementId)]
-          :opt [:xapi.statements.GET.request.params/format
-                :xapi.statements.GET.request.params/attachments]))
+  (s/and (s/keys :req [(or :xapi.statements.GET.request.params/statementId
+                           :xapi.statements.GET.request.params/voidedStatementId)]
+                 :opt [:xapi.statements.GET.request.params/format
+                       :xapi.statements.GET.request.params/attachments])
+         (restrict-keys :xapi.statements.GET.request.params/statementId
+                        :xapi.statements.GET.request.params/voidedStatementId
+                        :xapi.statements.GET.request.params/format
+                        :xapi.statements.GET.request.params/attachments)))
 
 (defmethod query-type :xapi.statements.GET.request.params/multiple [_]
-  (s/keys :opt [:xapi.statements.GET.request.params/agent
-                :xapi.statements.GET.request.params/verb
-                :xapi.statements.GET.request.params/activity
-                :xapi.statements.GET.request.params/registration
-                :xapi.statements.GET.request.params/related_activities
-                :xapi.statements.GET.request.params/related_agents
-                :xapi.statements.GET.request.params/since
-                :xapi.statements.GET.request.params/until
-                :xapi.statements.GET.request.params/limit
-                :xapi.statements.GET.request.params/format
-                :xapi.statements.GET.request.params/attachments
-                :xapi.statements.GET.request.params/ascending]))
+  (s/and (s/keys :opt [:xapi.statements.GET.request.params/agent
+                       :xapi.statements.GET.request.params/verb
+                       :xapi.statements.GET.request.params/activity
+                       :xapi.statements.GET.request.params/registration
+                       :xapi.statements.GET.request.params/related_activities
+                       :xapi.statements.GET.request.params/related_agents
+                       :xapi.statements.GET.request.params/since
+                       :xapi.statements.GET.request.params/until
+                       :xapi.statements.GET.request.params/limit
+                       :xapi.statements.GET.request.params/format
+                       :xapi.statements.GET.request.params/attachments
+                       :xapi.statements.GET.request.params/ascending])
+         (restrict-keys
+          :xapi.statements.GET.request.params/agent
+          :xapi.statements.GET.request.params/verb
+          :xapi.statements.GET.request.params/activity
+          :xapi.statements.GET.request.params/registration
+          :xapi.statements.GET.request.params/related_activities
+          :xapi.statements.GET.request.params/related_agents
+          :xapi.statements.GET.request.params/since
+          :xapi.statements.GET.request.params/until
+          :xapi.statements.GET.request.params/limit
+          :xapi.statements.GET.request.params/format
+          :xapi.statements.GET.request.params/attachments
+          :xapi.statements.GET.request.params/ascending)))
 
 
 (s/def :xapi.statements.GET.request/params
@@ -223,13 +245,13 @@
                              :xapi.agents.GET.response.person/openid
                              :xapi.agents.GET.response.person/account
                              ])
-               (restrict-keys[:xapi.agents.GET.response.person/name
+               (restrict-keys :xapi.agents.GET.response.person/name
                               :xapi.agents.GET.response.person/mbox
                               :xapi.agents.GET.response.person/mbox_sha1sum
                               :xapi.agents.GET.response.person/openid
                               :xapi.agents.GET.response.person/account
                               :xapi.agents.GET.response.person/objectType
-                              ]))))
+                              ))))
 
 ;; Activities Resource https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#25-activities-resource
 
