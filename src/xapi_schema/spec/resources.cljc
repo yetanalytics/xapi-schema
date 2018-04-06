@@ -169,6 +169,12 @@
   (s/with-gen identity
     (constantly sgen/any)))
 
+(s/def :xapi.document/generic
+  (conform-ns "xapi.document.generic"
+   (s/keys :req [:xapi.document.generic/id
+                 :xapi.document.generic/updated
+                 :xapi.document.generic/contents])))
+
 ;; State https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#23-state-resource
 
 (s/def :xapi.activities.state.*.request.params/activityId
