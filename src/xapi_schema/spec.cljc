@@ -16,7 +16,8 @@
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]
    [clojure.spec.gen.alpha :as sgen :include-macros true]
    [clojure.string :as cstr]
-   #?@(:cljs [[goog.string :as gstring]
+   #?@(:clj [[cheshire.core :as json]]
+       :cljs [[goog.string :as gstring]
               [goog.string.format]]))
   #?(:clj (:import [java.util Base64])
      :cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
@@ -29,6 +30,26 @@
                       (catch #?(:clj Exception
                                 :cljs js/Error) e
                         ::s/invalid)))))
+
+(defn parse-json [^String s]
+  #?(:clj (json/parse-string-strict s)
+     :cljs (.parse js/JSON s)))
+
+(defn unparse-json [data]
+  #?(:clj (json/generate-string data)
+     :cljs (.stringify js/JSON data)))
+
+(def json-string-conformer
+  (s/conformer (fn [s]
+                 (if (string? s)
+                   (if (not-empty s)
+                     (parse-json s)
+                     ::s/invalid)
+                   s))
+               (fn [data]
+                 (if (string? data)
+                   data
+                   (unparse-json data)))))
 
 (defn conform-ns-map [map-ns string-map]
   (try (reduce-kv (fn [m k v]
