@@ -218,7 +218,7 @@
 
 ;; Person https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#person-properties
 (s/def :xapi.agents.GET.response.person/objectType
-  #{"person"})
+  #{"Person"})
 
 (s/def :xapi.agents.GET.response.person/name
   (s/coll-of string? :kind vector? :into []))
