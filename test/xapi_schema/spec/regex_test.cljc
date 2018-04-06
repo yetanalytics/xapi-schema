@@ -3,6 +3,7 @@
    [clojure.test :refer [deftest is testing] :include-macros true]
    [xapi-schema.spec.regex :refer [LanguageTagRegEx
                                    AbsoluteIRIRegEx
+                                   RelativeIRLRegEx
                                    MailToIRIRegEx
                                    UuidRegEx
                                    TimestampRegEx
@@ -41,6 +42,18 @@
     (is (re-matches AbsoluteIRIRegEx "http://a_b/#foo"))
     (is (re-matches AbsoluteIRIRegEx "https://foo-baz.app.com/xapi/def/emb/qux*ROOT"))
     (is (re-matches AbsoluteIRIRegEx "https://foo-baz.app.com/xapi#foo:bar"))))
+
+(deftest relative-irl-regex-test
+  (testing "matches valid relative IRLs"
+    (is (re-matches RelativeIRLRegEx "/"))
+    (is (not (re-matches RelativeIRLRegEx "https://foo.com")))
+    (is (not (re-matches RelativeIRLRegEx "www.foo.com"))))
+  (testing "matches relative IRLs with fragments"
+    (is (re-matches RelativeIRLRegEx "/xapi/verbs#sent-a-statement"))
+    (is (re-matches RelativeIRLRegEx "/xapi/foo/#bar?my_jimmies=rustled"))
+    (is (re-matches RelativeIRLRegEx "/#foo"))
+    (is (re-matches RelativeIRLRegEx "/xapi/def/emb/qux*ROOT"))
+    (is (re-matches RelativeIRLRegEx "/xapi#foo:bar"))))
 
 (deftest mailto-iri-regex-test
   (testing "matches valid mailto IRIs"

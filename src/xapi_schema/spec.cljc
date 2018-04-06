@@ -3,6 +3,7 @@
    [xapi-schema.spec.regex :refer [LanguageTagRegEx
                                    OpenIdRegEx
                                    AbsoluteIRIRegEx
+                                   RelativeIRLRegEx
                                    MailToIRIRegEx
                                    UuidRegEx
                                    TimestampRegEx
@@ -153,6 +154,16 @@
                   (sgen/vector (sgen/char-alpha) 3 4))
        (sgen/fmap into-str
                   (sgen/vector (sgen/char-alpha) 3 16))))))
+
+(s/def ::relative-irl
+  (s/with-gen
+    (s/and string?
+           (partial re-matches RelativeIRLRegEx))
+    #(sgen/fmap
+      (fn [path]
+        (str "/" path)) ;; TODO: dynamic protocol
+      (sgen/fmap into-str
+                 (sgen/vector (sgen/char-alpha) 3 16)))))
 
 (s/def ::any-json
   (s/nilable
