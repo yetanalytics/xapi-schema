@@ -9,7 +9,7 @@
                              validate-statement-data*
                              validate-statement-data
                              #?(:cljs validate-statement-data-js)]]
-   #?(:clj [cheshire.core :as c]
+   #?(:clj [clojure.data.json :as json]
       :cljs [cljs.core :refer [ExceptionInfo]]))
   #?(:clj (:import [clojure.lang ExceptionInfo])))
 
@@ -72,7 +72,7 @@
 
   #?(:clj
      (testing "with string data"
-       (let [statement (c/generate-string long-statement)]
+       (let [statement (json/write-str long-statement)]
          (testing "it parses and returns the validated data"
            (is (= long-statement (validate-statement-data statement)))))))
 

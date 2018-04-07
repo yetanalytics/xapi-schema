@@ -2,7 +2,7 @@
   (:require
    [clojure.spec.alpha :as s :include-macros true]
    [xapi-schema.spec :as xapispec]
-   #?(:clj [cheshire.core :as c])))
+   #?(:clj [clojure.data.json :as json])))
 
 (def statement-checker
   (partial s/explain-data ::xapispec/statement))
@@ -35,7 +35,7 @@
 
 (defn validate-statement-data [sd]
   #?(:clj (validate-statement-data* (cond
-                                      (string? sd) (c/parse-string sd)
+                                      (string? sd) (json/read-str sd)
                                       :else sd))
      :cljs (validate-statement-data*
             (cond

@@ -1,6 +1,6 @@
 (ns xapi-schema.support.data
-  #?(:clj (:require [cheshire.core :as c]
-                    [clojure.java.io :refer [reader]])
+  #?(:clj (:require [clojure.data.json :as json]
+                    [clojure.java.io :as io])
      :cljs (:require-macros [xapi-schema.support.data :refer [load-json
                                                               load-json-map]])))
 
@@ -9,7 +9,8 @@
     (defmacro load-json
       "load a json file as edn (string keys)"
       [path]
-      (c/parse-stream (reader path))))
+      (with-open [r (io/reader path)]
+        (json/read r))))
 
 #?(:clj
    (defmacro load-json-map
@@ -17,9 +18,11 @@
      map with the keyworded names for keys"
      [base-path names]
      (into {}
-           (for [n names
-                 :let [path (str base-path n ".json")]]
-             [(keyword n) (c/parse-stream (reader path))]))))
+           (doall
+            (for [n names
+                  :let [path (str base-path n ".json")]]
+              [(keyword n) (with-open [r (io/reader path)]
+                             (json/read r))])))))
 
 
 

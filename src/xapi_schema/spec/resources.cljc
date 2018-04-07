@@ -3,15 +3,15 @@
    [xapi-schema.spec :as xs :refer [conform-ns restrict-keys]]
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]
    [clojure.spec.gen.alpha :as sgen :include-macros true]
-   #?@(:clj [[cheshire.core :as json]]))
+   #?@(:clj [[clojure.data.json :as json]]))
   #?(:cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
 
 (defn parse-json [^String s]
-  #?(:clj (json/parse-string-strict s)
+  #?(:clj (json/read-str s)
      :cljs (js->clj (.parse js/JSON s))))
 
 (defn unparse-json [data]
-  #?(:clj (json/generate-string data)
+  #?(:clj (json/write-str data)
      :cljs (.stringify js/JSON (clj->js data))))
 
 (def json-string-conformer
