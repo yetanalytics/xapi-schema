@@ -32,9 +32,12 @@
 
 (defn conform-ns-map [map-ns string-map]
   (try (reduce-kv (fn [m k v]
-                    (assoc m (if (string? k)
+                    (assoc m (cond
+                               (string? k)
                                (keyword map-ns k)
-                               k) v))
+                               (simple-keyword? k)
+                               (keyword map-ns (name k))
+                               :else k) v))
                   {}
                   string-map)
        (catch #?(:clj Exception
