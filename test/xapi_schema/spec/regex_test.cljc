@@ -41,7 +41,9 @@
     (is (re-matches AbsoluteIRIRegEx "http://example.com/xapi/foo/#bar?my_jimmies=rustled"))
     (is (re-matches AbsoluteIRIRegEx "http://a_b/#foo"))
     (is (re-matches AbsoluteIRIRegEx "https://foo-baz.app.com/xapi/def/emb/qux*ROOT"))
-    (is (re-matches AbsoluteIRIRegEx "https://foo-baz.app.com/xapi#foo:bar"))))
+    (is (re-matches AbsoluteIRIRegEx "https://foo-baz.app.com/xapi#foo:bar")))
+  (testing "matches IRIs with URL encodings"
+    (is (re-matches AbsoluteIRIRegEx "http://cenariovr.com/174/Sharks!/sharks-Type%20of%20Shark"))))
 
 (deftest relative-irl-regex-test
   (testing "matches valid relative IRLs"
