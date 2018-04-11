@@ -21,6 +21,10 @@
   #?(:clj (:import [java.util Base64])
      :cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
 
+(def ^:dynamic *xapi-0-95-compat?*
+  "When true, coerce 0.95 context activities to conform."
+  true)
+
 ;; Utils
 
 (def double-conformer
@@ -848,10 +852,25 @@
   (s/coll-of ::activity :kind vector? :into [] :min-count 1))
 
 (s/def ::context-activities
-  (s/or ::context-activities-array
-        ::context-activities-array
-        ::activity
-        ::activity))
+  ;; For compatibility, we let these be maps, but conform them
+  (s/with-gen (s/and (s/conformer (fn [ca-val]
+                                    (if (map? ca-val)
+                                      (if *xapi-0-95-compat?*
+                                        (with-meta [ca-val]
+                                          {:xapi-0-95-compat-conformed? true})
+                                        ::s/invalid)
+                                      ca-val))
+                                  (fn [ca-val]
+                                    (if (and
+                                         *xapi-0-95-compat?*
+                                         (= 1 (count ca-val))
+                                         (some-> ca-val
+                                                 meta
+                                                 :xapi-0-95-compat-conformed?))
+                                      (first ca-val)
+                                      ca-val)))
+                     ::context-activities-array)
+    #(s/gen ::context-activities-array)))
 
 (s/def :contextActivities/parent
   ::context-activities)
@@ -1212,5 +1231,46 @@
                    (some-> s :statement/object :statement-ref/objectType)
                    true)))))
 
+;; A statement stored in the LRS should have some values always set
+(s/def ::lrs-statement
+  (conform-ns "statement"
+              (s/and
+               (s/keys :req [:statement/id
+                             :statement/actor
+                             :statement/verb
+                             :statement/object
+                             :statement/timestamp
+                             :statement/stored
+                             :statement/authority
+                             :statement/version]
+                       :opt [:statement/result
+                             :statement/context
+                             :statement/attachments])
+               (restrict-keys
+                :statement/actor
+                :statement/verb
+                :statement/object
+                :statement/id
+                :statement/result
+                :statement/context
+                :statement/timestamp
+                :statement/stored
+                :statement/authority
+                :statement/attachments
+                :statement/version)
+               (fn valid-context? [s]
+                 (if (let [s-o (:statement/object s)]
+                       (or (:activity/objectType s-o)
+                           (:activity/id s-o)))
+                   true
+                   (not (some-> s :statement/context revision-or-platform?))))
+               (fn valid-void? [s]
+                 (if (some-> s :statement/verb :verb/id (= "http://adlnet.gov/expapi/verbs/voided"))
+                   (some-> s :statement/object :statement-ref/objectType)
+                   true)))))
+
 (s/def ::statements
   (s/coll-of ::statement :into [] :min-count 1))
+
+(s/def ::lrs-statements
+  (s/coll-of ::lrs-statement :into [] :min-count 1))
