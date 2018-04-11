@@ -46,7 +46,7 @@
                 {"statementId" (str #?(:clj (java.util.UUID/randomUUID)
                                        :cljs (random-uuid)))
                  "format" "ids"}))
-  (is (not
+  #_(is (not
        (s/valid? :xapi.statements.GET.request/params
                  {"statementId" (str #?(:clj (java.util.UUID/randomUUID)
                                         :cljs (random-uuid)))

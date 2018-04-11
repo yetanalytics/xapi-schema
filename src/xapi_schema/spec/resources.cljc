@@ -98,48 +98,36 @@
      :xapi.statements.GET.request.params/multiple))
 
 (defmethod query-type :xapi.statements.GET.request.params/singular [_]
-  (s/and (s/keys :req [(or :xapi.statements.GET.request.params/statementId
-                           :xapi.statements.GET.request.params/voidedStatementId)]
-                 :opt [:xapi.statements.GET.request.params/format
-                       :xapi.statements.GET.request.params/attachments])
-         (restrict-keys :xapi.statements.GET.request.params/statementId
-                        :xapi.statements.GET.request.params/voidedStatementId
-                        :xapi.statements.GET.request.params/format
-                        :xapi.statements.GET.request.params/attachments)))
+  (s/keys :req [(or :xapi.statements.GET.request.params/statementId
+                    :xapi.statements.GET.request.params/voidedStatementId)]
+          :opt [:xapi.statements.GET.request.params/format
+                :xapi.statements.GET.request.params/attachments]))
 
 (defmethod query-type :xapi.statements.GET.request.params/multiple [_]
-  (s/and (s/keys :opt [:xapi.statements.GET.request.params/agent
-                       :xapi.statements.GET.request.params/verb
-                       :xapi.statements.GET.request.params/activity
-                       :xapi.statements.GET.request.params/registration
-                       :xapi.statements.GET.request.params/related_activities
-                       :xapi.statements.GET.request.params/related_agents
-                       :xapi.statements.GET.request.params/since
-                       :xapi.statements.GET.request.params/until
-                       :xapi.statements.GET.request.params/limit
-                       :xapi.statements.GET.request.params/format
-                       :xapi.statements.GET.request.params/attachments
-                       :xapi.statements.GET.request.params/ascending])
-         (restrict-keys
-          :xapi.statements.GET.request.params/agent
-          :xapi.statements.GET.request.params/verb
-          :xapi.statements.GET.request.params/activity
-          :xapi.statements.GET.request.params/registration
-          :xapi.statements.GET.request.params/related_activities
-          :xapi.statements.GET.request.params/related_agents
-          :xapi.statements.GET.request.params/since
-          :xapi.statements.GET.request.params/until
-          :xapi.statements.GET.request.params/limit
-          :xapi.statements.GET.request.params/format
-          :xapi.statements.GET.request.params/attachments
-          :xapi.statements.GET.request.params/ascending)))
+  (s/keys :opt [:xapi.statements.GET.request.params/agent
+                :xapi.statements.GET.request.params/verb
+                :xapi.statements.GET.request.params/activity
+                :xapi.statements.GET.request.params/registration
+                :xapi.statements.GET.request.params/related_activities
+                :xapi.statements.GET.request.params/related_agents
+                :xapi.statements.GET.request.params/since
+                :xapi.statements.GET.request.params/until
+                :xapi.statements.GET.request.params/limit
+                :xapi.statements.GET.request.params/format
+                :xapi.statements.GET.request.params/attachments
+                :xapi.statements.GET.request.params/ascending]))
 
 
 (s/def :xapi.statements.GET.request/params
   (conform-ns "xapi.statements.GET.request.params"
               (s/multi-spec query-type (fn [gen-val _]
                                          gen-val))))
+(s/def :xapi.statements.PUT.request.params/statementId
+  :statement/id)
 
+(s/def :xapi.statements.PUT.request/params
+  (conform-ns "xapi.statements.PUT.request.params"
+              (s/keys :req [:xapi.statements.PUT.request.params/statementId])))
 
 ;; StatementResult https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#retrieval
 (s/def :xapi.statements.GET.response.statement-result/statements
@@ -150,12 +138,8 @@
 
 (s/def :xapi.statements.GET.response/statement-result
   (conform-ns "xapi.statements.GET.response.statement-result"
-              (s/and
-               (s/keys :req [:xapi.statements.GET.response.statement-result/statements]
-                       :opt [:xapi.statements.GET.response.statement-result/more])
-               (restrict-keys
-                :xapi.statements.GET.response.statement-result/statements
-                :xapi.statements.GET.response.statement-result/more))))
+              (s/keys :req [:xapi.statements.GET.response.statement-result/statements]
+                      :opt [:xapi.statements.GET.response.statement-result/more])))
 
 ;; Document Resources https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#22-document-resources
 (s/def :xapi.document.generic/id
@@ -243,21 +227,13 @@
 
 (s/def :xapi.agents.GET.response/person
   (conform-ns "xapi.agents.GET.response.person"
-              (s/and
-               (s/keys :req [:xapi.agents.GET.response.person/objectType]
-                       :opt [:xapi.agents.GET.response.person/name
-                             :xapi.agents.GET.response.person/mbox
-                             :xapi.agents.GET.response.person/mbox_sha1sum
-                             :xapi.agents.GET.response.person/openid
-                             :xapi.agents.GET.response.person/account
-                             ])
-               (restrict-keys :xapi.agents.GET.response.person/name
-                              :xapi.agents.GET.response.person/mbox
-                              :xapi.agents.GET.response.person/mbox_sha1sum
-                              :xapi.agents.GET.response.person/openid
-                              :xapi.agents.GET.response.person/account
-                              :xapi.agents.GET.response.person/objectType
-                              ))))
+              (s/keys :req [:xapi.agents.GET.response.person/objectType]
+                      :opt [:xapi.agents.GET.response.person/name
+                            :xapi.agents.GET.response.person/mbox
+                            :xapi.agents.GET.response.person/mbox_sha1sum
+                            :xapi.agents.GET.response.person/openid
+                            :xapi.agents.GET.response.person/account
+                            ])))
 
 ;; Activities Resource https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#25-activities-resource
 
