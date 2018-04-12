@@ -1,44 +1,66 @@
 (ns xapi-schema.spec.resources
   (:require
-   [xapi-schema.spec :as xs :refer [conform-ns restrict-keys]]
+   [xapi-schema.spec :as xs :include-macros true]
+   [xapi-schema.spec.util :as util :include-macros true]
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]
    [clojure.spec.gen.alpha :as sgen :include-macros true]
+   [clojure.walk :as walk]
    #?@(:clj [[clojure.data.json :as json]]))
-  #?(:cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
+  #?(:cljs (:require-macros [xapi-schema.spec.resources :refer [json]])))
 
-(defn parse-json [^String s]
-  #?(:clj (json/read-str s)
-     :cljs (js->clj (.parse js/JSON s))))
+(def ^:dynamic *read-json-fn*
+  #?(:clj json/read-str
+     :cljs (fn [s] (js->clj (.parse js/JSON s)))))
 
-(defn unparse-json [data]
-  #?(:clj (json/write-str data)
-     :cljs (.stringify js/JSON (clj->js data))))
+(def ^:dynamic *write-json-fn*
+  #?(:clj json/write-str
+     :cljs (fn [data] (.stringify js/JSON (clj->js data)))))
+
+#?(:clj
+   (defmacro with-json
+     "Bind alternative json read/write fns"
+     [{:keys [read-fn write-fn]
+       :or {read-fn *read-json-fn*
+            write-fn *write-json-fn*}} & body]
+     `(binding [*read-json-fn* ~read-fn
+                *write-json-fn* ~write-fn]
+        ~@body)))
+
+(defn conform-json [s]
+  (if (string? s)
+    (if (not-empty s)
+      (try (*read-json-fn* ^String s)
+           (catch #?(:clj java.lang.Exception
+                     :cljs js/Error) _
+             ::s/invalid))
+      ::s/invalid)
+    s))
+
+(defn unform-json ^String [data]
+  (if (string? data)
+    data
+    (try (*write-json-fn* data)
+         (catch #?(:clj java.lang.Exception
+                   :cljs js/Error) _
+           ::s/invalid))))
 
 (def json-string-conformer
-  (s/conformer (fn [s]
-                 (if (string? s)
-                   (if (not-empty s)
-                     (try (parse-json s)
-                          (catch #?(:clj java.lang.Exception
-                                    :cljs js/Error) _
-                            ::s/invalid))
-                     ::s/invalid)
-                   s))
-               (fn [data]
-                 (if (string? data)
-                   data
-                   (try (unparse-json data)
-                        (catch #?(:clj java.lang.Exception
-                                  :cljs js/Error) _
-                          ::s/invalid))))))
+  (s/conformer
+   conform-json
+   unform-json))
+
+#?(:clj
+   (defmacro json
+     [spec]
+     `(util/with-conformer
+        ~spec conform-json unform-json)))
 
 ;; xAPI Resources
 
 ;; common
 (s/def :xapi.common.param/agent
-  (s/with-gen (s/and json-string-conformer
-                     ::xs/actor)
-    #(sgen/fmap unparse-json (s/gen ::xs/actor))))
+  (json
+    (s/nonconforming ::xs/actor)))
 
 ;; Statements
 ;; GET https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements
@@ -61,10 +83,10 @@
   ::xs/uuid)
 
 (s/def :xapi.statements.GET.request.params/related_activities
-  boolean?)
+  (json boolean?))
 
 (s/def :xapi.statements.GET.request.params/related_agents
-  boolean?)
+  (json boolean?))
 
 (s/def :xapi.statements.GET.request.params/since
   ::xs/timestamp)
@@ -73,24 +95,25 @@
   ::xs/timestamp)
 
 (s/def :xapi.statements.GET.request.params/limit
-  (complement neg-int?))
+  (json
+    (complement neg-int?)))
 
 (s/def :xapi.statements.GET.request.params/format
   #{"ids" "exact" "canonical"})
 
 (s/def :xapi.statements.GET.request.params/attachments
-  boolean?)
+  (json boolean?))
 
 (s/def :xapi.statements.GET.request.params/ascending
-  boolean?)
+  (json boolean?))
 
 ;;
 
 (def singular-query?
   (comp
    some?
-   (some-fn :xapi.statements.GET.request.params/statementId
-            :xapi.statements.GET.request.params/voidedStatementId)))
+   (some-fn :statementId
+            :voidedStatementId)))
 
 (defmulti query-type
   #(if (singular-query? %)
@@ -98,48 +121,45 @@
      :xapi.statements.GET.request.params/multiple))
 
 (defmethod query-type :xapi.statements.GET.request.params/singular [_]
-  (s/keys :req [(or :xapi.statements.GET.request.params/statementId
-                    :xapi.statements.GET.request.params/voidedStatementId)]
-          :opt [:xapi.statements.GET.request.params/format
-                :xapi.statements.GET.request.params/attachments]))
+  (s/keys :req-un [(or :xapi.statements.GET.request.params/statementId
+                       :xapi.statements.GET.request.params/voidedStatementId)]
+          :opt-un [:xapi.statements.GET.request.params/format
+                   :xapi.statements.GET.request.params/attachments]))
 
 (defmethod query-type :xapi.statements.GET.request.params/multiple [_]
-  (s/keys :opt [:xapi.statements.GET.request.params/agent
-                :xapi.statements.GET.request.params/verb
-                :xapi.statements.GET.request.params/activity
-                :xapi.statements.GET.request.params/registration
-                :xapi.statements.GET.request.params/related_activities
-                :xapi.statements.GET.request.params/related_agents
-                :xapi.statements.GET.request.params/since
-                :xapi.statements.GET.request.params/until
-                :xapi.statements.GET.request.params/limit
-                :xapi.statements.GET.request.params/format
-                :xapi.statements.GET.request.params/attachments
-                :xapi.statements.GET.request.params/ascending]))
+  (s/keys :opt-un [:xapi.statements.GET.request.params/agent
+                   :xapi.statements.GET.request.params/verb
+                   :xapi.statements.GET.request.params/activity
+                   :xapi.statements.GET.request.params/registration
+                   :xapi.statements.GET.request.params/related_activities
+                   :xapi.statements.GET.request.params/related_agents
+                   :xapi.statements.GET.request.params/since
+                   :xapi.statements.GET.request.params/until
+                   :xapi.statements.GET.request.params/limit
+                   :xapi.statements.GET.request.params/format
+                   :xapi.statements.GET.request.params/attachments
+                   :xapi.statements.GET.request.params/ascending]))
 
 
 (s/def :xapi.statements.GET.request/params
-  (conform-ns "xapi.statements.GET.request.params"
-              (s/multi-spec query-type (fn [gen-val _]
-                                         gen-val))))
+  (s/multi-spec query-type (fn [gen-val _]
+                             gen-val)))
 (s/def :xapi.statements.PUT.request.params/statementId
   :statement/id)
 
 (s/def :xapi.statements.PUT.request/params
-  (conform-ns "xapi.statements.PUT.request.params"
-              (s/keys :req [:xapi.statements.PUT.request.params/statementId])))
+  (s/keys :req-un [:xapi.statements.PUT.request.params/statementId]))
 
 ;; StatementResult https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#retrieval
 (s/def :xapi.statements.GET.response.statement-result/statements
-  (s/coll-of ::xs/statement :into []))
+  (s/coll-of (s/nonconforming ::xs/statement) :into []))
 
 (s/def :xapi.statements.GET.response.statment-result/more
   ::xs/relative-irl)
 
 (s/def :xapi.statements.GET.response/statement-result
-  (conform-ns "xapi.statements.GET.response.statement-result"
-              (s/keys :req [:xapi.statements.GET.response.statement-result/statements]
-                      :opt [:xapi.statements.GET.response.statement-result/more])))
+  (s/keys :req-un [:xapi.statements.GET.response.statement-result/statements]
+          :opt-un [:xapi.statements.GET.response.statement-result/more]))
 
 ;; Document Resources https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#22-document-resources
 (s/def :xapi.document.generic/id
@@ -154,10 +174,9 @@
     (constantly sgen/any)))
 
 (s/def :xapi.document/generic
-  (conform-ns "xapi.document.generic"
-   (s/keys :req [:xapi.document.generic/id
-                 :xapi.document.generic/updated
-                 :xapi.document.generic/contents])))
+  (s/keys :req-un [:xapi.document.generic/id
+                   :xapi.document.generic/updated
+                   :xapi.document.generic/contents]))
 
 ;; State https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#23-state-resource
 
@@ -179,32 +198,28 @@
          ::xs/since))
 
 (s/def :xapi.activities.state.*.request.singular/params
-  (conform-ns "xapi.activities.state.*.request.params"
-              (s/keys :req [:xapi.activities.state.*.request.params/activityId
-                            :xapi.activities.state.*.request.params/agent]
-                      :opt [:xapi.activities.state.*.request.params/registration
-                            :xapi.activities.state.*.request.params/stateId])))
+  (s/keys :req-un [:xapi.activities.state.*.request.params/activityId
+                   :xapi.activities.state.*.request.params/agent]
+          :opt-un [:xapi.activities.state.*.request.params/registration
+                   :xapi.activities.state.*.request.params/stateId]))
 ;; For multiple GET
 (s/def :xapi.activities.state.GET.request.multiple/params
-  (conform-ns "xapi.activities.state.*.request.params"
-              (s/keys :req [:xapi.activities.state.*.request.params/activityId
-                            :xapi.activities.state.*.request.params/agent]
-                      :opt [:xapi.activities.state.*.request.params/registration
-                            :xapi.activities.state.*.request.params/since])))
+  (s/keys :req-un [:xapi.activities.state.*.request.params/activityId
+                   :xapi.activities.state.*.request.params/agent]
+          :opt-un [:xapi.activities.state.*.request.params/registration
+                   :xapi.activities.state.*.request.params/since]))
 
 (s/def :xapi.activities.state.DELETE.request.multiple/params
-  (conform-ns "xapi.activities.state.*.request.params"
-              (s/keys :req [:xapi.activities.state.*.request.params/activityId
-                            :xapi.activities.state.*.request.params/agent]
-                      :opt [:xapi.activities.state.*.request.params/registration])))
+  (s/keys :req-un [:xapi.activities.state.*.request.params/activityId
+                   :xapi.activities.state.*.request.params/agent]
+          :opt-un [:xapi.activities.state.*.request.params/registration]))
 
 ;; Agents https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#24-agents-resource
 (s/def :xapi.agents.GET.request.params/agent
   :xapi.common.param/agent)
 
 (s/def :xapi.agents.GET.request/params
-  (conform-ns "xapi.agents.GET.request.params"
-              (s/keys :req [:xapi.agents.GET.request.params/agent])))
+  (s/keys :req-un [:xapi.agents.GET.request.params/agent]))
 
 ;; Person https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#person-properties
 (s/def :xapi.agents.GET.response.person/objectType
@@ -226,14 +241,17 @@
   (s/coll-of ::xs/account :kind vector? :into []))
 
 (s/def :xapi.agents.GET.response/person
-  (conform-ns "xapi.agents.GET.response.person"
-              (s/keys :req [:xapi.agents.GET.response.person/objectType]
-                      :opt [:xapi.agents.GET.response.person/name
-                            :xapi.agents.GET.response.person/mbox
-                            :xapi.agents.GET.response.person/mbox_sha1sum
-                            :xapi.agents.GET.response.person/openid
-                            :xapi.agents.GET.response.person/account
-                            ])))
+  (s/nonconforming
+   (util/with-conformer
+     (s/keys :req-un [:xapi.agents.GET.response.person/objectType]
+             :opt-un [:xapi.agents.GET.response.person/name
+                      :xapi.agents.GET.response.person/mbox
+                      :xapi.agents.GET.response.person/mbox_sha1sum
+                      :xapi.agents.GET.response.person/openid
+                      :xapi.agents.GET.response.person/account
+                      ])
+     walk/keywordize-keys
+     walk/stringify-keys)))
 
 ;; Activities Resource https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#25-activities-resource
 
@@ -241,8 +259,7 @@
   ::xs/iri)
 
 (s/def :xapi.activities.GET.request/params
-  (conform-ns "xapi.activities.GET.request.params"
-              (s/keys :req [:xapi.activities.GET.request.params/activityId])))
+  (s/keys :req-un [:xapi.activities.GET.request.params/activityId]))
 
 ;; Agent Profile https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#26-agent-profile-resource
 
@@ -257,14 +274,12 @@
   ::xs/timestamp)
 
 (s/def :xapi.agents.profile.*.request.singular/params
-  (conform-ns "xapi.agents.profile.*.request.params"
-              (s/keys :req [:xapi.agents.profile.*.request.params/agent
-                            :xapi.agents.profile.*.request.params/profileId])))
+  (s/keys :req-un [:xapi.agents.profile.*.request.params/agent
+                   :xapi.agents.profile.*.request.params/profileId]))
 
 (s/def :xapi.agents.profile.GET.request.multiple/params
-  (conform-ns "xapi.agents.profile.*.request.params"
-              (s/keys :req [:xapi.agents.profile.*.request.params/agent]
-                      :opt [:xapi.agents.profile.*.request.params/since])))
+  (s/keys :req-un [:xapi.agents.profile.*.request.params/agent]
+          :opt-un [:xapi.agents.profile.*.request.params/since]))
 
 ;; Activity Profile https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#27-activity-profile-resource
 
@@ -279,14 +294,12 @@
   ::xs/timestamp)
 
 (s/def :xapi.activities.profile.*.request.singular/params
-  (conform-ns "xapi.activities.profile.*.request.params"
-              (s/keys :req [:xapi.activities.profile.*.request.params/activityId
-                            :xapi.activities.profile.*.request.params/profileId])))
+  (s/keys :req-un [:xapi.activities.profile.*.request.params/activityId
+                   :xapi.activities.profile.*.request.params/profileId]))
 
 (s/def :xapi.activities.profile.GET.request.multiple/params
-  (conform-ns "xapi.activities.profile.*.request.params"
-              (s/keys :req [:xapi.activities.profile.*.request.params/activityId]
-                      :opt [:xapi.activities.profile.*.request.params/since])))
+  (s/keys :req-un [:xapi.activities.profile.*.request.params/activityId]
+          :opt-un [:xapi.activities.profile.*.request.params/since]))
 
 ;; About https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#28-about-resource
 
@@ -297,6 +310,5 @@
   ::xs/extensions)
 
 (s/def :xapi.about.GET.response/body
-  (conform-ns "xapi.about.GET.response.body"
-              (s/keys :req [:xapi.about.GET.response.body/version]
-                      :opt [:xapi.about.GET.response.body/extensions])))
+  (s/keys :req-un [:xapi.about.GET.response.body/version]
+          :opt-un [:xapi.about.GET.response.body/extensions]))

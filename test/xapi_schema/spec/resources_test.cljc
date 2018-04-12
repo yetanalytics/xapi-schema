@@ -1,17 +1,17 @@
 (ns xapi-schema.spec.resources-test
   (:require [clojure.test :refer [deftest is testing] :include-macros true]
             [clojure.spec.alpha :as s :include-macros true]
-            [xapi-schema.spec.resources :as xsr :refer [parse-json
-                                                        unparse-json
+            [xapi-schema.spec.resources :as xsr :refer [*read-json-fn*
+                                                        *write-json-fn*
                                                         json-string-conformer]]))
 
 (deftest parse-json-test
   (is (= {"foo" "bar"}
-         (parse-json "{\"foo\":\"bar\"}"))))
+         (*read-json-fn* "{\"foo\":\"bar\"}"))))
 
 (deftest unparse-json-test
   (is (= "{\"foo\":\"bar\"}"
-         (unparse-json {"foo" "bar"}))))
+         (*write-json-fn* {"foo" "bar"}))))
 
 (deftest json-string-conformer-test
   (is (= {"foo" "bar"}
@@ -43,14 +43,14 @@
 
 (deftest statements-get-params-test
   (is (s/valid? :xapi.statements.GET.request/params
-                {"statementId" (str #?(:clj (java.util.UUID/randomUUID)
+                {:statementId (str #?(:clj (java.util.UUID/randomUUID)
                                        :cljs (random-uuid)))
-                 "format" "ids"}))
+                 :format "ids"}))
   #_(is (not
        (s/valid? :xapi.statements.GET.request/params
                  {"statementId" (str #?(:clj (java.util.UUID/randomUUID)
                                         :cljs (random-uuid)))
                   "ascending" true})))
   (is (s/valid? :xapi.statements.GET.request/params
-                {"ascending" true
-                 "format" "ids"})))
+                {:ascending true
+                 :format "ids"})))
