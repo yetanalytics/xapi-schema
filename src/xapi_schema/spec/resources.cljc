@@ -162,57 +162,77 @@
           :opt-un [:xapi.statements.GET.response.statement-result/more]))
 
 ;; Document Resources https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#22-document-resources
-(s/def :xapi.document.generic/id
-  (s/and string?
-         not-empty))
 
-(s/def :xapi.document.generic/updated
+(def document-id
+  (s/with-gen (s/and string?
+                     not-empty)
+    (fn []
+      (sgen/not-empty
+       (sgen/string-ascii)))))
+
+;; ID
+(s/def :xapi.document.params/stateId
+  document-id)
+
+(s/def :xapi.document.params/profileId
+  document-id)
+
+;; Context
+(s/def :xapi.document.params/activityId
+  :activity/id)
+
+(s/def :xapi.document.params/agent
+  :xapi.common.param/agent)
+
+(s/def :xapi.document.params/registration
+  ::xs/uuid)
+
+;; Query
+
+(s/def :xapi.document.params/since
   ::xs/timestamp)
-
-(s/def :xapi.document.generic/contents
-  (s/with-gen identity
-    (constantly sgen/any)))
-
-(s/def :xapi.document/generic
-  (s/keys :req-un [:xapi.document.generic/id
-                   :xapi.document.generic/updated
-                   :xapi.document.generic/contents]))
 
 ;; State https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#23-state-resource
 
-(s/def :xapi.activities.state.*.request.params/activityId
-  ::xs/iri)
+(s/def :xapi.document.state/context-params
+  (s/keys :req-un [:xapi.document.params/activityId
+                   :xapi.document.params/agent]
+          :opt-un [:xapi.document.params/registration]))
 
-(s/def :xapi.activities.state.*.request.params/agent
-  :xapi.common.param/agent)
+;; Params for methods that work on a single state doc
+(s/def :xapi.document.state/id-params
+  (s/keys :req-un [:xapi.document.params/stateId
+                   :xapi.document.params/activityId
+                   :xapi.document.params/agent]
+          :opt-un [:xapi.document.params/registration]))
 
-(s/def :xapi.activities.state.*.request.params/registration
-  ::xs/uuid)
+(s/def :xapi.document.state/query-params
+  (s/keys :req-un [:xapi.document.params/activityId
+                   :xapi.document.params/agent]
+          :opt-un [:xapi.document.params/registration
+                   :xapi.document.params/since]))
 
-(s/def :xapi.activities.state.*.request.params/stateId
-  (s/and string?
-         not-empty))
+;; Routes + Methods
 
-(s/def :xapi.activities.state.*.request.params/since
-  (s/and string?
-         ::xs/since))
+(s/def :xapi.activities.state.PUT.request/params
+  :xapi.document.state/id-params)
 
-(s/def :xapi.activities.state.*.request.singular/params
-  (s/keys :req-un [:xapi.activities.state.*.request.params/activityId
-                   :xapi.activities.state.*.request.params/agent]
-          :opt-un [:xapi.activities.state.*.request.params/registration
-                   :xapi.activities.state.*.request.params/stateId]))
-;; For multiple GET
-(s/def :xapi.activities.state.GET.request.multiple/params
-  (s/keys :req-un [:xapi.activities.state.*.request.params/activityId
-                   :xapi.activities.state.*.request.params/agent]
-          :opt-un [:xapi.activities.state.*.request.params/registration
-                   :xapi.activities.state.*.request.params/since]))
+(s/def :xapi.activities.state.POST.request/params
+  :xapi.document.state/id-params)
 
-(s/def :xapi.activities.state.DELETE.request.multiple/params
-  (s/keys :req-un [:xapi.activities.state.*.request.params/activityId
-                   :xapi.activities.state.*.request.params/agent]
-          :opt-un [:xapi.activities.state.*.request.params/registration]))
+(s/def :xapi.activities.state.GET.request/params
+  (s/or
+   :id
+   :xapi.document.state/id-params
+   :query
+   :xapi.document.state/query-params))
+
+(s/def :xapi.activities.state.DELETE.request/params
+  (s/or
+   :id
+   :xapi.document.state/id-params
+   :context
+   :xapi.document.state/context-params))
 
 ;; Agents https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#24-agents-resource
 (s/def :xapi.agents.GET.request.params/agent
@@ -262,44 +282,93 @@
   (s/keys :req-un [:xapi.activities.GET.request.params/activityId]))
 
 ;; Agent Profile https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#26-agent-profile-resource
+(s/def :xapi.document.agent-profile/context-params
+  (s/keys :req-un [:xapi.document.params/agent]))
 
-(s/def :xapi.agents.profile.*.request.params/agent
-  :xapi.common.param/agent)
+;; Params for methods that work on a single state doc
+(s/def :xapi.document.agent-profile/id-params
+  (s/keys :req-un [:xapi.document.params/agent
+                   :xapi.document.params/profileId]))
 
-(s/def :xapi.agents.profile.*.request.params/profileId
-  (s/and string?
-         not-empty))
+(s/def :xapi.document.agent-profile/query-params
+  (s/keys :req-un [:xapi.document.params/agent
+                   :xapi.document.params/since]))
 
-(s/def :xapi.agents.profile.*.request.params/since
-  ::xs/timestamp)
+;; Routes + Methods
 
-(s/def :xapi.agents.profile.*.request.singular/params
-  (s/keys :req-un [:xapi.agents.profile.*.request.params/agent
-                   :xapi.agents.profile.*.request.params/profileId]))
+(s/def :xapi.agents.profile.PUT.request/params
+  :xapi.document.agent-profile/id-params)
 
-(s/def :xapi.agents.profile.GET.request.multiple/params
-  (s/keys :req-un [:xapi.agents.profile.*.request.params/agent]
-          :opt-un [:xapi.agents.profile.*.request.params/since]))
+(s/def :xapi.agents.profile.POST.request/params
+  :xapi.document.agent-profile/id-params)
+
+(s/def :xapi.agents.profile.GET.request/params
+  (s/or
+   :id
+   :xapi.document.agent-profile/id-params
+   :query
+   :xapi.document.agent-profile/query-params))
+
+(s/def :xapi.agents.profile.state.DELETE.request/params
+  :xapi.document.agent-profile/id-params)
 
 ;; Activity Profile https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#27-activity-profile-resource
 
-(s/def :xapi.activities.profile.*.request.params/activityId
-  ::xs/iri)
+(s/def :xapi.document.activity-profile/context-params
+  (s/keys :req-un [:xapi.document.params/activityId]))
 
-(s/def :xapi.activities.profile.*.request.params/profileId
-  (s/and string?
-         not-empty))
+;; Params for methods that work on a single activity-profile doc
+(s/def :xapi.document.activity-profile/id-params
+  (s/keys :req-un [:xapi.document.params/activityId
+                   :xapi.document.params/profileId]))
 
-(s/def :xapi.activities.profile.*.request.params/since
-  ::xs/timestamp)
+(s/def :xapi.document.activity-profile/query-params
+  (s/keys
+   :req-un [:xapi.document.params/activityId]
+   :opt-un [:xapi.document.params/since]))
 
-(s/def :xapi.activities.profile.*.request.singular/params
-  (s/keys :req-un [:xapi.activities.profile.*.request.params/activityId
-                   :xapi.activities.profile.*.request.params/profileId]))
+;; Routes + Methods
 
-(s/def :xapi.activities.profile.GET.request.multiple/params
-  (s/keys :req-un [:xapi.activities.profile.*.request.params/activityId]
-          :opt-un [:xapi.activities.profile.*.request.params/since]))
+(s/def :xapi.activities.profile.PUT.request/params
+  :xapi.document.activity-profile/id-params)
+
+(s/def :xapi.activities.profile.POST.request/params
+  :xapi.document.activity-profile/id-params)
+
+(s/def :xapi.activities.profile.GET.request/params
+  (s/or
+   :id
+   :xapi.document.activity-profile/id-params
+   :query
+   :xapi.document.activity-profile/query-params))
+
+(s/def :xapi.activities.profile.DELETE.request/params
+  :xapi.document.activity-profile/id-params)
+
+;; Abstract Document Params
+;; useful for conforming
+(s/def :xapi.document.generic/params
+  (s/or :state
+        (s/or :id
+              :xapi.document.state/id-params
+              :context
+              :xapi.document.state/context-params
+              :query
+              :xapi.document.state/query-params)
+        :agent-profile
+        (s/or :id
+              :xapi.document.agent-profile/id-params
+              :context
+              :xapi.document.agent-profile/context-params
+              :query
+              :xapi.document.agent-profile/query-params)
+        :activity-profile
+        (s/or :id
+              :xapi.document.activity-profile/id-params
+              :context
+              :xapi.document.activity-profile/context-params
+              :query
+              :xapi.document.activity-profile/query-params)))
 
 ;; About https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#28-about-resource
 
