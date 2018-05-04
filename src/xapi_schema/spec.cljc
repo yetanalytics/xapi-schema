@@ -101,11 +101,16 @@
            (partial re-matches LanguageTagRegEx))
     #(sgen/elements ["en" "en-US" "en-GB" "fr"])))
 
+(s/def ::language-map-text
+  (s/with-gen string? ;; allow empty strings
+    #(s/gen ::string-not-empty)))
+
 (s/def ::language-map
   (s/map-of ::language-tag
-            ::string-not-empty
+            ::language-map-text
             :gen-max 3
-            :min-count 1))
+            :min-count 1
+            ))
 
 (defn into-str [cs]
   (cstr/lower-case (apply str cs)))
