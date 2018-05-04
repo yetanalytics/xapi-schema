@@ -81,7 +81,9 @@
     (is (re-matches TimestampRegEx "2016-11-22T16:50:25.3868080Z"))
     (is (not (re-matches TimestampRegEx "5-13-2015")))
     (is (not (re-matches TimestampRegEx "20150513T15Z")))
-    (is (not (re-matches TimestampRegEx "20150513T15:16:00Z")))))
+    (is (not (re-matches TimestampRegEx "20150513T15:16:00Z")))
+    ;; negative offset
+    (is (not (re-matches TimestampRegEx "2008-09-15T15:53:00.601-00:00")))))
 
 (deftest xapi-version-regex-test
   (testing "matches xAPI 1.0.X versions"
