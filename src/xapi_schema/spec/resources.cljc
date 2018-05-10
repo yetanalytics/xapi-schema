@@ -309,7 +309,7 @@
    :query
    :xapi.document.agent-profile/query-params))
 
-(s/def :xapi.agents.profile.state.DELETE.request/params
+(s/def :xapi.agents.profile.DELETE.request/params
   :xapi.document.agent-profile/id-params)
 
 ;; Activity Profile https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#27-activity-profile-resource
