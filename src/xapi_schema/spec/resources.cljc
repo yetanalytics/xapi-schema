@@ -291,8 +291,8 @@
                    :xapi.document.params/profileId]))
 
 (s/def :xapi.document.agent-profile/query-params
-  (s/keys :req-un [:xapi.document.params/agent
-                   :xapi.document.params/since]))
+  (s/keys :req-un [:xapi.document.params/agent]
+          :opt-un [:xapi.document.params/since]))
 
 ;; Routes + Methods
 
