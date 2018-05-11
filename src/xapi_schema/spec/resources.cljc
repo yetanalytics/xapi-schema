@@ -96,7 +96,8 @@
 
 (s/def :xapi.statements.GET.request.params/limit
   (json
-    (complement neg-int?)))
+   (s/int-in 0 #?(:clj Long/MAX_VALUE
+                  :cljs (.-MAX_VALUE js/Number)))))
 
 (s/def :xapi.statements.GET.request.params/format
   #{"ids" "exact" "canonical"})
