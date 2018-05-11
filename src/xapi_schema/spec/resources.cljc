@@ -182,7 +182,8 @@
   :activity/id)
 
 (s/def :xapi.document.params/agent
-  :xapi.common.param/agent)
+  (json
+   (s/nonconforming ::xs/agent)))
 
 (s/def :xapi.document.params/registration
   ::xs/uuid)
@@ -236,7 +237,7 @@
 
 ;; Agents https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#24-agents-resource
 (s/def :xapi.agents.GET.request.params/agent
-  :xapi.common.param/agent)
+  :xapi.document.params/agent)
 
 (s/def :xapi.agents.GET.request/params
   (s/keys :req-un [:xapi.agents.GET.request.params/agent]))
