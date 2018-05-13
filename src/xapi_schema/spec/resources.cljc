@@ -145,6 +145,7 @@
 (s/def :xapi.statements.GET.request/params
   (s/multi-spec query-type (fn [gen-val _]
                              gen-val)))
+
 (s/def :xapi.statements.PUT.request.params/statementId
   :statement/id)
 
@@ -155,7 +156,7 @@
 (s/def :xapi.statements.GET.response.statement-result/statements
   (s/coll-of (s/nonconforming ::xs/statement) :into []))
 
-(s/def :xapi.statements.GET.response.statment-result/more
+(s/def :xapi.statements.GET.response.statement-result/more
   ::xs/relative-irl)
 
 (s/def :xapi.statements.GET.response/statement-result
