@@ -121,11 +121,21 @@
      :xapi.statements.GET.request.params/singular
      :xapi.statements.GET.request.params/multiple))
 
-(defmethod query-type :xapi.statements.GET.request.params/singular [_]
+(def statements-query-singular-spec
   (s/keys :req-un [(or :xapi.statements.GET.request.params/statementId
                        :xapi.statements.GET.request.params/voidedStatementId)]
           :opt-un [:xapi.statements.GET.request.params/format
                    :xapi.statements.GET.request.params/attachments]))
+
+(defmethod query-type :xapi.statements.GET.request.params/singular [_]
+  (s/with-gen statements-query-singular-spec
+    ;; spec generates these with both of the required keys, which is weird.
+    ;; Force it to be only one!
+    (fn []
+      (sgen/fmap (fn [params]
+                   (dissoc params
+                           (rand-nth [:statementId :voidedStatementId])))
+                 (s/gen statements-query-singular-spec)))))
 
 (defmethod query-type :xapi.statements.GET.request.params/multiple [_]
   (s/keys :opt-un [:xapi.statements.GET.request.params/agent
