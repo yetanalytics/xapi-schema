@@ -173,28 +173,28 @@
    "version" version})
 
 (def simple-statement
-  (load-json "resources/data/statements/simple.json"))
+  (load-json "dev-resources/data/statements/simple.json"))
 
 (def long-statement
-  (load-json "resources/data/statements/long.json"))
+  (load-json "dev-resources/data/statements/long.json"))
 
 (def completion-statement
-  (load-json "resources/data/statements/completion.json"))
+  (load-json "dev-resources/data/statements/completion.json"))
 
 (def void-statement
-  (load-json "resources/data/statements/void.json"))
+  (load-json "dev-resources/data/statements/void.json"))
 
 (def interaction-activity-defs
   (load-json-map
-   "resources/data/objects/activity/definition/interaction/"
+   "dev-resources/data/objects/activity/definition/interaction/"
    ["choice" "fill-in" "likert" "long-fill-in"
     "matching" "numeric" "other" "performance"
     "sequencing" "true-false"]))
 
 (def adl-sub-statement
   (load-json
-   "resources/data/objects/sub-statement.json"))
+   "dev-resources/data/objects/sub-statement.json"))
 
 (def authority-group
   (load-json
-   "resources/data/objects/authority.json"))
+   "dev-resources/data/objects/authority.json"))

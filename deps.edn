@@ -1,0 +1,16 @@
+{:paths ["src" "resources"]
+ :deps
+ {org.clojure/clojure {:mvn/version "1.9.0"}
+  org.clojure/clojurescript {:mvn/version "1.10.339" #_"1.9.946"}
+  org.clojure/data.json {:mvn/version "0.2.6"}}
+ :aliases
+ {:dev
+  {:extra-paths ["test" "dev" "dev-resources"]
+   :extra-deps
+   {org.clojure/tools.nrepl {:mvn/version "0.2.10"}
+    com.cemerick/piggieback {:mvn/version "0.2.2"}
+    org.clojure/test.check {:mvn/version "0.10.0-alpha2"}
+    com.walmartlabs/lacinia
+    {:mvn/version "0.25.0"
+     :exclusions [org.clojure/clojure
+                  clojure-future-spec]}}}}}

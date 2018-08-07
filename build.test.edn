@@ -1,0 +1,4 @@
+{:main xapi-schema.runner
+ :target :nodejs
+ ;; :verbose true
+ }

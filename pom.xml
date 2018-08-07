@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.yetanalytics</groupId>
+    <artifactId>xapi-schema</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0.0-alpha17-SNAPSHOT</version>
+    <name>xapi-schema</name>
+    <description>Clojure(script) Schema for the Experience API v1.0.3</description>
+    <url>https://github.com/yetanalytics/xapi-schema</url>
+    <licenses>
+        <license>
+            <name>Eclipse Public License</name>
+            <url>http://www.eclipse.org/legal/epl-v10.html</url>
+        </license>
+    </licenses>
+    <scm>
+        <url>https://github.com/yetanalytics/xapi-schema</url>
+        <connection>scm:git:git://github.com/yetanalytics/xapi-schema.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/yetanalytics/xapi-schema.git</developerConnection>
+        <tag>e9d4af0a06fc327cbd966bd5640d150036067a4d</tag>
+    </scm>
+    <dependencies>
+        <dependency>
+            <groupId>org.clojure</groupId>
+            <artifactId>clojure</artifactId>
+            <version>1.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.clojure</groupId>
+            <artifactId>clojurescript</artifactId>
+            <version>1.10.339</version>
+        </dependency>
+        <dependency>
+            <groupId>org.clojure</groupId>
+            <artifactId>data.json</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+            </resource>
+        </resources>
+    </build>
+    <repositories>
+        <repository>
+            <id>clojars</id>
+            <url>https://repo.clojars.org/</url>
+        </repository>
+    </repositories>
+</project>
