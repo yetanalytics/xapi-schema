@@ -17,7 +17,9 @@
    [clojure.spec.gen.alpha :as sgen :include-macros true]
    [clojure.string :as cstr]
    #?@(:cljs [[goog.string :as gstring]
-              [goog.string.format]]))
+              [goog.string.format]
+              [goog.crypt :as crypt]
+              [goog.crypt.base64 :as base64]]))
   #?(:clj (:import [java.util Base64])
      :cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
 
@@ -278,7 +280,7 @@
         #?(:clj (String. (.encode
                           (java.util.Base64/getEncoder)
                           (.getBytes s)))
-           :cljs (js/btoa s)))
+           :cljs (base64/encodeString s)))
       (sgen/not-empty (sgen/string-alphanumeric)))))
 
 (s/def ::sha1sum
