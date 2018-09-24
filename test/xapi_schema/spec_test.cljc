@@ -12,6 +12,10 @@
 (deftest conform-unform-test
   (is (= long-statement (s/unform ::xs/statement (s/conform ::xs/statement long-statement)))))
 
+(deftest conform-ns-map-test
+  (is  (= (xs/conform-ns-map "foo/bar" []) 
+          :clojure.spec.alpha/invalid)))
+
 (deftest language-tag-test
   (testing "is a valid RFC 5646 Language Tag"
     (should-satisfy+ ::xs/language-tag
@@ -76,8 +80,8 @@
                      "2015-06-30T23:59:60Z" ;; leap second
                      :bad
                      "09-10-2014T14:12:00+500"
-                     "2014-09-12T03:47:40" ;; no time zone
-                     )))
+                     "2014-09-12T03:47:40"))) ;; no time zone
+                     
 
 (deftest duration-test
   (testing "is a valid ISO 8601 Duration"
@@ -88,8 +92,8 @@
                      "2 hours"
                      "P"
                      "PT"
-                     "P3Y6M4DT12H30.1M5S" ;; bad fractional
-                     )))
+                     "P3Y6M4DT12H30.1M5S"))) ;; bad fractional
+                     
 
 (deftest version-test
   (testing "is a valid xAPI 1.0.X version"
