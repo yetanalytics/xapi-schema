@@ -4,7 +4,7 @@
     <groupId>com.yetanalytics</groupId>
     <artifactId>xapi-schema</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-alpha18-SNAPSHOT</version>
+    <version>1.0.0-alpha19-SNAPSHOT</version>
     <name>xapi-schema</name>
     <description>Clojure(script) Schema for the Experience API v1.0.3</description>
     <url>https://github.com/yetanalytics/xapi-schema</url>
