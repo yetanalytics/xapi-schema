@@ -13,8 +13,8 @@
   (is (= long-statement (s/unform ::xs/statement (s/conform ::xs/statement long-statement)))))
 
 (deftest conform-ns-map-test
-  (is  (= (xs/conform-ns-map "foo/bar" []) 
-          :clojure.spec.alpha/invalid)))
+  (is  (= (name (xs/conform-ns-map "foo/bar" [])) 
+          "invalid")))
 
 (deftest language-tag-test
   (testing "is a valid RFC 5646 Language Tag"
