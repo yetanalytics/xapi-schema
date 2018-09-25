@@ -37,18 +37,20 @@
                         ::s/invalid)))))
 
 (defn conform-ns-map [map-ns string-map]
-  (try (reduce-kv (fn [m k v]
-                    (assoc m (cond
-                               (string? k)
-                               (keyword map-ns k)
-                               (simple-keyword? k)
-                               (keyword map-ns (name k))
-                               :else k) v))
-                  {}
-                  string-map)
-       (catch #?(:clj Exception
-                 :cljs js/Error) e
-         ::s/invalid)))
+  (if (map? string-map)
+    (try (reduce-kv (fn [m k v]
+                      (assoc m (cond
+                                 (string? k)
+                                 (keyword map-ns k)
+                                 (simple-keyword? k)
+                                 (keyword map-ns (name k))
+                                 :else k) v))
+                    {}
+                    string-map)
+         (catch #?(:clj Exception
+                   :cljs js/Error) e
+           ::s/invalid))
+    ::s/invalid))
 
 (defn unform-ns-map [keyword-map]
   (try (reduce-kv (fn [m k v]
@@ -111,8 +113,8 @@
   (s/map-of ::language-tag
             ::language-map-text
             :gen-max 3
-            :min-count 1
-            ))
+            :min-count 1))
+            
 
 (defn into-str [cs]
   (cstr/lower-case (apply str cs)))
@@ -224,8 +226,8 @@
                   (sgen/fmap into-str
                              (sgen/vector (sgen/char-alpha) 3 4))
                   (sgen/fmap into-str
-                             (sgen/vector (sgen/char-alpha) 3 16))
-                  ))))
+                             (sgen/vector (sgen/char-alpha) 3 16))))))
+                  
 
 (s/def ::uuid
   (s/with-gen
