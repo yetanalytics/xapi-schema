@@ -9,6 +9,16 @@
             [xapi-schema.support.data :as d :refer [simple-statement
                                                     long-statement]]))
 
+(deftest double-conformer-test
+  (testing "conforms to double"
+    (is (= 1.0
+           (s/conform xs/double-conformer 1))))
+  (testing "unform is a no-op"
+    (is (= 1.0
+           (->> 1
+                (s/conform xs/double-conformer)
+                (s/unform xs/double-conformer))))))
+
 (deftest conform-unform-test
   (is (= long-statement (s/unform ::xs/statement (s/conform ::xs/statement long-statement)))))
 

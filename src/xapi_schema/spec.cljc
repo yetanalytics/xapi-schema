@@ -34,7 +34,9 @@
                  (try (double n)
                       (catch #?(:clj Exception
                                 :cljs js/Error) e
-                        ::s/invalid)))))
+                        ::s/invalid)))
+               ;; unform is a no-op, as json doesn't care
+               identity))
 
 (defn conform-ns-map [map-ns string-map]
   (if (map? string-map)
@@ -114,7 +116,7 @@
             ::language-map-text
             :gen-max 3
             :min-count 1))
-            
+
 
 (defn into-str [cs]
   (cstr/lower-case (apply str cs)))
@@ -227,7 +229,7 @@
                              (sgen/vector (sgen/char-alpha) 3 4))
                   (sgen/fmap into-str
                              (sgen/vector (sgen/char-alpha) 3 16))))))
-                  
+
 
 (s/def ::uuid
   (s/with-gen
