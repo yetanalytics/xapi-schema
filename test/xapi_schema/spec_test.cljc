@@ -13,7 +13,7 @@
   (is (= long-statement (s/unform ::xs/statement (s/conform ::xs/statement long-statement)))))
 
 (deftest conform-ns-map-test
-  (is  (= (name (xs/conform-ns-map "foo/bar" [])) 
+  (is  (= (name (xs/conform-ns-map "foo/bar" []))
           "invalid")))
 
 (deftest language-tag-test
@@ -81,7 +81,7 @@
                      :bad
                      "09-10-2014T14:12:00+500"
                      "2014-09-12T03:47:40"))) ;; no time zone
-                     
+
 
 (deftest duration-test
   (testing "is a valid ISO 8601 Duration"
@@ -93,7 +93,7 @@
                      "P"
                      "PT"
                      "P3Y6M4DT12H30.1M5S"))) ;; bad fractional
-                     
+
 
 (deftest version-test
   (testing "is a valid xAPI 1.0.X version"
@@ -299,7 +299,12 @@
                       "min" 99
                       "max" 1}))
   (testing "can be empty"
-    (should-satisfy :result/score {})))
+    (should-satisfy :result/score {}))
+  (testing "can be conformed/unformed, per https://github.com/yetanalytics/xapi-schema/issues/61"
+    (is (= {"scaled" 0.5}
+           (->> {"scaled" 0.5}
+                (s/conform :result/score)
+                (s/unform :result/score))))))
 
 (deftest result-test
   (testing "can be empty"
