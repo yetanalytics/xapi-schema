@@ -1,6 +1,6 @@
 (ns xapi-schema.spec.regex-test
   (:require
-   [clojure.test :refer [deftest is testing] :include-macros true]
+   [clojure.test :refer [deftest is testing run-tests] :include-macros true]
    [xapi-schema.spec.regex :refer [LanguageTagRegEx
                                    AbsoluteIRIRegEx
                                    RelativeIRLRegEx
@@ -44,7 +44,15 @@
     (is (re-matches AbsoluteIRIRegEx "https://foo-baz.app.com/xapi#foo:bar")))
   (testing "matches IRIs with URL encodings"
     (is (re-matches AbsoluteIRIRegEx "http://cenariovr.com/174/Sharks!/sharks-Type%20of%20Shark"))
-    (is (re-matches AbsoluteIRIRegEx "http://cenar%20iovr.com/1%2074/S%20harks!/shark%20s-Type%20of%20Shark"))))
+    (is (re-matches AbsoluteIRIRegEx "http://cenar%20iovr.com/1%2074/S%20harks!/shark%20s-Type%20of%20Shark")))
+  (testing "matches IRIs with more examples"
+    (is (re-matches AbsoluteIRIRegEx "https://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top"))
+    (is (re-matches AbsoluteIRIRegEx "ldap://[2001:db8::7]/c=GB?objectClass?one"))
+    (is (re-matches AbsoluteIRIRegEx "maitlo:JohnDoe@example.com"))
+    (is (re-matches AbsoluteIRIRegEx "news:comp.infosystems.www.servers.unix"))
+    (is (re-matches AbsoluteIRIRegEx "tel:+1-816-555-1212"))
+    (is (re-matches AbsoluteIRIRegEx "telnet://192.0.2.16:80/"))
+    (is (re-matches AbsoluteIRIRegEx "urn:oasis:names:specification:docbook:dtd:xml:4.1.2"))))
 
 (deftest relative-irl-regex-test
   (testing "matches valid relative IRLs"
@@ -65,6 +73,19 @@
     (is (not (re-matches MailToIRIRegEx "milt@yetanalytics.com")))
     (is (not (re-matches MailToIRIRegEx "mi%lt@yetanalytics.com")))
     (is (re-matches MailToIRIRegEx "mailto:mi%0Alt@yetanalytics.com"))))
+
+(deftest iri-internationalization-test
+  (testing "matches IRIs with non-ASCII Unicode characters"
+    (is (re-matches AbsoluteIRIRegEx "https://en.wiktionary.org/wiki/Ῥόδος"))
+    (is (re-matches AbsoluteIRIRegEx "https://zh.wikipedia.org/wiki/统一资源标识符"))
+    (is (re-matches AbsoluteIRIRegEx "https://ko.wikipedia.org/wiki/통합_자원_식별자"))
+    (is (re-matches AbsoluteIRIRegEx "https://ru.wikipedia.org/wiki/Java_(программная_платформа)"))
+    (is (re-matches AbsoluteIRIRegEx "https://vi.wikipedia.org/wiki/Tiếng_Việt"))
+    (is (re-matches AbsoluteIRIRegEx "https://ar.wikipedia.org/wiki/اللغة_العربية"))
+    (is (re-matches AbsoluteIRIRegEx "http://例子.卷筒纸")))
+  (testing "matches relative IRLs with non-ASCII characters"
+    (is (re-matches RelativeIRLRegEx "/wiki/统一资源标识符"))
+    (is (re-matches RelativeIRLRegEx "/你好/世界"))))
 
 (deftest uuid-regex-test
   (testing "matches valid 4.0 UUIDs"
@@ -108,3 +129,5 @@
   (testing "matches SHA-1 hashes"
     (is (re-matches Sha1RegEx "ebd31e95054c018b10727ccffd2ef2ec3a016ee9"))
     (is (not (re-matches Sha1RegEx "1234")))))
+
+(run-tests)
