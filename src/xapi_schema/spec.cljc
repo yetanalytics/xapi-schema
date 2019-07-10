@@ -101,24 +101,16 @@
 
 ;; Leaves
 
-(s/def ::maybe-string
-  ;; allow empty or nil strings
-  (s/with-gen
-    (s/nilable string?)
-    #(sgen/string-alphanumeric)))
-
 (s/def ::language-tag
   (s/with-gen
-    (s/and ::maybe-string
+    (s/and ::string-not-empty
            ;; ^ empty or nil strings
-           (partial (fn [regex s] (if (empty? s) true (re-matches regex s)))
-                    ;; If string is not empty, then make sure it matches the regex
-                    LanguageTagRegEx))
-    #(sgen/elements ["en" "en-US" "en-GB" "fr" ""])))
+           (partial re-matches LanguageTagRegEx))
+    #(sgen/elements ["en" "en-US" "en-GB" "fr"])))
 
 (s/def ::language-map-text
   (s/with-gen
-    ::maybe-string
+    string?
     ;; ^ empty or nil strings
     #(s/gen ::maybe-string)))
 
