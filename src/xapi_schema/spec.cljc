@@ -103,20 +103,22 @@
 
 (s/def ::language-tag
   (s/with-gen
-    (s/and ::string-not-empty
-           (partial re-matches LanguageTagRegEx))
+    (s/or :non-empty (s/and ::string-not-empty (partial re-matches LanguageTagRegEx))
+          :empty empty?
+          :missing nil?) ;; allow empty objects
     #(sgen/elements ["en" "en-US" "en-GB" "fr"])))
 
 (s/def ::language-map-text
-  (s/with-gen string? ;; allow empty strings
+  (s/with-gen (s/or :non-empty ::string-not-empty
+                    :missing nil?
+                    :empty empty?) ;; allow empty strings and empty objects
     #(s/gen ::string-not-empty)))
 
 (s/def ::language-map
   (s/map-of ::language-tag
             ::language-map-text
-            :gen-max 3
-            :min-count 1))
-
+            ;; :min-count 1 allow empty objects
+            :gen-max 3))
 
 (defn into-str [cs]
   (cstr/lower-case (apply str cs)))

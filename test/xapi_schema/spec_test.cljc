@@ -38,6 +38,16 @@
     (should-satisfy+ ::xs/language-map
                      {"en-US" "foo"}
                      :bad
+                     {"hey there" "foo"})
+    ;; allow empty strings
+    (should-satisfy+ ::xs/language-map
+                     {"" ""}
+                     :bad
+                     {"hey there" "foo"})
+    ;; allow empty objects
+    (should-satisfy+ ::xs/language-map
+                     {}
+                     :bad
                      {"hey there" "foo"})))
 
 (deftest iri-test
