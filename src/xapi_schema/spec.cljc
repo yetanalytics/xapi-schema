@@ -104,14 +104,13 @@
 (s/def ::language-tag
   (s/with-gen
     (s/and ::string-not-empty
-           ;; ^ empty or nil strings
            (partial re-matches LanguageTagRegEx))
     #(sgen/elements ["en" "en-US" "en-GB" "fr"])))
 
 (s/def ::language-map-text
   (s/with-gen
     string?
-    ;; ^ empty or nil strings
+    ;; ^ empty strings
     #(s/gen ::maybe-string)))
 
 (s/def ::language-map
