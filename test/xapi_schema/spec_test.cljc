@@ -31,6 +31,31 @@
     (should-satisfy+ ::xs/language-tag
                      "en-US"
                      :bad
+                     "not a tag!")
+    ;; allow empty strings but not empty vectors
+    (should-satisfy+ ::xs/language-tag
+                     ""
+                     :bad
+                     [])
+    ;; allow empty strings but not empty lists
+    (should-satisfy+ ::xs/language-tag
+                     ""
+                     :bad
+                     '())
+    ;; allow empty strings but not empty maps
+    (should-satisfy+ ::xs/language-tag
+                     ""
+                     :bad
+                     {})
+    ;; allow empty strings but not empty sets
+    (should-satisfy+ ::xs/language-tag
+                     ""
+                     :bad
+                     #{})
+    ;; allow nil tags
+    (should-satisfy+ ::xs/language-tag
+                     nil
+                     :bad
                      "not a tag!")))
 
 (deftest language-map-test
