@@ -32,31 +32,11 @@
                      "en-US"
                      :bad
                      "not a tag!")
-    ;; allow empty strings but not empty vectors
+    ;; empty strings not allowed
     (should-satisfy+ ::xs/language-tag
-                     ""
+                     "en-US"
                      :bad
-                     [])
-    ;; allow empty strings but not empty lists
-    (should-satisfy+ ::xs/language-tag
-                     ""
-                     :bad
-                     '())
-    ;; allow empty strings but not empty maps
-    (should-satisfy+ ::xs/language-tag
-                     ""
-                     :bad
-                     {})
-    ;; allow empty strings but not empty sets
-    (should-satisfy+ ::xs/language-tag
-                     ""
-                     :bad
-                     #{})
-    ;; allow nil tags
-    (should-satisfy+ ::xs/language-tag
-                     nil
-                     :bad
-                     "not a tag!")))
+                     "")))
 
 (deftest language-map-test
   (testing "has LanguageTags for keys"
@@ -64,16 +44,16 @@
                      {"en-US" "foo"}
                      :bad
                      {"hey there" "foo"})
-    ;; allow empty strings
+    ;; allow empty val strings
     (should-satisfy+ ::xs/language-map
-                     {"" ""}
+                     {"en-US" ""}
                      :bad
                      {"hey there" "foo"})
     ;; allow empty objects
     (should-satisfy+ ::xs/language-map
                      {}
                      :bad
-                     {"hey there" "foo"})))
+                     {"" "baz"})))
 
 (deftest iri-test
   (testing "must be a valid url with scheme"
