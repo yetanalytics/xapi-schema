@@ -111,7 +111,7 @@
   (s/with-gen
     string?
     ;; ^ empty strings
-    #(s/gen ::maybe-string)))
+    #(s/gen ::string-not-empty)))
 
 (s/def ::language-map
   (s/map-of ::language-tag
