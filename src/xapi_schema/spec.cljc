@@ -190,8 +190,7 @@
                string?
                :number
                (s/or :double
-                     (s/double-in :infinite? false :NaN? false
-                                  :max 1000.0 :min -1000.0)
+                     (s/double-in :infinite? false :NaN? false)
                      :int
                      int?)
                :boolean
