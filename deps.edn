@@ -12,4 +12,4 @@
     com.walmartlabs/lacinia
     {:mvn/version "0.25.0"
      :exclusions [org.clojure/clojure
-                  clojure-future-spec]}}}}}
+                  clojure-future-spec/clojure-future-spec]}}}}}
