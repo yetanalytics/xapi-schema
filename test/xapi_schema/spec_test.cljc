@@ -80,8 +80,10 @@
   (testing "is a valid v4 UUID"
     (should-satisfy+ ::xs/uuid
                      "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                     "12345678-1234-1234-1234-123456789012"
                      :bad
-                     "12345678-1234-1234-1234-123456789012")))
+                     ;; 6 is not a valid version number
+                     "12345678-1234-6234-1234-123456789012")))
 
 (deftest timestamp-test
   (testing "is a valid ISO 8601 DateTime"
