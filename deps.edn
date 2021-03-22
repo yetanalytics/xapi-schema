@@ -7,7 +7,7 @@
  {:dev
   {:extra-paths ["test" "dev" "dev-resources"]
    :extra-deps
-   {cider/piggieback {:mvn/version "0.3.8"}
+   {cider/piggieback {:mvn/version "0.5.2"}
     org.clojure/test.check {:mvn/version "0.10.0-alpha2"}
     com.walmartlabs/lacinia
     {:mvn/version "0.25.0"
