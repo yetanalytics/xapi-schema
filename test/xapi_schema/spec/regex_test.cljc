@@ -103,6 +103,7 @@
   (testing "matches ISO durations"
     (is (re-matches DurationRegEx "P3Y6M4DT12H30M5S"))
     (is (re-matches DurationRegEx "P23DT122.34S"))
+    (is (re-matches DurationRegEx "PT3H25.51S"))
     (is (not (re-matches DurationRegEx "PT")))
     (is (not (re-matches DurationRegEx "P10.3DT1.7S")))))
 
