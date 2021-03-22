@@ -55,7 +55,7 @@
         ;; Time
         hour "(?:[01][0-9]|2[0-3])"
         min  "(?:[0-5]\\d)"
-        sec  "(?:[0-5]\\d|60])" ; leap seconds
+        sec  "(?:[0-5]\\d|60)" ; leap seconds
         sec-frac "(?:\\.\\d+)"
         ;; Time
         time (str "(?:" hour ":" min ":" sec sec-frac "?" ")")
