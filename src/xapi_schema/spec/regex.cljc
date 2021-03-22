@@ -1,7 +1,7 @@
 (ns xapi-schema.spec.regex)
 
 (def LanguageTagRegEx ; RFC 5646
-  (let [;; Language
+  (let [;; Language (note - tag semantics are ignored)
         l1   "(?:[A-Za-z]{2,3}(?:-(?:[A-Za-z]{3}(?:-[A-Za-z]{3}){0,2}))?)"
         l2   "[A-Za-z]{4}"
         l3   "[A-Za-z]{5,8}"

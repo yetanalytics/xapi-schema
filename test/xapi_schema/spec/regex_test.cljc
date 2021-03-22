@@ -15,8 +15,17 @@
 
 (deftest language-tag-regex-test
   (testing "matches valid Language Tags"
-    (is (re-matches LanguageTagRegEx "en-US"))
-    (is (not (re-matches LanguageTagRegEx "not a language tag")))))
+    (is (re-matches LanguageTagRegEx "en"))
+    (is (re-matches LanguageTagRegEx "arb"))
+    (is (re-matches LanguageTagRegEx "en-US"))   ; lang + region
+    (is (re-matches LanguageTagRegEx "zh-yue"))  ; lang + extlang
+    (is (re-matches LanguageTagRegEx "uz-Arab")) ; lang + script
+    (is (re-matches LanguageTagRegEx "zh-Latn-CN-pinyin"))  ; lang + script + region + variant
+    (is (re-matches LanguageTagRegEx "de-DE-u-co-phonebk")) ; lang + region + extension
+    (is (re-matches LanguageTagRegEx "en-US-x-twain"))      ; lang + region + private
+    (is (not (re-matches LanguageTagRegEx "not a language tag")))
+    (is (not (re-matches LanguageTagRegEx "en-")))
+    (is (not (re-matches LanguageTagRegEx "americanenglish")))))
 
 (deftest open-id-regex-test
   (testing "matches valid URIs"
