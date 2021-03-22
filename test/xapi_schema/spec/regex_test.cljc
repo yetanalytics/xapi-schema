@@ -64,7 +64,8 @@
     (is (not (re-matches MailToIRIRegEx "http://foo.com")))
     (is (not (re-matches MailToIRIRegEx "milt@yetanalytics.com")))
     (is (not (re-matches MailToIRIRegEx "mi%lt@yetanalytics.com")))
-    (is (re-matches MailToIRIRegEx "mailto:mi%0Alt@yetanalytics.com"))))
+    (is (re-matches MailToIRIRegEx "mailto:mi%0Alt@yetanalytics.com"))
+    (is (re-matches MailToIRIRegEx "mailto:foo-baz.@some-domain.com"))))
 
 (deftest uuid-regex-test
   (testing "matches valid 4.0 UUIDs"
