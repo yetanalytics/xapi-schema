@@ -86,6 +86,7 @@
     (is (re-matches TimestampRegEx "2015-05-13T15:16:00.304Z"))
     (is (re-matches TimestampRegEx "2015-05-13T15:16:00-20:00"))
     (is (re-matches TimestampRegEx "2016-11-22T16:50:25.3868080Z"))
+    (is (re-matches TimestampRegEx "0003-06-04T12:30:05Z")) ; Duration example
     (is (not (re-matches TimestampRegEx "5-13-2015")))
     (is (not (re-matches TimestampRegEx "20150513T15Z")))
     (is (not (re-matches TimestampRegEx "20150513T15:16:00Z")))
@@ -96,20 +97,28 @@
   (testing "matches xAPI 1.0.X versions"
     (is (and (re-matches xAPIVersionRegEx "1.0.0")
              (re-matches xAPIVersionRegEx "1.0.2")
-             (re-matches xAPIVersionRegEx "1.0")))
+             (re-matches xAPIVersionRegEx "1.0")
+             (re-matches xAPIVersionRegEx "1.0.32-abc.def+ghi.jkl")))
     (is (not (re-matches xAPIVersionRegEx "0.9.5")))))
 
 (deftest duration-regex-test
   (testing "matches ISO durations"
     (is (re-matches DurationRegEx "P3Y6M4DT12H30M5S"))
     (is (re-matches DurationRegEx "P23DT122.34S"))
+    (is (re-matches DurationRegEx "PT3H0M25.51S"))
     (is (re-matches DurationRegEx "PT3H25.51S"))
+    (is (re-matches DurationRegEx "P0003-06-04T12:30:05")) ; Wikipedia example
     (is (not (re-matches DurationRegEx "PT")))
     (is (not (re-matches DurationRegEx "P10.3DT1.7S")))))
 
 (deftest base64-regex-test
   (testing "matches Base64 encoded stuff"
-    (is (re-matches Base64RegEx "495395e777cd98da653df9615d09c0fd6bb2f8d4788394cd53c56a3bfdcd848a"))
+    (is (re-matches
+         Base64RegEx
+         "495395e777cd98da653df9615d09c0fd6bb2f8d4788394cd53c56a3bfdcd848a"))
+    (is (re-matches Base64RegEx "1234abcd"))
+    (is (re-matches Base64RegEx "1234abc="))
+    (is (re-matches Base64RegEx "1234ab=="))
     (is (not (re-matches Base64RegEx "12345")))))
 
 (deftest sha1-regex-test
