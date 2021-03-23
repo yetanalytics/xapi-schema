@@ -60,11 +60,15 @@
   (testing "matches IRIs with Unicode characters"
     (is (re-matches AbsoluteIRIRegEx "https://en.wiktionary.org/wiki/Ῥόδος"))
     (is (re-matches AbsoluteIRIRegEx "https://www.你好世界.cn"))
-    (is (re-matches AbsoluteIRIRegEx "https://www.example.kr#안녕하세요"))))
+    (is (re-matches AbsoluteIRIRegEx "https://www.example.kr#안녕하세요")))
+  (testing "matches IRIs with absolute and rootless paths"
+    (is (re-matches AbsoluteIRIRegEx "https:/foo/bar"))
+    (is (re-matches AbsoluteIRIRegEx "urn:example:animal:ferret:nose"))))
 
 (deftest relative-irl-regex-test
   (testing "matches valid relative IRLs"
     (is (re-matches RelativeIRLRegEx "/"))
+    (is (re-matches RelativeIRLRegEx "/xapi"))
     (is (not (re-matches RelativeIRLRegEx "https://foo.com")))
     (is (not (re-matches RelativeIRLRegEx "www.foo.com"))))
   (testing "matches relative IRLs with fragments"
@@ -74,13 +78,17 @@
     (is (re-matches RelativeIRLRegEx "/xapi/def/emb/qux*ROOT"))
     (is (re-matches RelativeIRLRegEx "/xapi#foo:bar")))
   (testing "matches relative IRLs with Unicode characters"
-    (is (re-matches RelativeIRLRegEx "/wiki/Ῥόδος"))))
+    (is (re-matches RelativeIRLRegEx "/wiki/Ῥόδος")))
+  (testing "does not match network path and no-scheme relative IRLs"
+    (is (not (re-matches RelativeIRLRegEx "./this:that")))
+    (is (not (re-matches RelativeIRLRegEx "foo")))
+    (is (not (re-matches RelativeIRLRegEx "//foo.com/bar")))))
 
 (deftest absolute-uri-regex-test
   (testing "matches valid absolute URIs"
     (is (re-matches AbsoluteURIRegEx "http://foo.com"))
     (is (re-matches AbsoluteURIRegEx "http://cenariovr.com/174/Sharks!/sharks-Type%20of%20Shark"))
-    (is (not (re-matches AbsoluteIRIRegEx "https://en.wiktionary.org/wiki/Ῥόδος")))))
+    (is (not (re-matches AbsoluteURIRegEx "https://en.wiktionary.org/wiki/Ῥόδος")))))
 
 (deftest absolute-url-regex-test
   (testing "matches valid relative URLs"

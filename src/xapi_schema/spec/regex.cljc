@@ -24,7 +24,7 @@
                  ")$")]
     (re-pattern tag)))
 
-(defn- create-iri-regex ; RFC 3897 (with certain limitations)
+(defn- create-iri-regex ; Based on RFC 3897, with differences noted below
   [valid-schemes relative? unicode?]
   (let [;; Atoms
         ;; Note: RFC 3987 also specifies Unicode chars U+10000 to U+EFFFD, but
@@ -54,31 +54,20 @@
                  (str "(?:" (join "|" valid-schemes) ")"))
         query  (str "(?:\\?(?:" path-char "|" fs "|" "\\?" ")*)")
         frag   (str "(?:#(?:" path-char "|" fs "|" "\\?" ")*)")
-        ;; Relative URIs
-        relative-part (str "(?:" ; exclude noscheme and empty paths
-                           fs fs authority path-abempty "|"
-                           path-absolute
-                           ")")
-        relative-ref  (str "^(?:"
-                           relative-part
-                           query "?"
-                           frag "?"
-                           ")$")
-        ;; Absolute URIs
-        hierarchy-part (str "(?:" ; exclude empty paths
-                            fs fs authority path-abempty "|"
-                            path-absolute "|"
-                            path-rootless
-                            ")")
-        absolute-uri   (str "^(?:"
-                            scheme ":"
-                            hierarchy-part
-                            query "?"
-                            frag "?"
-                            ")$")]
+        ;; Relative IRIs/URIs
+        ;; Note: exclude non-absolute paths (ie. all paths must start with "/")
+        relative (str "^(?:" path-absolute query "?" frag "?" ")$")
+        ;; Absolute IRIs/URIs
+        ;; Note: exclude empty paths
+        abs-path (str "(?:"
+                      fs fs authority path-abempty "|"
+                      path-absolute "|"
+                      path-rootless
+                      ")")
+        absolute (str "^(?:" scheme ":" abs-path query "?" frag "?" ")$")]
     (if relative?
-      (re-pattern relative-ref)
-      (re-pattern absolute-uri))))
+      (re-pattern relative)
+      (re-pattern absolute))))
 
 (def OpenIdRegEx
   (create-iri-regex ["http" "https"] false false))
