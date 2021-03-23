@@ -4,6 +4,8 @@
    [xapi-schema.spec.regex :refer [LanguageTagRegEx
                                    AbsoluteIRIRegEx
                                    RelativeIRLRegEx
+                                   AbsoluteURIRegEx
+                                   RelativeURLRegEx
                                    MailToIRIRegEx
                                    UuidRegEx
                                    TimestampRegEx
@@ -70,7 +72,21 @@
     (is (re-matches RelativeIRLRegEx "/xapi/foo/#bar?my_jimmies=rustled"))
     (is (re-matches RelativeIRLRegEx "/#foo"))
     (is (re-matches RelativeIRLRegEx "/xapi/def/emb/qux*ROOT"))
-    (is (re-matches RelativeIRLRegEx "/xapi#foo:bar"))))
+    (is (re-matches RelativeIRLRegEx "/xapi#foo:bar")))
+  (testing "matches relative IRLs with Unicode characters"
+    (is (re-matches RelativeIRLRegEx "/wiki/Ῥόδος"))))
+
+(deftest absolute-uri-regex-test
+  (testing "matches valid absolute URIs"
+    (is (re-matches AbsoluteURIRegEx "http://foo.com"))
+    (is (re-matches AbsoluteURIRegEx "http://cenariovr.com/174/Sharks!/sharks-Type%20of%20Shark"))
+    (is (not (re-matches AbsoluteIRIRegEx "https://en.wiktionary.org/wiki/Ῥόδος")))))
+
+(deftest absolute-url-regex-test
+  (testing "matches valid relative URLs"
+    (is (re-matches RelativeURLRegEx "/"))
+    (is (re-matches RelativeURLRegEx "/#foo"))
+    (is (not (re-matches RelativeURLRegEx "/wiki/Ῥόδος")))))
 
 (deftest mailto-iri-regex-test
   (testing "matches valid mailto IRIs"

@@ -89,6 +89,12 @@
 (def RelativeIRLRegEx
   (create-iri-regex nil true true))
 
+(def AbsoluteURIRegEx
+  (create-iri-regex nil false false))
+
+(def RelativeURLRegEx
+  (create-iri-regex nil true false))
+
 (def MailToIRIRegEx
   (let [username "(?:[a-zA-Z0-9!#$&'*+/=/.?^_`{|}~-]|%[0-9a-fA-F]{2})+"
         domain   "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9]+"]
@@ -101,7 +107,7 @@
                    "[0-9A-Fa-f]{4}-"
                    "[0-9A-Fa-f]{12}")))
 
-(def base-timestamp
+(defn- base-timestamp []
   (let [;; Date
         year  "(?:\\d{4})"
         month "(?:0[1-9]|1[0-2])"
@@ -124,7 +130,7 @@
         lookahead   "(?!-00:00)"
         num-offset  (str "(?:[+-]" hour ":" min ")")
         time-offset (str "(?:Z|" lookahead num-offset ")")]
-    (re-pattern (str "^" base-timestamp time-offset "$"))))
+    (re-pattern (str "^" (base-timestamp) time-offset "$"))))
 
 (def DurationRegEx ; ISO 8601 Durations
   (let [dy "(?:\\d+Y|\\d+\\.\\d+Y$)"
@@ -139,7 +145,7 @@
         duration (str "(?:" dur-date "(?:T" dur-time ")?" ")" "|"
                       "(?:T" dur-time ")" "|"
                       dur-week)]
-    (re-pattern (str "^P(?:" duration ")|P(?:" base-timestamp ")$"))))
+    (re-pattern (str "^P(?:" duration ")|P(?:" (base-timestamp) ")$"))))
 
 ;; Based on http://www.regexr.com/39s32
 (def xAPIVersionRegEx
