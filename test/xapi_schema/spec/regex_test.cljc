@@ -32,7 +32,8 @@
     (is (re-matches OpenIdRegEx "http://www.foo.com"))
     (is (not (re-matches OpenIdRegEx "www.foo.com")))
     (is (not (re-matches OpenIdRegEx "foo.com")))
-    (is (not (re-matches OpenIdRegEx "hey dude wat"))))
+    (is (not (re-matches OpenIdRegEx "hey dude wat")))
+    (is (not (re-matches OpenIdRegEx "custom://www.foo.com"))))
   (testing "matches URIs with fragments"
     (is (re-matches OpenIdRegEx "http://example.com/xapi/verbs#sent-a-statement"))))
 
@@ -53,7 +54,11 @@
     (is (re-matches AbsoluteIRIRegEx "https://foo-baz.app.com/xapi#foo:bar")))
   (testing "matches IRIs with URL encodings"
     (is (re-matches AbsoluteIRIRegEx "http://cenariovr.com/174/Sharks!/sharks-Type%20of%20Shark"))
-    (is (re-matches AbsoluteIRIRegEx "http://cenar%20iovr.com/1%2074/S%20harks!/shark%20s-Type%20of%20Shark"))))
+    (is (re-matches AbsoluteIRIRegEx "http://cenar%20iovr.com/1%2074/S%20harks!/shark%20s-Type%20of%20Shark")))
+  (testing "matches IRIs with Unicode characters"
+    (is (re-matches AbsoluteIRIRegEx "https://en.wiktionary.org/wiki/Ῥόδος"))
+    (is (re-matches AbsoluteIRIRegEx "https://www.你好世界.cn"))
+    (is (re-matches AbsoluteIRIRegEx "https://www.example.kr#안녕하세요"))))
 
 (deftest relative-irl-regex-test
   (testing "matches valid relative IRLs"
@@ -128,6 +133,7 @@
     (is (re-matches Base64RegEx "1234abcd"))
     (is (re-matches Base64RegEx "1234abc="))
     (is (re-matches Base64RegEx "1234ab=="))
+    (is (re-matches Base64RegEx "1234////"))
     (is (not (re-matches Base64RegEx "12345")))))
 
 (deftest sha1-regex-test

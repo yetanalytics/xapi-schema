@@ -1,4 +1,5 @@
-(ns xapi-schema.spec.regex)
+(ns xapi-schema.spec.regex
+  (:require [clojure.string :refer [join]]))
 
 (def LanguageTagRegEx ; RFC 5646
   (let [;; Language (note - tag semantics are ignored)
@@ -23,17 +24,70 @@
                  ")$")]
     (re-pattern tag)))
 
+(defn- create-iri-regex ; RFC 3897 (with certain limitations)
+  [valid-schemes relative? unicode?]
+  (let [;; Atoms
+        ;; Note: RFC 3987 also specifies Unicode chars U+10000 to U+EFFFD, but
+        ;; these are historic or obscure characters we'll never encounter.
+        fs #?(:clj "\\/" :cljs "/")
+        unicode-char (str "\\u00A0-\\uD7FF" "\\uF900-\\uFDCF" "\\uFDF0-\\uFFEF")
+        unreserved   (str "[\\w\\-\\.\\_\\~" (when unicode? unicode-char) "]")
+        pct-encoded  "%[0-9A-Fa-f]{2}"
+        sub-delims   "[!$&'()*+,;=]"
+        basic-char   (str unreserved "|" pct-encoded "|" sub-delims)
+        ;; Authority
+        reg-name  (str "(?:" basic-char ")*")
+        user-info (str "(?:" basic-char "|:)*")
+        host      (str reg-name) ; exclude IPv6 and subsume IPv4
+        port      "\\d*"
+        authority (str "(?:" user-info "@)?(?:" host ")(?::" port ")?")
+        ;; Path
+        path-char  (str basic-char "|:|@")
+        segment    (str "(?:" path-char ")*")
+        segment-nz (str "(?:" path-char ")+")
+        path-abempty  (str "(?:" fs segment ")*")
+        path-absolute (str "(?:" fs "(?:" segment-nz "(?:" fs segment ")*)?)")
+        path-rootless (str "(?:" segment-nz "(?:" fs segment ")*)")
+        ;; Misc
+        scheme (if-not valid-schemes
+                 "[A-Za-z][0-9A-Za-z\\+\\-\\.]*"
+                 (str "(?:" (join "|" valid-schemes) ")"))
+        query  (str "(?:\\?(?:" path-char "|" fs "|" "\\?" ")*)")
+        frag   (str "(?:#(?:" path-char "|" fs "|" "\\?" ")*)")
+        ;; Relative URIs
+        relative-part (str "(?:" ; exclude noscheme and empty paths
+                           fs fs authority path-abempty "|"
+                           path-absolute
+                           ")")
+        relative-ref  (str "^(?:"
+                           relative-part
+                           query "?"
+                           frag "?"
+                           ")$")
+        ;; Absolute URIs
+        hierarchy-part (str "(?:" ; exclude empty paths
+                            fs fs authority path-abempty "|"
+                            path-absolute "|"
+                            path-rootless
+                            ")")
+        absolute-uri   (str "^(?:"
+                            scheme ":"
+                            hierarchy-part
+                            query "?"
+                            frag "?"
+                            ")$")]
+    (if relative?
+      (re-pattern relative-ref)
+      (re-pattern absolute-uri))))
+
 (def OpenIdRegEx
-  #?(:clj #"^((((http|https):(?:\/{1,2})?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-\[\]\:\+]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w\-]*))?)$"
-     :cljs #"^((((http|https):(?:/{1,2})?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-\[\]\:\+]+)((?:/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w\-]*))?)$"))
+  (create-iri-regex ["http" "https"] false false))
 
 (def AbsoluteIRIRegEx
-  #?(:clj #"^((([A-Za-z\+\-\.]+:(?:\/{1,2})?)(?:[\-;\*\(\)!\':&=\+\$,%\w]+@)?[A-Za-z0-9\.\-\_\[\]\:\+%]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\*\.\w_]*)#?(?:[\:\$\&\'\(\)+,;\.\!%\*\/\\\w\-\?=]*))?)$"
-     :cljs #"^((([A-Za-z\+\-\.]+:(?:/{1,2})?)(?:[\-;\*\(\)!\':&=\+\$,%\w]+@)?[A-Za-z0-9\.\-\_\[\]\:\+%]+)((?:/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\*\.\w_]*)#?(?:[\:\$\&\'\(\)+,;\.\!%\*\/\\\w\-\?=]*))?)$"))
+  (create-iri-regex nil false true))
 
 (def RelativeIRLRegEx
-  #?(:clj  #"^(((?:\/[\+~%\/\.\w\-_]*)\??(?:[\-\+=&;%@\*\.\w_]*)#?(?:[\:\$\&\'\(\)+,;\.\!\*\/\\\w\-\?=]*))?)$"
-     :cljs #"^(((?:/[\+~%\/\.\w\-_]*)\??(?:[\-\+=&;%@\*\.\w_]*)#?(?:[\:\$\&\'\(\)+,;\.\!\*\/\\\w\-\?=]*))?)$"))
+  (create-iri-regex nil true true))
 
 (def MailToIRIRegEx
   (let [username "(?:[a-zA-Z0-9!#$&'*+/=/.?^_`{|}~-]|%[0-9a-fA-F]{2})+"
@@ -72,13 +126,6 @@
         time-offset (str "(?:Z|" lookahead num-offset ")")]
     (re-pattern (str "^" base-timestamp time-offset "$"))))
 
-;; Based on http://www.regexr.com/39s32
-(def xAPIVersionRegEx
-  (let [suf-part "[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*"
-        suffix   (str "(\\.[0-9]+(?:-" suf-part ")?(?:\\+" suf-part ")?)?")
-        ver-str  (str "^1\\.0" suffix "$")]
-    (re-pattern ver-str)))
-
 (def DurationRegEx ; ISO 8601 Durations
   (let [dy "(?:\\d+Y|\\d+\\.\\d+Y$)"
         dm "(?:\\d+M|\\d+\\.\\d+M$)"
@@ -94,12 +141,20 @@
                       dur-week)]
     (re-pattern (str "^P(?:" duration ")|P(?:" base-timestamp ")$"))))
 
+;; Based on http://www.regexr.com/39s32
+(def xAPIVersionRegEx
+  (let [suf-part "[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*"
+        suffix   (str "(\\.[0-9]+(?:-" suf-part ")?(?:\\+" suf-part ")?)?")
+        ver-str  (str "^1\\.0" suffix "$")]
+    (re-pattern ver-str)))
+
 (def Base64RegEx
-  (let [body   "(?:[A-Za-z0-9\\+\\/]{4})*"
+  (let [fs     #?(:clj "\\/" :cljs "/")
+        body   (str "(?:[A-Za-z0-9\\+" fs "]{4})*")
         suffix (str "(?:"
-                    "[A-Za-z0-9\\+\\/]{2}==|"
-                    "[A-Za-z0-9\\+\\/]{3}=|"
-                    "[A-Za-z0-9\\+\\/]{4}"
+                    "[A-Za-z0-9\\+" fs "]{2}==|"
+                    "[A-Za-z0-9\\+" fs "]{3}=|"
+                    "[A-Za-z0-9\\+" fs "]{4}"
                     ")")]
     (re-pattern (str "^" body suffix "$"))))
 
