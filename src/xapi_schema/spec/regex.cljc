@@ -2,23 +2,29 @@
   (:require [clojure.string :refer [join]]))
 
 (def LanguageTagRegEx ; RFC 5646
-  (let [;; Language (note - tag semantics are ignored)
-        l1   "(?:[A-Za-z]{2,3}(?:-(?:[A-Za-z]{3}(?:-[A-Za-z]{3}){0,2}))?)"
-        l2   "[A-Za-z]{4}"
-        l3   "[A-Za-z]{5,8}"
-        lang (str "(?:" l1 "|" l2 "|" l3 ")")
-        ;; Suffixes
+  (let [;; Language Tags (exclude tags longer than 3 chars)
+        lang-ext "(?:(?:ar-|kok-|ms-|sw-|uz-|zh-|sng-)[A-Za-z]{3})"
+        lang-reg "(?:[A-Za-z]{2,3})"
+        lang-tag (str "(?:"lang-ext "|" lang-reg ")")
+        ;; Subtags
         script  "(?:-[A-Za-z]{4})?"
-        region  "(?:-(?:[A-Za-z]{2}|[0-9]{3}))?"
+        region  "(?:-(?:[A-Za-z]{2}|\\d{3}))?"
         variant "(?:-(?:[A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*"
-        ext     "(?:-(?:[0-9A-WY-Za-wy-z](?:-[A-Za-z0-9]{2,8})+))*"
-        private "(?:-(?:x(?:-[A-Za-z0-9]{1,8})+))?"
+        ext     "(?:-[A-WY-Za-wy-z0-9](?:-[A-Za-z0-9]{2,8})+)*"
+        private "(?:-x(?:-[A-Za-z0-9]{1,8})+)?"
         ;; Grandfathered tags
-        grand-irreg "(?:en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE)"
-        grand-reg   "(?:art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|zh-min|zh-min-nan|zh-xiang)"
+        grand-irreg (str "(?:"
+                         "en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|"
+                         "i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|"
+                         "i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE"
+                         ")") 
+        grand-reg   (str "(?:"
+                         "art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|"
+                         "zh-hakka|zh-min|zh-min-nan|zh-xiang"
+                         ")")
         ;; Tag
         tag (str "^(?:"
-                 "(?:" lang script region variant ext private ")"
+                 "(?:" lang-tag script region variant ext private ")"
                  "|" grand-irreg
                  "|" grand-reg
                  ")$")]
