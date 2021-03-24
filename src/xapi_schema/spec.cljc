@@ -11,14 +11,12 @@
                                    DurationRegEx
                                    Base64RegEx
                                    Sha1RegEx]]
-   [clojure.set :refer [intersection
-                        difference]]
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]
    [clojure.spec.gen.alpha :as sgen :include-macros true]
    [clojure.string :as cstr]
    #?@(:cljs [[goog.string :as gstring]
               [goog.string.format]
-              [goog.crypt :as crypt]
+              [goog.crypt]
               [goog.crypt.base64 :as base64]]))
   #?(:clj (:import [java.util Base64])
      :cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
@@ -32,8 +30,7 @@
 (def double-conformer
   (s/conformer (fn [n]
                  (try (double n)
-                      (catch #?(:clj Exception
-                                :cljs js/Error) e
+                      (catch #?(:clj Exception :cljs js/Error) _
                         ::s/invalid)))
                ;; unform is a no-op, as json doesn't care
                identity))
@@ -49,8 +46,7 @@
                                  :else k) v))
                     {}
                     string-map)
-         (catch #?(:clj Exception
-                   :cljs js/Error) e
+         (catch #?(:clj Exception :cljs js/Error) _
            ::s/invalid))
     ::s/invalid))
 
@@ -61,8 +57,7 @@
                                k) v))
                   {}
                   keyword-map)
-       (catch #?(:clj Exception
-                 :cljs js/Error) e
+       (catch #?(:clj Exception :cljs js/Error) _
          ::s/invalid)))
 
 (defn map-ns-conformer
@@ -114,8 +109,7 @@
 (s/def ::language-map
   (s/map-of ::language-tag
             ::language-map-text
-            :gen-max 3
-            :min-count 1))
+            :gen-max 3))
 
 
 (defn into-str [cs]
@@ -238,21 +232,42 @@
       str
       (sgen/uuid))))
 
+;; Note: currently ignores leap seconds
+(defn- valid-timestamp?
+  [timestamp]
+  (letfn [(parse-int [s] #?(:clj (Integer/parseInt s) :cljs (js/parseInt s)))]
+    (let [[ts year month day _hour _min _sec _sec-frac _offset]
+          (re-matches TimestampRegEx timestamp)
+          month-int (when month (parse-int month))
+          year-int  (when year (parse-int year))
+          day-int   (when day (parse-int day))]
+      (cond
+        (nil? ts) ; fails regex
+        false
+        (= 2 month-int)
+        (if (or (and (= 0 (mod year-int 4)) (not= 0 (mod year-int 100)))
+                (= 0 (mod year-int 400)))
+          (not (>= day-int 30)) ; leap year
+          (not (>= day-int 29)))
+        (#{4 6 9 11} month-int)
+        (not (>= day-int 31))
+        :else
+        true)))) ; day-int is always maxed out at 31
 
 (s/def ::timestamp
   (s/with-gen
-    (s/and string?
-           (partial re-matches TimestampRegEx))
+    (s/and string? valid-timestamp?)
     #(sgen/fmap (fn [[yyyy mm dd h m s ms]]
-                  (#?(:clj format
-                      :cljs gstring/format) "%d-%02d-%02dT%02d:%02d:%02d.%dZ" yyyy mm dd h m s ms))
-               (sgen/tuple (sgen/elements (range 1970 2020))
-                           (sgen/elements (range 1 12))
-                           (sgen/elements (range 1 28))
-                           (sgen/elements (range 0 24))
+                  (#?(:clj format :cljs gstring/format)
+                   "%d-%02d-%02dT%02d:%02d:%02d.%dZ" yyyy mm dd h m s ms))
+               (sgen/tuple (sgen/elements (range 1970 2022))
+                           (sgen/elements (range 1 13))
+                           (sgen/elements (range 1 29))
+                           (sgen/elements (range 0 25))
                            (sgen/elements (range 0 60))
                            (sgen/elements (range 0 60))
-                           (sgen/elements (range 0 999))))))
+                           (sgen/elements (range 0 1000))))))
+
 
 (s/def ::duration
   (s/with-gen
@@ -281,7 +296,7 @@
     #(sgen/fmap
       (fn [^String s]
         #?(:clj (String. (.encode
-                          (java.util.Base64/getEncoder)
+                          (Base64/getEncoder)
                           (.getBytes s)))
            :cljs (base64/encodeString s)))
       (sgen/not-empty (sgen/string-alphanumeric)))))

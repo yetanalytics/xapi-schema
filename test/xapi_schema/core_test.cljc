@@ -6,7 +6,6 @@
                              statements-checker
                              validate-statement
                              validate-statements
-                             validate-statement-data*
                              validate-statement-data
                              #?(:cljs validate-statement-data-js)]]
    #?(:clj [clojure.data.json :as json]

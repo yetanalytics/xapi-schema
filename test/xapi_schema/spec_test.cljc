@@ -20,7 +20,8 @@
                 (s/unform xs/double-conformer))))))
 
 (deftest conform-unform-test
-  (is (= long-statement (s/unform ::xs/statement (s/conform ::xs/statement long-statement)))))
+  (is (= long-statement
+         (s/unform ::xs/statement (s/conform ::xs/statement long-statement)))))
 
 (deftest conform-ns-map-test
   (is  (= (name (xs/conform-ns-map "foo/bar" []))
@@ -37,8 +38,12 @@
   (testing "has LanguageTags for keys"
     (should-satisfy+ ::xs/language-map
                      {"en-US" "foo"}
+                     {"es" "hola mundo"}
+                     {"zh-cmn" "你好世界"}
+                     {} ; Issue #65; need to allow empty lang maps
                      :bad
-                     {"hey there" "foo"})))
+                     {"hey there" "foo"}
+                     {"en" 2})))
 
 (deftest iri-test
   (testing "must be a valid url with scheme"
@@ -80,18 +85,29 @@
   (testing "is a valid v4 UUID"
     (should-satisfy+ ::xs/uuid
                      "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                     "12345678-1234-1234-1234-123456789012"
                      :bad
-                     "12345678-1234-1234-1234-123456789012")))
+                     ;; 6 is not a valid version number
+                     "12345678-1234-6234-1234-123456789012")))
 
 (deftest timestamp-test
   (testing "is a valid ISO 8601 DateTime"
     (should-satisfy+ ::xs/timestamp
                      "2014-09-10T14:12:05Z"
-                     "2015-06-30T23:59:60Z" ;; leap second
+                     "2014-10-31T14:12:05Z" ; october 31
+                     "2015-06-30T23:59:60Z" ; leap second
+                     "2020-02-29T01:01:01Z" ; leap year
+                     "2000-02-29T01:01:01Z" ; 2000 is a leap year
                      :bad
                      "09-10-2014T14:12:00+500"
-                     "2014-09-12T03:47:40"))) ;; no time zone
-
+                     "2014-09-32T14:12:05Z" ; september 32
+                     "2014-09-31T14:12:05Z" ; september 31
+                     "2014-10-32T14:12:05Z" ; october 32
+                     "2014-09-12T03:47:40"  ; no time zone
+                     "2021-02-30T01:01:01Z" ; february 30
+                     "2021-02-29T01:01:01Z" ; february 29, non leap year
+                     "1900-02-29T01:01:01Z" ; 1900 is not a leap year
+                     "2014-09-10T14:12:05.22.33Z")))
 
 (deftest duration-test
   (testing "is a valid ISO 8601 Duration"
