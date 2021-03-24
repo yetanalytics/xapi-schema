@@ -112,7 +112,9 @@
     (is (not (re-matches MailToIRIRegEx "milt@yetanalytics.com")))
     (is (not (re-matches MailToIRIRegEx "mi%lt@yetanalytics.com")))
     (is (re-matches MailToIRIRegEx "mailto:mi%0Alt@yetanalytics.com"))
-    (is (re-matches MailToIRIRegEx "mailto:foo-baz.@some-domain.com"))))
+    (is (re-matches MailToIRIRegEx "mailto:foo-baz.@some-domain.com"))
+    ;; International email addresses are not yet supported
+    (is (not (re-matches MailToIRIRegEx "mailto:你好世界@Ῥόδος.com")))))
 
 (deftest uuid-regex-test
   (testing "matches valid 4.0 UUIDs"

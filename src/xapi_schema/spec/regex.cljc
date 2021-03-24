@@ -38,7 +38,7 @@
         ;; these are historic or obscure characters we'll never encounter.
         fs #?(:clj "\\/" :cljs "/")
         unicode-char (str "\\u00A0-\\uD7FF" "\\uF900-\\uFDCF" "\\uFDF0-\\uFFEF")
-        unreserved   (str "[\\w\\-\\.\\_\\~" (when unicode? unicode-char) "]")
+        unreserved   (str "[\\w\\-\\.\\~" (when unicode? unicode-char) "]")
         pct-encoded  "%[0-9A-Fa-f]{2}"
         sub-delims   "[!$&'()*+,;=]"
         basic-char   (str unreserved "|" pct-encoded "|" sub-delims)
@@ -91,8 +91,9 @@
 (def RelativeURLRegEx
   (create-iri-regex nil true false))
 
+;; Note: does not support Unicode characters despite being called "IRI"
 (def MailToIRIRegEx
-  (let [username "(?:[a-zA-Z0-9!#$&'*+/=/.?^_`{|}~-]|%[0-9a-fA-F]{2})+"
+  (let [username "(?:[\\w!#$&'*+/=/.?^`{|}~-]|%[0-9a-fA-F]{2})+"
         domain   "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9]+"]
     (re-pattern (str "mailto:" username "@" domain))))
 
@@ -109,7 +110,7 @@
         month "(0[1-9]|1[0-2])"
         day   "(0[1-9]|[12]\\d|3[01])" ; ignore month/leap year constraints
         ;; Time
-        hour "([01][0-9]|2[0-3])"
+        hour "([01]\\d|2[0-3])"
         min  "([0-5]\\d)"
         sec  "([0-5]\\d|60)" ; leap seconds
         sec-frac "(\\.\\d+)"
@@ -120,7 +121,7 @@
 
 (def TimestampRegEx ; RFC 3339
   (let [;; Time
-        hour "(?:[01][0-9]|2[0-3])"
+        hour "(?:[01]\\d|2[0-3])"
         min  "(?:[0-5]\\d)"
         ;; Offset
         lookahead   "(?!-00:00)"
