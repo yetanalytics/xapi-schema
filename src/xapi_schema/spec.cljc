@@ -114,8 +114,7 @@
 (s/def ::language-map
   (s/map-of ::language-tag
             ::language-map-text
-            :gen-max 3
-            :min-count 1))
+            :gen-max 3))
 
 
 (defn into-str [cs]
