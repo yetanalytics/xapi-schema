@@ -104,14 +104,14 @@
 
 (defn- base-timestamp []
   (let [;; Date
-        year  "(?:\\d{4})"
-        month "(?:0[1-9]|1[0-2])"
-        day   "(?:0[1-9]|[12]\\d|3[01])" ; ignore month/leap year constraints
+        year  "(\\d{4})"
+        month "(0[1-9]|1[0-2])"
+        day   "(0[1-9]|[12]\\d|3[01])" ; ignore month/leap year constraints
         ;; Time
-        hour "(?:[01][0-9]|2[0-3])"
-        min  "(?:[0-5]\\d)"
-        sec  "(?:[0-5]\\d|60)" ; leap seconds
-        sec-frac "(?:\\.\\d+)"
+        hour "([01][0-9]|2[0-3])"
+        min  "([0-5]\\d)"
+        sec  "([0-5]\\d|60)" ; leap seconds
+        sec-frac "(\\.\\d+)"
         ;; Time
         time (str "(?:" hour ":" min ":" sec sec-frac "?" ")")
         date (str "(?:" year "-" month "-" day ")")]
@@ -124,7 +124,7 @@
         ;; Offset
         lookahead   "(?!-00:00)"
         num-offset  (str "(?:[+-]" hour ":" min ")")
-        time-offset (str "(?:Z|" lookahead num-offset ")")]
+        time-offset (str "(Z|" lookahead num-offset ")")]
     (re-pattern (str "^" (base-timestamp) time-offset "$"))))
 
 (def DurationRegEx ; ISO 8601 Durations

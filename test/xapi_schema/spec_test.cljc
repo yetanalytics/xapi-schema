@@ -20,7 +20,8 @@
                 (s/unform xs/double-conformer))))))
 
 (deftest conform-unform-test
-  (is (= long-statement (s/unform ::xs/statement (s/conform ::xs/statement long-statement)))))
+  (is (= long-statement
+         (s/unform ::xs/statement (s/conform ::xs/statement long-statement)))))
 
 (deftest conform-ns-map-test
   (is  (= (name (xs/conform-ns-map "foo/bar" []))
@@ -89,11 +90,16 @@
   (testing "is a valid ISO 8601 DateTime"
     (should-satisfy+ ::xs/timestamp
                      "2014-09-10T14:12:05Z"
-                     "2015-06-30T23:59:60Z" ;; leap second
+                     "2015-06-30T23:59:60Z" ; leap second
+                     "2020-02-29T01:01:01Z" ; leap year
+                     "2000-02-29T01:01:01Z" ; 2000 is a leap year
                      :bad
                      "09-10-2014T14:12:00+500"
-                     "2014-09-12T03:47:40"))) ;; no time zone
-
+                     "2014-09-12T03:47:40"  ; no time zone
+                     "2021-02-30T01:01:01Z" ; february 30
+                     "2021-02-29T01:01:01Z" ; february 29, non leap year
+                     "1900-02-29T01:01:01Z" ; 1900 is not a leap year
+                     "09-10-2014T14:12:00.22.33")))
 
 (deftest duration-test
   (testing "is a valid ISO 8601 Duration"

@@ -239,20 +239,39 @@
       (sgen/uuid))))
 
 
+;; Currently ignores leap seconds
+(defn- valid-timestamp?
+  [timestamp]
+  (let [[ts year month day _hour _min _sec _sec-frac _offset]
+        (re-matches TimestampRegEx timestamp)]
+    (cond
+      (nil? ts) ; fails regex
+      false
+      (= "02" month)
+      (let [year-int #?(:clj (Integer/parseInt year) :cljs (js/parseInt year))]
+        (if (or (and (= 0 (mod year-int 4)) (not= 0 (mod year-int 100)))
+                (= 0 (mod year-int 400)))
+          (not (#{"30" "31"} day)) ; leap year
+          (not (#{"29" "30" "31"} day))))
+      (#{"04" "06" "09" "11"} month)
+      (not= "31" day)
+      :else
+      true)))
+
 (s/def ::timestamp
   (s/with-gen
-    (s/and string?
-           (partial re-matches TimestampRegEx))
+    (s/and string? valid-timestamp?)
     #(sgen/fmap (fn [[yyyy mm dd h m s ms]]
-                  (#?(:clj format
-                      :cljs gstring/format) "%d-%02d-%02dT%02d:%02d:%02d.%dZ" yyyy mm dd h m s ms))
-               (sgen/tuple (sgen/elements (range 1970 2020))
-                           (sgen/elements (range 1 12))
-                           (sgen/elements (range 1 28))
-                           (sgen/elements (range 0 24))
+                  (#?(:clj format :cljs gstring/format)
+                   "%d-%02d-%02dT%02d:%02d:%02d.%dZ" yyyy mm dd h m s ms))
+               (sgen/tuple (sgen/elements (range 1970 2022))
+                           (sgen/elements (range 1 13))
+                           (sgen/elements (range 1 29))
+                           (sgen/elements (range 0 25))
                            (sgen/elements (range 0 60))
                            (sgen/elements (range 0 60))
-                           (sgen/elements (range 0 999))))))
+                           (sgen/elements (range 0 1000))))))
+
 
 (s/def ::duration
   (s/with-gen
