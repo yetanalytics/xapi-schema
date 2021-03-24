@@ -232,25 +232,27 @@
       str
       (sgen/uuid))))
 
-
-;; Currently ignores leap seconds
+;; Note: currently ignores leap seconds
 (defn- valid-timestamp?
   [timestamp]
-  (let [[ts year month day _hour _min _sec _sec-frac _offset]
-        (re-matches TimestampRegEx timestamp)]
-    (cond
-      (nil? ts) ; fails regex
-      false
-      (= "02" month)
-      (let [year-int #?(:clj (Integer/parseInt year) :cljs (js/parseInt year))]
+  (letfn [(parse-int [s] #?(:clj (Integer/parseInt s) :cljs (js/parseInt s)))]
+    (let [[ts year month day _hour _min _sec _sec-frac _offset]
+          (re-matches TimestampRegEx timestamp)
+          month-int (when month (parse-int month))
+          year-int  (when year (parse-int year))
+          day-int   (when day (parse-int day))]
+      (cond
+        (nil? ts) ; fails regex
+        false
+        (= 2 month-int)
         (if (or (and (= 0 (mod year-int 4)) (not= 0 (mod year-int 100)))
                 (= 0 (mod year-int 400)))
-          (not (#{"30" "31"} day)) ; leap year
-          (not (#{"29" "30" "31"} day))))
-      (#{"04" "06" "09" "11"} month)
-      (not= "31" day)
-      :else
-      true)))
+          (not (>= day-int 30)) ; leap year
+          (not (>= day-int 29)))
+        (#{4 6 9 11} month-int)
+        (not (>= day-int 31))
+        :else
+        true)))) ; day-int is always maxed out at 31
 
 (s/def ::timestamp
   (s/with-gen

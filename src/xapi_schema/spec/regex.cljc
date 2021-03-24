@@ -45,7 +45,7 @@
         ;; Authority
         reg-name  (str "(?:" basic-char ")*")
         user-info (str "(?:" basic-char "|:)*")
-        host      (str reg-name) ; exclude IPv6 and subsume IPv4
+        host      reg-name ; exclude IPv6 and subsume IPv4
         port      "\\d*"
         authority (str "(?:" user-info "@)?(?:" host ")(?::" port ")?")
         ;; Path
