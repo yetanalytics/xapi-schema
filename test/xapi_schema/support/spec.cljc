@@ -1,5 +1,5 @@
 (ns xapi-schema.support.spec
-  (:require [clojure.test :refer [deftest is testing] :include-macros true]
+  (:require [clojure.test :refer [is] :include-macros true]
             [clojure.spec.alpha :as s :include-macros true]))
 
 (defn should-satisfy [spec data]

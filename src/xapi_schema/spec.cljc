@@ -11,14 +11,12 @@
                                    DurationRegEx
                                    Base64RegEx
                                    Sha1RegEx]]
-   [clojure.set :refer [intersection
-                        difference]]
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]
    [clojure.spec.gen.alpha :as sgen :include-macros true]
    [clojure.string :as cstr]
    #?@(:cljs [[goog.string :as gstring]
               [goog.string.format]
-              [goog.crypt :as crypt]
+              [goog.crypt]
               [goog.crypt.base64 :as base64]]))
   #?(:clj (:import [java.util Base64])
      :cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
@@ -32,8 +30,7 @@
 (def double-conformer
   (s/conformer (fn [n]
                  (try (double n)
-                      (catch #?(:clj Exception
-                                :cljs js/Error) e
+                      (catch #?(:clj Exception :cljs js/Error) _
                         ::s/invalid)))
                ;; unform is a no-op, as json doesn't care
                identity))
@@ -49,8 +46,7 @@
                                  :else k) v))
                     {}
                     string-map)
-         (catch #?(:clj Exception
-                   :cljs js/Error) e
+         (catch #?(:clj Exception :cljs js/Error) _
            ::s/invalid))
     ::s/invalid))
 
@@ -61,8 +57,7 @@
                                k) v))
                   {}
                   keyword-map)
-       (catch #?(:clj Exception
-                 :cljs js/Error) e
+       (catch #?(:clj Exception :cljs js/Error) _
          ::s/invalid)))
 
 (defn map-ns-conformer
@@ -299,7 +294,7 @@
     #(sgen/fmap
       (fn [^String s]
         #?(:clj (String. (.encode
-                          (java.util.Base64/getEncoder)
+                          (Base64/getEncoder)
                           (.getBytes s)))
            :cljs (base64/encodeString s)))
       (sgen/not-empty (sgen/string-alphanumeric)))))
