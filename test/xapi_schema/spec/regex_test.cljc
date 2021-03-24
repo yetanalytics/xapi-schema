@@ -20,13 +20,22 @@
     (is (re-matches LanguageTagRegEx "en"))
     (is (re-matches LanguageTagRegEx "arb"))
     (is (re-matches LanguageTagRegEx "en-US"))   ; lang + region
+    (is (re-matches LanguageTagRegEx "es-419"))  ; lang + region code
     (is (re-matches LanguageTagRegEx "zh-yue"))  ; lang + extlang
     (is (re-matches LanguageTagRegEx "uz-Arab")) ; lang + script
+    (is (re-matches LanguageTagRegEx "zh-cmn-Latn-CN"))     ; lang + extension + region
     (is (re-matches LanguageTagRegEx "zh-Latn-CN-pinyin"))  ; lang + script + region + variant
     (is (re-matches LanguageTagRegEx "de-DE-u-co-phonebk")) ; lang + region + extension
     (is (re-matches LanguageTagRegEx "en-US-x-twain"))      ; lang + region + private
+    (is (re-matches LanguageTagRegEx "sl-rozaj-biske")) ; lang + variant
+    (is (re-matches LanguageTagRegEx "de-CH-1901"))     ; lang + region + variant
+    (is (re-matches LanguageTagRegEx "i-enochian"))     ; grandfathered tag
+    (is (re-matches LanguageTagRegEx "foo")) ; doesn't check if tag is registered
     (is (not (re-matches LanguageTagRegEx "not a language tag")))
     (is (not (re-matches LanguageTagRegEx "en-")))
+    (is (not (re-matches LanguageTagRegEx "de-419-DE"))) ; two region tags
+    (is (not (re-matches LanguageTagRegEx "a-DE")))
+    (is (not (re-matches LanguageTagRegEx "fr-u-o")))
     (is (not (re-matches LanguageTagRegEx "americanenglish")))))
 
 (deftest open-id-regex-test
