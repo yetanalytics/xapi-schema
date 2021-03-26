@@ -40,10 +40,12 @@
                      {"en-US" "foo"}
                      {"es" "hola mundo"}
                      {"zh-cmn" "你好世界"}
-                     {} ; Issue #65; need to allow empty lang maps
                      :bad
                      {"hey there" "foo"}
-                     {"en" 2})))
+                     {"en" 2}
+                     ;; We do not allow for empty maps (despite technically
+                     ;; being spec-conformant)
+                     {})))
 
 (deftest iri-test
   (testing "must be a valid url with scheme"
