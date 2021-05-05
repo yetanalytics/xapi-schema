@@ -117,7 +117,7 @@
         ;; Time
         time (str "(?:" hour ":" min ":" sec sec-frac "?" ")")
         date (str "(?:" year "-" month "-" day ")")]
-    (str date "T" time)))
+    (str date "[T\\s]" time)))
 
 (def TimestampRegEx ; RFC 3339
   (let [;; Time
