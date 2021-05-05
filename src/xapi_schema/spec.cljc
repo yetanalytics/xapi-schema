@@ -288,10 +288,7 @@
   (s/with-gen
     (s/and string?
            (partial re-matches xAPIVersionRegEx))
-    #(sgen/fmap (fn [i]
-                  (#?(:clj format
-                      :cljs gstring/format) "1.0.%d" i))
-                (sgen/int))))
+    #(sgen/return "2.0.0")))
 
 (s/def ::sha2
   (s/with-gen

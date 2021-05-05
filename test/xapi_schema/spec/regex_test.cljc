@@ -151,11 +151,9 @@
              (re-matches xAPIVersionRegEx "1.0")
              (re-matches xAPIVersionRegEx "1.0.32-abc.def+ghi.jkl")))
     (is (not (re-matches xAPIVersionRegEx "0.9.5"))))
-  (testing "matches xAPI 2.0.x versions"
+  (testing "matches xAPI 2.0.0 version only"
     (is (and (re-matches xAPIVersionRegEx "2.0.0")
-             (re-matches xAPIVersionRegEx "2.0.2")
-             (re-matches xAPIVersionRegEx "2.0")
-             (re-matches xAPIVersionRegEx "2.0.32-abc.def+ghi.jkl")))))
+             (not (re-matches xAPIVersionRegEx "2.0.2"))))))
 
 (deftest duration-regex-test
   (testing "matches ISO durations"

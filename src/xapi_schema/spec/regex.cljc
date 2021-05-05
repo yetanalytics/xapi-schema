@@ -148,7 +148,7 @@
 (def xAPIVersionRegEx
   (let [suf-part "[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*"
         suffix   (str "(\\.[0-9]+(?:-" suf-part ")?(?:\\+" suf-part ")?)?")
-        ver-str  (str "^[1-2]\\.0" suffix "$")]
+        ver-str  (str "^(1\\.0" suffix ")|(2\\.0\\.0)$")]
     (re-pattern ver-str)))
 
 (def Base64RegEx
