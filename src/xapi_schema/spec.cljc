@@ -659,55 +659,26 @@
   (s/coll-of ::agent :kind vector? :into [] :gen-max 3))
 
 (s/def ::identified-group
-  (s/keys :req [:group/objectType
-                (or :group/mbox
+  (s/with-gen
+    (s/and
+     (s/conformer
+      (partial conform-ns-map "group")
+      unform-ns-map)
+     (s/keys :req [:group/objectType
+                   (or :group/mbox
+                       :group/mbox_sha1sum
+                       :group/openid
+                       :group/account)]
+             :opt [:group/name
+                   :group/member])
+     (restrict-keys :group/mbox
                     :group/mbox_sha1sum
                     :group/openid
-                    :group/account)]
-          :opt [:group/name
-                :group/member]))
-
-(s/def ::anonymous-group
-  (s/and
-   (s/keys :req [:group/objectType
-                 :group/member]
-           :opt [:group/name])
-   #(-> % :group/member seq)))
-
-(def identified-group?
-  (comp
-   some?
-   (some-fn :group/mbox
-            :group/mbox_sha1sum
-            :group/openid
-            :group/account)))
-
-(defmulti group-type #(if (identified-group? %)
-                        :group/identified
-                        :group/anonymous))
-
-(defmethod group-type :group/identified [_]
-  ::identified-group)
-
-(defmethod group-type :group/anonymous [_]
-  ::anonymous-group)
-
-
-(s/def ::group
-  (s/with-gen (s/and
-               (s/conformer
-                (partial conform-ns-map "group")
-                unform-ns-map)
-               (s/multi-spec group-type (fn [gen-val _]
-                                          gen-val))
-               (restrict-keys :group/mbox
-                              :group/mbox_sha1sum
-                              :group/openid
-                              :group/account
-                              :group/name
-                              :group/objectType
-                              :group/member)
-               max-one-ifi)
+                    :group/account
+                    :group/name
+                    :group/objectType
+                    :group/member)
+     max-one-ifi)
     #(sgen/fmap
       unform-ns-map
       (s/gen (s/or :ifi-mbox
@@ -729,11 +700,46 @@
                    (s/keys :req [:group/account]
                            :opt [:group/member
                                  :group/name
-                                 :group/objectType])
-                   :anon
-                   (s/keys :req [:group/member]
-                           :opt [:group/name
                                  :group/objectType]))))))
+
+(s/def ::anonymous-group
+       (s/with-gen
+         (s/and
+          (s/conformer
+           (partial conform-ns-map "group")
+           unform-ns-map)
+          (s/keys :req [:group/objectType
+                        :group/member]
+                  :opt [:group/name])
+          (restrict-keys :group/objectType
+                         :group/member
+                         :group/name)
+          #(-> % :group/member not-empty))
+        #(sgen/fmap
+          unform-ns-map
+          (s/gen (s/keys :req [:group/member]
+                         :opt [:group/name
+                               :group/objectType])))))
+
+(defn identified-group?
+  [group]
+  (-> group
+      (select-keys ["mbox" "mbox_sha1sum" "openid" "account"])
+      not-empty
+      boolean))
+
+(defmulti group-type #(if (identified-group? %)
+                        :group/identified
+                        :group/anonymous))
+
+(defmethod group-type :group/identified [_]
+  ::identified-group)
+
+(defmethod group-type :group/anonymous [_]
+  ::anonymous-group)
+
+(s/def ::group
+  (s/multi-spec group-type (fn [gen-val _] gen-val)))
 
 ;; Actor
 

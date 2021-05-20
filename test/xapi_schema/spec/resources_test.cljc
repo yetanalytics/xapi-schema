@@ -1,5 +1,5 @@
 (ns xapi-schema.spec.resources-test
-  (:require [clojure.test :refer [deftest is testing] :include-macros true]
+  (:require [clojure.test :refer [deftest is] :include-macros true]
             [clojure.spec.alpha :as s :include-macros true]
             [xapi-schema.spec.resources :as xsr :refer [*read-json-fn*
                                                         *write-json-fn*
@@ -39,7 +39,14 @@
   (is (not (s/valid? :xapi.common.param/agent
                      "{\"mbox\":\"milt@yetanalytics.com\"}")))
   (is (not (s/valid? :xapi.common.param/agent
-                     "{\"email\":\"mailto:milt@yetanalytics.com\"}"))))
+                     "{\"email\":\"mailto:milt@yetanalytics.com\"}")))
+  (is (s/valid? :xapi.common.param/agent
+                "{\"objectType\": \"Group\",
+                  \"mbox\": \"mailto:group@example.com\",
+                  \"member\": [{\"mbox\": \"mailto:foo@example.com\"}]}"))
+  (is (not (s/valid? :xapi.common.param/agent
+                     "{\"objectType\": \"Group\",
+                       \"member\": [{\"mbox\": \"mailto:foo@example.com\"}]}"))))
 
 (deftest statements-get-params-test
   (is (s/valid? :xapi.statements.GET.request/params

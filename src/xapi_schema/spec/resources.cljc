@@ -57,13 +57,18 @@
 
 ;; xAPI Resources
 
-;; common
+;; Common
+
 (s/def :xapi.common.param/agent
   (json
-    (s/nonconforming ::xs/actor)))
+    (s/nonconforming
+     ;; anonymous groups are not allowed as agent params
+     (s/or :agent ::xs/agent
+           :group ::xs/identified-group))))
 
 ;; Statements
 ;; GET https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements
+
 (s/def :xapi.statements.GET.request.params/statementId
   :statement/id)
 
@@ -108,7 +113,7 @@
 (s/def :xapi.statements.GET.request.params/ascending
   (json boolean?))
 
-;;
+;; Putting it all together
 
 (def singular-query?
   (comp
@@ -194,8 +199,7 @@
   :activity/id)
 
 (s/def :xapi.document.params/agent
-  (json
-   (s/nonconforming ::xs/agent)))
+  :xapi.common.param/agent)
 
 (s/def :xapi.document.params/registration
   ::xs/uuid)
@@ -248,13 +252,15 @@
    :xapi.document.state/context-params))
 
 ;; Agents https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#24-agents-resource
+
 (s/def :xapi.agents.GET.request.params/agent
-  :xapi.document.params/agent)
+  :xapi.common.param/agent)
 
 (s/def :xapi.agents.GET.request/params
   (s/keys :req-un [:xapi.agents.GET.request.params/agent]))
 
 ;; Person https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#person-properties
+
 (s/def :xapi.agents.GET.response.person/objectType
   #{"Person"})
 
@@ -281,8 +287,7 @@
                       :xapi.agents.GET.response.person/mbox
                       :xapi.agents.GET.response.person/mbox_sha1sum
                       :xapi.agents.GET.response.person/openid
-                      :xapi.agents.GET.response.person/account
-                      ])
+                      :xapi.agents.GET.response.person/account])
      walk/keywordize-keys
      walk/stringify-keys)))
 
@@ -295,6 +300,7 @@
   (s/keys :req-un [:xapi.activities.GET.request.params/activityId]))
 
 ;; Agent Profile https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#26-agent-profile-resource
+
 (s/def :xapi.document.agent-profile/context-params
   (s/keys :req-un [:xapi.document.params/agent]))
 
