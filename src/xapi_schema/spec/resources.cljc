@@ -62,9 +62,8 @@
 (s/def :xapi.common.param/agent
   (json
     (s/nonconforming
-     ;; anonymous groups are not allowed as agent params
-     (s/or :agent ::xs/agent
-           :group ::xs/identified-group))))
+     ;; except for statement queries, groups are not allowed as agent params
+     ::xs/agent)))
 
 ;; Statements
 ;; GET https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements
@@ -76,7 +75,12 @@
   :statement/id)
 
 (s/def :xapi.statements.GET.request.params/agent
-  :xapi.common.param/agent)
+  (json
+   (s/nonconforming
+    ;; anonymous groups are not allowed as agent params
+    ;; identified gorups, on the other hand, are allowed
+    (s/or :agent ::xs/agent
+          :group ::xs/identified-group))))
 
 (s/def :xapi.statements.GET.request.params/verb
   ::xs/iri)
