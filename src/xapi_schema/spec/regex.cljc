@@ -163,3 +163,6 @@
 
 (def Sha1RegEx
   #"^[0-9a-fA-F]{40}$")
+
+(def Sha2RegEx
+  #"^[0-9a-fA-F]{64}$")

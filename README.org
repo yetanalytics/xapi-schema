@@ -150,7 +150,7 @@ xapi_schema.core.validate_statement_data_js(statement_json); // => statement JSO
 
 ** License
 
-Copyright © 2018 Yet Analytics, Inc.
+Copyright © 2021 Yet Analytics, Inc.
 
 Distributed under the Eclipse Public License, the same as Clojure.
 See the file [[file:LICENSE][LICENSE]] for details.

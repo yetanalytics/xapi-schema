@@ -13,6 +13,7 @@
                                    DurationRegEx
                                    Base64RegEx
                                    Sha1RegEx
+                                   Sha2RegEx
                                    OpenIdRegEx]]))
 
 (deftest language-tag-regex-test
@@ -175,3 +176,8 @@
   (testing "matches SHA-1 hashes"
     (is (re-matches Sha1RegEx "ebd31e95054c018b10727ccffd2ef2ec3a016ee9"))
     (is (not (re-matches Sha1RegEx "1234")))))
+
+(deftest sha2-regex-test
+  (testing "matches SHA-2 hashes"
+    (is (re-matches Sha2RegEx "495395e777cd98da653df9615d09c0fd6bb2f8d4788394cd53c56a3bfdcd848a"))
+    (is (not (re-matches Sha2RegEx "Q3lxN0R1NQ==")))))

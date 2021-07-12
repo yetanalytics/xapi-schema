@@ -9,17 +9,14 @@
                                    TimestampRegEx
                                    xAPIVersionRegEx
                                    DurationRegEx
-                                   Base64RegEx
-                                   Sha1RegEx]]
+                                   Sha1RegEx
+                                   Sha2RegEx]]
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]
    [clojure.spec.gen.alpha :as sgen :include-macros true]
    [clojure.string :as cstr]
    #?@(:cljs [[goog.string :as gstring]
-              [goog.string.format]
-              [goog.crypt]
-              [goog.crypt.base64 :as base64]]))
-  #?(:clj (:import [java.util Base64])
-     :cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
+              [goog.string.format]]))
+  #?(:cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
 
 (def ^:dynamic *xapi-0-95-compat?*
   "When true, coerce 0.95 context activities to conform."
@@ -296,14 +293,14 @@
 (s/def ::sha2
   (s/with-gen
     (s/and string?
-           (partial re-matches Base64RegEx))
-    #(sgen/fmap
-      (fn [^String s]
-        #?(:clj (String. (.encode
-                          (Base64/getEncoder)
-                          (.getBytes s)))
-           :cljs (base64/encodeString s)))
-      (sgen/not-empty (sgen/string-alphanumeric)))))
+           (partial re-matches Sha2RegEx))
+   #(sgen/fmap
+     (fn [is]
+       (apply str (map char is)))
+     (sgen/vector (sgen/elements (concat
+                                  (range 65 71)
+                                  (range 48 58)))
+                  64))))
 
 (s/def ::sha1sum
   (s/with-gen
@@ -317,7 +314,7 @@
       (sgen/vector (sgen/elements (concat
                                    (range 65 71)
                                    (range 48 58)))
-                40))))
+                   40))))
 
 ;; Activity Definition
 
@@ -993,6 +990,10 @@
 
 (s/def :attachment/fileUrl
   ::irl)
+
+;; Note: The SHA2 hash may not correspond to any attachment with the given
+;; length and content type. This spec is okay for pure validation, but for
+;; generation a more sophisticated algorithm is recommended.
 
 (s/def ::file-attachment
   (conform-ns "attachment"

@@ -151,7 +151,8 @@
     (should-satisfy+ ::xs/sha2
                      "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634"
                      :bad
-                     123)))
+                     123
+                     "Q3lxN0R1NQ==")))
 
 (deftest sha1sum-test
   (testing "is a SHA-1 string of 40 hex chars"
