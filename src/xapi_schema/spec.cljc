@@ -15,8 +15,7 @@
    [clojure.spec.gen.alpha :as sgen :include-macros true]
    [clojure.string :as cstr]
    #?@(:cljs [[goog.string :as gstring]
-              [goog.string.format]
-              [goog.crypt]]))
+              [goog.string.format]]))
   #?(:cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
 
 (def ^:dynamic *xapi-0-95-compat?*
