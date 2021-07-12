@@ -1,7 +1,7 @@
 (ns xapi-schema.spec.regex
   (:require [clojure.string :refer [join]]))
 
-(def LanguageTagRegEx ; RFC 5646, w/ lang subtag limitation 
+(def LanguageTagRegEx ; RFC 5646, w/ lang subtag limitation
   (let [;; Language Subtags
         ;; Note: we exclude 4-8 char subtags, even though they are allowed in
         ;; the RFC spec, since they are reserved for future (not current) use.
@@ -117,7 +117,7 @@
         ;; Time
         time (str "(?:" hour ":" min ":" sec sec-frac "?" ")")
         date (str "(?:" year "-" month "-" day ")")]
-    (str date "T" time)))
+    (str date "[T\\s]" time)))
 
 (def TimestampRegEx ; RFC 3339
   (let [;; Time
@@ -148,7 +148,7 @@
 (def xAPIVersionRegEx
   (let [suf-part "[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*"
         suffix   (str "(\\.[0-9]+(?:-" suf-part ")?(?:\\+" suf-part ")?)?")
-        ver-str  (str "^1\\.0" suffix "$")]
+        ver-str  (str "^(1\\.0" suffix ")|(2\\.0\\.0)$")]
     (re-pattern ver-str)))
 
 (def Base64RegEx
