@@ -1,7 +1,7 @@
 (ns xapi-schema.spec.regex
   (:require [clojure.string :refer [join]]))
 
-(def LanguageTagRegEx ; RFC 5646, w/ lang subtag limitation 
+(def LanguageTagRegEx ; RFC 5646, w/ lang subtag limitation
   (let [;; Language Subtags
         ;; Note: we exclude 4-8 char subtags, even though they are allowed in
         ;; the RFC spec, since they are reserved for future (not current) use.
@@ -100,7 +100,7 @@
 (def UuidRegEx ; RFC 3984
   (re-pattern (str "[0-9A-Fa-f]{8}-" ; [0-9A-Fa-f] = hex digit
                    "[0-9A-Fa-f]{4}-"
-                   "[1-4][0-9A-Fa-f]{3}-"
+                   "[1-8][0-9A-Fa-f]{3}-"
                    "[0-9A-Fa-f]{4}-"
                    "[0-9A-Fa-f]{12}")))
 

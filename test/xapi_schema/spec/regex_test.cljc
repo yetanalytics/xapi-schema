@@ -128,7 +128,11 @@
     (is (re-matches UuidRegEx "f47ac10b-58cc-1372-0567-0e02b2c3d479"))
     (is (re-matches UuidRegEx "f47ac10b-58cc-2372-0567-0e02b2c3d479"))
     (is (re-matches UuidRegEx "f47ac10b-58cc-3372-0567-0e02b2c3d479"))
-    (is (re-matches UuidRegEx "f47ac10b-58cc-4372-0567-0e02b2c3d479"))))
+    (is (re-matches UuidRegEx "f47ac10b-58cc-4372-0567-0e02b2c3d479"))
+    (is (re-matches UuidRegEx "f47ac10b-58cc-5372-0567-0e02b2c3d479"))
+    (is (re-matches UuidRegEx "f47ac10b-58cc-6372-0567-0e02b2c3d479"))
+    (is (re-matches UuidRegEx "f47ac10b-58cc-7372-0567-0e02b2c3d479"))
+    (is (re-matches UuidRegEx "f47ac10b-58cc-8372-0567-0e02b2c3d479"))))
 
 (deftest timestamp-regex-test
   (testing "matches valid ISO 8601 datetime stamps within the rfc3339 profile"
