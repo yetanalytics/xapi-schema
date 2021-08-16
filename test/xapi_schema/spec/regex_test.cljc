@@ -125,6 +125,7 @@
     (is (not (re-matches UuidRegEx "3c7db14d-ac4b-4e35-b2c6-3b2237f382")))
     (is (not (re-matches UuidRegEx "MA97B177-9383-4934-8543-0F91A7A02836"))))
   (testing "matches all UUID versions"
+    (is (re-matches UuidRegEx "f47ac10b-58cc-0372-0567-0e02b2c3d479"))
     (is (re-matches UuidRegEx "f47ac10b-58cc-1372-0567-0e02b2c3d479"))
     (is (re-matches UuidRegEx "f47ac10b-58cc-2372-0567-0e02b2c3d479"))
     (is (re-matches UuidRegEx "f47ac10b-58cc-3372-0567-0e02b2c3d479"))

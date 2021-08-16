@@ -84,8 +84,9 @@
                      "some other crap")))
 
 (deftest uuid-test
-  (testing "is a valid v1-8 UUID"
+  (testing "is a valid v0-8 UUID"
     (should-satisfy+ ::xs/uuid
+                     "00000000-0000-0000-0000-000000000000"
                      "f47ac10b-58cc-4372-a567-0e02b2c3d479"
                      "12345678-1234-1234-1234-123456789012"
                      "017b4f9f-2a7e-84f1-80e9-7b788a5baba4"
