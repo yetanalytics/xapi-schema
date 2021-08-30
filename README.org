@@ -2,7 +2,7 @@
 #+AUTHOR: Milt Reder
 #+EMAIL: milt@yetanalytics.com
 
-[[https://travis-ci.org/yetanalytics/xapi-schema][https://travis-ci.org/yetanalytics/xapi-schema.svg?branch=master]]
+[[https://github.com/yetanalytics/xapi-schema/actions/workflows/main.yml][https://github.com/yetanalytics/xapi-schema/actions/workflows/main.yml/badge.svg]]
 [[https://jarkeeper.com/yetanalytics/xapi-schema][https://jarkeeper.com/yetanalytics/xapi-schema/status.png]]
 [[https://www.eclipse.org/legal/epl-v10.html][https://img.shields.io/badge/license-Eclipse-blue.svg]]
 [[https://clojars.org/com.yetanalytics/xapi-schema][https://img.shields.io/clojars/v/com.yetanalytics/xapi-schema.svg]]
