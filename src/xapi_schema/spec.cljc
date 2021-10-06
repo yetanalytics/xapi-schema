@@ -802,6 +802,37 @@
     (apply <= (filter identity [min raw max]))
     true))
 
+(defn coerce-min-max-raw
+  [{raw :score/raw
+    min :score/min
+    max :score/max
+    :as scores}]
+  (cond
+    (and min raw max (not (<= min raw max)))
+    (let [ord (vec (sort [min raw max]))]
+      (-> scores
+          (assoc :score/min (get ord 0))
+          (assoc :score/raw (get ord 1))
+          (assoc :score/max (get ord 2))))
+
+    (and min raw (< raw min))
+    (-> scores
+        (assoc :score/min raw)
+        (assoc :score/raw min))
+    
+    (and min max (< max min))
+    (-> scores
+        (assoc :score/min max)
+        (assoc :score/max min))
+    
+    (and raw max (< max raw))
+    (-> scores
+        (assoc :score/raw max)
+        (assoc :score/max raw))
+    
+    :else
+    scores))
+
 (s/def :result/score
   (s/with-gen (s/and
                 (s/conformer
@@ -818,8 +849,8 @@
                 valid-min-max-raw?)
      #(sgen/fmap
        unform-ns-map
-       (sgen/such-that
-        valid-min-max-raw?
+       (sgen/fmap
+        coerce-min-max-raw
         (sgen/not-empty
          (s/gen (s/keys :opt [:score/scaled
                               :score/raw
