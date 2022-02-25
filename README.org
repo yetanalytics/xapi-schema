@@ -3,11 +3,8 @@
 #+EMAIL: milt@yetanalytics.com
 
 [[https://github.com/yetanalytics/xapi-schema/actions/workflows/main.yml][https://github.com/yetanalytics/xapi-schema/actions/workflows/main.yml/badge.svg]]
-[[https://jarkeeper.com/yetanalytics/xapi-schema][https://jarkeeper.com/yetanalytics/xapi-schema/status.png]]
 [[https://www.eclipse.org/legal/epl-v10.html][https://img.shields.io/badge/license-Eclipse-blue.svg]]
 [[https://clojars.org/com.yetanalytics/xapi-schema][https://img.shields.io/clojars/v/com.yetanalytics/xapi-schema.svg]]
-
-[[https://gitter.im/yetanalytics/xapi-schema?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge][https://badges.gitter.im/Join%20Chat.svg]]
 
 Clojure(script) schema for Experience API 1.0.3. Provides validation of Statements and other xAPI objects.
 
@@ -18,7 +15,7 @@ You can use xapi-schema to validate (and generate) statements in real-time [[htt
 ** Getting Started
 1. Add to your project dependencies:
   #+BEGIN_SRC clojure
-  [[com.yetanalytics/xapi-schema "1.0.0-alpha19"]]
+  [[com.yetanalytics/xapi-schema "1.1.0"]]
   #+END_SRC
 2. Require in your project:
   #+BEGIN_SRC clojure
@@ -150,7 +147,7 @@ xapi_schema.core.validate_statement_data_js(statement_json); // => statement JSO
 
 ** License
 
-Copyright © 2021 Yet Analytics, Inc.
+Copyright © 2015-2022 Yet Analytics, Inc.
 
 Distributed under the Eclipse Public License, the same as Clojure.
 See the file [[file:LICENSE][LICENSE]] for details.
