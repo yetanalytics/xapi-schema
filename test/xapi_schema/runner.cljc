@@ -17,7 +17,6 @@
 #?(:clj (defn -main []
           (let [{:keys [test pass fail error] :as result}
                 (run-tests 'xapi-schema.core-test
-                           'xapi-schema.graphql-test
                            'xapi-schema.spec-test
                            'xapi-schema.spec.regex-test
                            'xapi-schema.spec.resources-test)]
