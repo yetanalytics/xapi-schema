@@ -24,6 +24,7 @@ jobs:
       uses: yetanalytics/actions/deploy-clojars@v0.0.2
       with:
           artifact-id: 'xapi-schema'
+          src-dirs: '["src"]'
           resource-dirs: '[]'
           version: ${{ steps.version.outputs.VERSION }}
           clojars-username: ${{ secrets.CLOJARS_USERNAME }}
