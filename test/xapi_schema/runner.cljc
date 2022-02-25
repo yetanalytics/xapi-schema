@@ -5,8 +5,7 @@
             xapi-schema.spec-test
             xapi-schema.spec.regex-test
             xapi-schema.spec.resources-test
-            #?@(:clj [xapi-schema.graphql-test]
-                :cljs [[cljs.nodejs :refer [process]]])))
+            #?@(:cljs [[cljs.nodejs :refer [process]]])))
 ;; Exit properly for cljs tests
 #?(:cljs (defmethod cljs.test/report [:cljs.test/default :end-run-tests] [m]
            (.exit process
@@ -17,7 +16,6 @@
 #?(:clj (defn -main []
           (let [{:keys [test pass fail error] :as result}
                 (run-tests 'xapi-schema.core-test
-                           'xapi-schema.graphql-test
                            'xapi-schema.spec-test
                            'xapi-schema.spec.regex-test
                            'xapi-schema.spec.resources-test)]
