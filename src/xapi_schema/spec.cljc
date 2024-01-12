@@ -944,10 +944,10 @@
 (s/def :context/contextActivities
   (conform-ns "contextActivities"
               (s/and
-               (s/keys :req [(or :contextActivities/parent
-                                 :contextActivities/grouping
-                                 :contextActivities/category
-                                 :contextActivities/other)])
+               (s/keys :opt [:contextActivities/parent
+                             :contextActivities/grouping
+                             :contextActivities/category
+                             :contextActivities/other])
                (restrict-keys :contextActivities/parent
                               :contextActivities/grouping
                               :contextActivities/category
