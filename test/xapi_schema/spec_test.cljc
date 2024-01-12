@@ -376,8 +376,8 @@
                      ["foo"])))
 
 (deftest context-activities-map-test
-  (testing "cannot be empty"
-    (should-not-satisfy ::xs/context-activities {})))
+  (testing "can be empty"
+    (should-satisfy :context/contextActivities {})))
 
 (deftest context-test
   (testing "can be empty"
