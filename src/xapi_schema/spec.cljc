@@ -261,7 +261,7 @@
     #(sgen/fmap (fn [[yyyy mm dd h m s ms]]
                   (#?(:clj format :cljs gstring/format)
                    "%d-%02d-%02dT%02d:%02d:%02d.%dZ" yyyy mm dd h m s ms))
-               (sgen/tuple (sgen/elements (range 1970 2022))
+               (sgen/tuple (sgen/elements (range 1970 2024))
                            (sgen/elements (range 1 13))
                            (sgen/elements (range 1 29))
                            (sgen/elements (range 0 25))
