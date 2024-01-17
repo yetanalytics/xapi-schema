@@ -39,7 +39,7 @@
                                       :else sd))
      :cljs (validate-statement-data*
             (cond
-              (string? sd) (.parse js/JSON sd)
+              (string? sd) (js->clj (.parse js/JSON sd))
               :else sd))))
 
 #?(:cljs
