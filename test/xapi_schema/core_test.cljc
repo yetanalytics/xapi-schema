@@ -8,7 +8,6 @@
                              validate-statements
                              validate-statement-data
                              #?(:cljs validate-statement-data-js)]]
-   [clojure.pprint :refer [pprint]]
    #?(:clj [clojure.data.json :as json]
       :cljs [cljs.core :refer [ExceptionInfo]]))
   #?(:clj (:import [clojure.lang ExceptionInfo])))
