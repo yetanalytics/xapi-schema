@@ -145,7 +145,9 @@
     (is (not (re-matches TimestampRegEx "20150513T15Z")))
     (is (not (re-matches TimestampRegEx "20150513T15:16:00Z")))
     ;; negative offset
-    (is (not (re-matches TimestampRegEx "2008-09-15T15:53:00.601-00:00")))))
+    (is (not (re-matches TimestampRegEx "2008-09-15T15:53:00.601-00:00"))))
+  (testing "matches valid but terrible stamps in rfc3339 OUTSIDE of 8601"
+    (is (re-matches TimestampRegEx "2015-05-13 15:16:00Z"))))
 
 (deftest xapi-version-regex-test
   (testing "matches xAPI 1.0.X versions"
@@ -153,7 +155,10 @@
              (re-matches xAPIVersionRegEx "1.0.2")
              (re-matches xAPIVersionRegEx "1.0")
              (re-matches xAPIVersionRegEx "1.0.32-abc.def+ghi.jkl")))
-    (is (not (re-matches xAPIVersionRegEx "0.9.5")))))
+    (is (not (re-matches xAPIVersionRegEx "0.9.5"))))
+  (testing "matches xAPI 2.0.0 version only"
+    (is (and (re-matches xAPIVersionRegEx "2.0.0")
+             (not (re-matches xAPIVersionRegEx "2.0.2"))))))
 
 (deftest duration-regex-test
   (testing "matches ISO durations"
