@@ -16,5 +16,6 @@
 /resources/public/xapi_schema.js
 .specljs-timestamp
 /.cpcache
+/.calva
 /.clj-kondo
 /.lsp
