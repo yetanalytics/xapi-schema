@@ -106,11 +106,7 @@
 (s/def ::language-map
   (s/map-of ::language-tag
             ::language-map-text
-            :gen-max 3
-            ;; Technically, empty language maps are allowed under the xAPI spec.
-            ;; However, they are nonsensical in most contexts and will not
-            ;; work in downstream libs (e.g those that use DynamoDB).
-            :min-count 1))
+            :gen-max 3))
 
 
 (defn into-str [cs]
