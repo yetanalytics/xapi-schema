@@ -636,5 +636,4 @@
   (testing "LRS retrieval statement batch"
     (should-satisfy+ ::xs/lrs-statements
                      [d/statement] ; This statement has ID and other required fields
-                     :bad
                      [])))

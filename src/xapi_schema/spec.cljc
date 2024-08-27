@@ -1326,13 +1326,8 @@
                    (some-> s :statement/object :statement-ref/objectType)
                    true)))))
 
-;; Statement batches in general, e.g. when being inserted into an LRS, should
-;; allow empty arrays.
-
-;; Statement batches being retrieved from an LRS should always be non-emtpy.
-
 (s/def ::statements
   (s/coll-of ::statement :into []))
 
 (s/def ::lrs-statements
-  (s/coll-of ::lrs-statement :into [] :min-count 1))
+  (s/coll-of ::lrs-statement :into []))
