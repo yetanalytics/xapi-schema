@@ -11,17 +11,17 @@ jobs:
  
     steps: 
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup CD Environment
-      uses: yetanalytics/actions/setup-env@v0.0.4
+      uses: yetanalytics/action-setup-env@v2
 
     - name: Extract version
       id: version
       run: echo version=${GITHUB_REF#refs\/tags\/v} >> $GITHUB_OUTPUT
 
     - name: Build and deploy to Clojars
-      uses: yetanalytics/actions/deploy-clojars@v0.0.4
+      uses: yetanalytics/action-deploy-clojars@v2
       with:
           artifact-id: 'xapi-schema'
           src-dirs: '["src"]'

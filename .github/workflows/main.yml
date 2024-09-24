@@ -13,10 +13,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup CI environment
-        uses: yetanalytics/actions/setup-env@v0.0.4
+        uses: yetanalytics/action-setup-env@v2
 
       - name: Execute Clojure Tests
         run: clojure -A:dev -m xapi-schema.runner
