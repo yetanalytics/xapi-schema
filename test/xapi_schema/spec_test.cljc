@@ -626,3 +626,14 @@
                       "verb" {"id" "http://adlnet.gov/expapi/verbs/voided"
                               "display" {"en-US" "voided"}}
                       "object" {"id" "http://example.com/activities/1"}})))
+
+(deftest statements-test
+  (testing "generic statememt batch"
+    (should-satisfy+ ::xs/statements
+                     [simple-statement]
+                     [simple-statement long-statement]
+                     []))
+  (testing "LRS retrieval statement batch"
+    (should-satisfy+ ::xs/lrs-statements
+                     [d/statement] ; This statement has ID and other required fields
+                     [])))

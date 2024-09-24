@@ -1327,7 +1327,7 @@
                    true)))))
 
 (s/def ::statements
-  (s/coll-of ::statement :into [] :min-count 1))
+  (s/coll-of ::statement :into []))
 
 (s/def ::lrs-statements
-  (s/coll-of ::lrs-statement :into [] :min-count 1))
+  (s/coll-of ::lrs-statement :into []))
