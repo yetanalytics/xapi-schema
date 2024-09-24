@@ -281,10 +281,7 @@
   (s/with-gen
     (s/and string?
            (partial re-matches xAPIVersionRegEx))
-    #(sgen/fmap (fn [i]
-                  (#?(:clj format
-                      :cljs gstring/format) "1.0.%d" i))
-                (sgen/int))))
+    #(sgen/return "2.0.0")))
 
 (s/def ::sha2
   (s/with-gen
@@ -973,6 +970,51 @@
 (s/def :context/extensions
   ::extensions)
 
+;; 2.0.x compat
+
+;; contextAgents
+(s/def :contextAgent/objectType #{"contextAgent"})
+(s/def :contextAgent/agent ::agent)
+(s/def :contextAgent/relevantTypes
+  (s/every ::iri
+           :into []
+           :min-count 1))
+
+(s/def ::context-agent
+  (conform-ns "contextAgent"
+              (s/and
+               (s/keys :req [:contextAgent/objectType
+                             :contextAgent/agent]
+                       :opt [:contextAgent/relevantTypes])
+               (restrict-keys :contextAgent/objectType
+                              :contextAgent/agent
+                              :contextAgent/relevantTypes))))
+(s/def :context/contextAgents
+  (s/every ::context-agent
+           :into []))
+
+;; contextGroups
+
+(s/def :contextGroup/objectType #{"contextGroup"})
+(s/def :contextGroup/group ::group)
+(s/def :contextGroup/relevantTypes
+  (s/every ::iri
+           :into []
+           :min-count 1))
+
+(s/def ::context-group
+  (conform-ns "contextGroup"
+              (s/and
+               (s/keys :req [:contextGroup/objectType
+                             :contextGroup/group]
+                       :opt [:contextGroup/relevantTypes])
+               (restrict-keys :contextGroup/objectType
+                              :contextGroup/group
+                              :contextGroup/relevantTypes))))
+(s/def :context/contextGroups
+  (s/every ::context-group
+           :into []))
+
 (s/def ::context
   (conform-ns "context"
               (s/and
@@ -984,7 +1026,9 @@
                              :context/platform
                              :context/language
                              :context/statement
-                             :context/extensions])
+                             :context/extensions
+                             :context/contextAgents
+                             :context/contextGroups])
                (restrict-keys :context/registration
                               :context/instructor
                               :context/team
@@ -993,7 +1037,9 @@
                               :context/platform
                               :context/language
                               :context/statement
-                              :context/extensions))))
+                              :context/extensions
+                              :context/contextAgents
+                              :context/contextGroups))))
 
 ;; Attachments
 
