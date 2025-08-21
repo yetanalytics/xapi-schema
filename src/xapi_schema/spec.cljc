@@ -1372,8 +1372,16 @@
                    (some-> s :statement/object :statement-ref/objectType)
                    true)))))
 
+(defn unique-statement-ids?
+  "Spec predicate to ensure that the IDs of a list of statements are unique."
+  [statements]
+  (or (distinct? (map #(get % "id") statements))
+      ::s/invalid))
+
 (s/def ::statements
-  (s/coll-of ::statement :into []))
+  (s/and
+   (s/coll-of ::statement :into [])
+   unique-statement-ids?))
 
 (s/def ::lrs-statements
   (s/coll-of ::lrs-statement :into []))
