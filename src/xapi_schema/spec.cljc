@@ -1375,7 +1375,7 @@
 (defn unique-statement-ids?
   "Spec predicate to ensure that the IDs of a list of statements are unique."
   [statements]
-  (or (distinct? (map #(get % "id") statements))
+  (or (reduce distinct? (map #(get % "id") statements))
       ::s/invalid))
 
 (s/def ::statements
