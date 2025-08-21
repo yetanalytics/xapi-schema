@@ -73,7 +73,13 @@
      (testing "with string data"
        (let [statement (json/write-str long-statement)]
          (testing "it parses and returns the validated data"
-           (is (= long-statement (validate-statement-data statement)))))))
+           (is (= long-statement (validate-statement-data statement)))))) 
+     :cljs
+     (testing "with string data"
+       (let [json     (clj->js long-statement)
+             json-str (.stringify js/JSON json)]
+         (testing "it parses and returns the validated data"
+           (is (= long-statement (validate-statement-data json-str))))))) 
 
   #?(:cljs
      (testing "with nested data"

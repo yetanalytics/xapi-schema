@@ -100,7 +100,7 @@
 (def UuidRegEx ; RFC 3984
   (re-pattern (str "[0-9A-Fa-f]{8}-" ; [0-9A-Fa-f] = hex digit
                    "[0-9A-Fa-f]{4}-"
-                   "[1-4][0-9A-Fa-f]{3}-"
+                   "[1-8][0-9A-Fa-f]{3}-"
                    "[0-9A-Fa-f]{4}-"
                    "[0-9A-Fa-f]{12}")))
 
@@ -163,3 +163,6 @@
 
 (def Sha1RegEx
   #"^[0-9a-fA-F]{40}$")
+
+(def Sha2RegEx
+  #"^[0-9a-fA-F]{64}$")

@@ -40,12 +40,10 @@
                      {"en-US" "foo"}
                      {"es" "hola mundo"}
                      {"zh-cmn" "你好世界"}
+                     {} ; empty lang maps are allowed by spec
                      :bad
                      {"hey there" "foo"}
-                     {"en" 2}
-                     ;; We do not allow for empty maps (despite technically
-                     ;; being spec-conformant)
-                     {})))
+                     {"en" 2})))
 
 (deftest iri-test
   (testing "must be a valid url with scheme"
@@ -84,13 +82,14 @@
                      "some other crap")))
 
 (deftest uuid-test
-  (testing "is a valid v4 UUID"
+  (testing "is a valid v1-8 UUID"
     (should-satisfy+ ::xs/uuid
                      "f47ac10b-58cc-4372-a567-0e02b2c3d479"
                      "12345678-1234-1234-1234-123456789012"
+                     "017b4f9f-2a7e-84f1-80e9-7b788a5baba4"
                      :bad
-                     ;; 6 is not a valid version number
-                     "12345678-1234-6234-1234-123456789012")))
+                     ;; 9 is not a valid version number
+                     "12345678-1234-9234-1234-123456789012")))
 
 (deftest timestamp-test
   (testing "is a valid ISO 8601 DateTime"
@@ -151,7 +150,8 @@
     (should-satisfy+ ::xs/sha2
                      "672fa5fa658017f1b72d65036f13379c6ab05d4ab3b6664908d8acf0b6a0c634"
                      :bad
-                     123)))
+                     123
+                     "Q3lxN0R1NQ==")))
 
 (deftest sha1sum-test
   (testing "is a SHA-1 string of 40 hex chars"
@@ -374,8 +374,8 @@
                      ["foo"])))
 
 (deftest context-activities-map-test
-  (testing "cannot be empty"
-    (should-not-satisfy ::xs/context-activities {})))
+  (testing "can be empty"
+    (should-satisfy :context/contextActivities {})))
 
 (deftest context-test
   (testing "can be empty"
@@ -626,3 +626,14 @@
                       "verb" {"id" "http://adlnet.gov/expapi/verbs/voided"
                               "display" {"en-US" "voided"}}
                       "object" {"id" "http://example.com/activities/1"}})))
+
+(deftest statements-test
+  (testing "generic statememt batch"
+    (should-satisfy+ ::xs/statements
+                     [simple-statement]
+                     [simple-statement long-statement]
+                     []))
+  (testing "LRS retrieval statement batch"
+    (should-satisfy+ ::xs/lrs-statements
+                     [d/statement] ; This statement has ID and other required fields
+                     [])))

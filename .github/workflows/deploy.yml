@@ -1,0 +1,31 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Enforce Semantic Versioning
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+ 
+    steps: 
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup CD Environment
+      uses: yetanalytics/action-setup-env@v2
+
+    - name: Extract version
+      id: version
+      run: echo version=${GITHUB_REF#refs\/tags\/v} >> $GITHUB_OUTPUT
+
+    - name: Build and deploy to Clojars
+      uses: yetanalytics/action-deploy-clojars@v2
+      with:
+          artifact-id: 'xapi-schema'
+          src-dirs: '["src"]'
+          resource-dirs: '[]'
+          version: ${{ steps.version.outputs.version }}
+          clojars-username: ${{ secrets.CLOJARS_USERNAME }}
+          clojars-deploy-token: ${{ secrets.CLOJARS_PASSWORD }}

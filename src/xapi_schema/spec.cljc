@@ -9,17 +9,14 @@
                                    TimestampRegEx
                                    xAPIVersionRegEx
                                    DurationRegEx
-                                   Base64RegEx
-                                   Sha1RegEx]]
+                                   Sha1RegEx
+                                   Sha2RegEx]]
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]
    [clojure.spec.gen.alpha :as sgen :include-macros true]
    [clojure.string :as cstr]
    #?@(:cljs [[goog.string :as gstring]
-              [goog.string.format]
-              [goog.crypt]
-              [goog.crypt.base64 :as base64]]))
-  #?(:clj (:import [java.util Base64])
-     :cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
+              [goog.string.format]]))
+  #?(:cljs (:require-macros [xapi-schema.spec :refer [conform-ns]])))
 
 (def ^:dynamic *xapi-0-95-compat?*
   "When true, coerce 0.95 context activities to conform."
@@ -109,11 +106,7 @@
 (s/def ::language-map
   (s/map-of ::language-tag
             ::language-map-text
-            :gen-max 3
-            ;; Technically, empty language maps are allowed under the xAPI spec.
-            ;; However, they are nonsensical in most contexts and will not
-            ;; work in downstream libs (e.g those that use DynamoDB).
-            :min-count 1))
+            :gen-max 3))
 
 
 (defn into-str [cs]
@@ -264,7 +257,7 @@
     #(sgen/fmap (fn [[yyyy mm dd h m s ms]]
                   (#?(:clj format :cljs gstring/format)
                    "%d-%02d-%02dT%02d:%02d:%02d.%dZ" yyyy mm dd h m s ms))
-               (sgen/tuple (sgen/elements (range 1970 2022))
+               (sgen/tuple (sgen/elements (range 1970 2024))
                            (sgen/elements (range 1 13))
                            (sgen/elements (range 1 29))
                            (sgen/elements (range 0 25))
@@ -293,14 +286,14 @@
 (s/def ::sha2
   (s/with-gen
     (s/and string?
-           (partial re-matches Base64RegEx))
-    #(sgen/fmap
-      (fn [^String s]
-        #?(:clj (String. (.encode
-                          (Base64/getEncoder)
-                          (.getBytes s)))
-           :cljs (base64/encodeString s)))
-      (sgen/not-empty (sgen/string-alphanumeric)))))
+           (partial re-matches Sha2RegEx))
+   #(sgen/fmap
+     (fn [is]
+       (apply str (map char is)))
+     (sgen/vector (sgen/elements (concat
+                                  (range 65 71)
+                                  (range 48 58)))
+                  64))))
 
 (s/def ::sha1sum
   (s/with-gen
@@ -314,7 +307,7 @@
       (sgen/vector (sgen/elements (concat
                                    (range 65 71)
                                    (range 48 58)))
-                40))))
+                   40))))
 
 ;; Activity Definition
 
@@ -802,6 +795,37 @@
     (apply <= (filter identity [min raw max]))
     true))
 
+(defn coerce-min-max-raw
+  [{raw :score/raw
+    min :score/min
+    max :score/max
+    :as scores}]
+  (cond
+    (and min raw max (not (<= min raw max)))
+    (let [ord (vec (sort [min raw max]))]
+      (-> scores
+          (assoc :score/min (get ord 0))
+          (assoc :score/raw (get ord 1))
+          (assoc :score/max (get ord 2))))
+
+    (and min raw (< raw min))
+    (-> scores
+        (assoc :score/min raw)
+        (assoc :score/raw min))
+    
+    (and min max (< max min))
+    (-> scores
+        (assoc :score/min max)
+        (assoc :score/max min))
+    
+    (and raw max (< max raw))
+    (-> scores
+        (assoc :score/raw max)
+        (assoc :score/max raw))
+    
+    :else
+    scores))
+
 (s/def :result/score
   (s/with-gen (s/and
                 (s/conformer
@@ -818,8 +842,8 @@
                 valid-min-max-raw?)
      #(sgen/fmap
        unform-ns-map
-       (sgen/such-that
-        valid-min-max-raw?
+       (sgen/fmap
+        coerce-min-max-raw
         (sgen/not-empty
          (s/gen (s/keys :opt [:score/scaled
                               :score/raw
@@ -913,10 +937,10 @@
 (s/def :context/contextActivities
   (conform-ns "contextActivities"
               (s/and
-               (s/keys :req [(or :contextActivities/parent
-                                 :contextActivities/grouping
-                                 :contextActivities/category
-                                 :contextActivities/other)])
+               (s/keys :opt [:contextActivities/parent
+                             :contextActivities/grouping
+                             :contextActivities/category
+                             :contextActivities/other])
                (restrict-keys :contextActivities/parent
                               :contextActivities/grouping
                               :contextActivities/category
@@ -1039,6 +1063,10 @@
 
 (s/def :attachment/fileUrl
   ::irl)
+
+;; Note: The SHA2 hash may not correspond to any attachment with the given
+;; length and content type. This spec is okay for pure validation, but for
+;; generation a more sophisticated algorithm is recommended.
 
 (s/def ::file-attachment
   (conform-ns "attachment"
@@ -1345,7 +1373,7 @@
                    true)))))
 
 (s/def ::statements
-  (s/coll-of ::statement :into [] :min-count 1))
+  (s/coll-of ::statement :into []))
 
 (s/def ::lrs-statements
-  (s/coll-of ::lrs-statement :into [] :min-count 1))
+  (s/coll-of ::lrs-statement :into []))
