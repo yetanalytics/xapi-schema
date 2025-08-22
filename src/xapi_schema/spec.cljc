@@ -812,17 +812,17 @@
     (-> scores
         (assoc :score/min raw)
         (assoc :score/raw min))
-    
+
     (and min max (< max min))
     (-> scores
         (assoc :score/min max)
         (assoc :score/max min))
-    
+
     (and raw max (< max raw))
     (-> scores
         (assoc :score/raw max)
         (assoc :score/max raw))
-    
+
     :else
     scores))
 
@@ -1375,8 +1375,11 @@
 (defn unique-statement-ids?
   "Spec predicate to ensure that the IDs of a list of statements are unique."
   [statements]
-  (or (reduce distinct? (map #(get % "id") statements))
-      ::s/invalid))
+  (or
+   (empty? statements)
+   (reduce distinct?
+           (map #(get % "id") statements))
+   ::s/invalid))
 
 (s/def ::statements
   (s/and
