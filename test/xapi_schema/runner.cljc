@@ -5,6 +5,9 @@
             xapi-schema.spec-test
             xapi-schema.spec.regex-test
             xapi-schema.spec.resources-test
+            xapi-schema.spec-2-0-0-test
+            xapi-schema.spec-2-0-0.regex-test
+            xapi-schema.spec-2-0-0.resources-test
             #?@(:cljs [[cljs.nodejs :refer [process]]])))
 ;; Exit properly for cljs tests
 #?(:cljs (defmethod cljs.test/report [:cljs.test/default :end-run-tests] [m]
@@ -18,7 +21,10 @@
                 (run-tests 'xapi-schema.core-test
                            'xapi-schema.spec-test
                            'xapi-schema.spec.regex-test
-                           'xapi-schema.spec.resources-test)]
+                           'xapi-schema.spec.resources-test
+                           'xapi-schema.spec-2-0-0-test
+                           'xapi-schema.spec-2-0-0.regex-test
+                           'xapi-schema.spec-2-0-0.resources-test)]
             (System/exit (if (= 0 fail error)
                            0
                            1))))
@@ -28,4 +34,7 @@
                             'xapi-schema.spec-test
                             'xapi-schema.spec.regex-test
                             'xapi-schema.spec.resources-test
+                            'xapi-schema.spec-2-0-0-test
+                            'xapi-schema.spec-2-0-0.regex-test
+                            'xapi-schema.spec-2-0-0.resources-test
                             ))))
