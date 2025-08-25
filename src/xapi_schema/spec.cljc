@@ -7,8 +7,11 @@
                                    MailToIRIRegEx
                                    UuidRegEx
                                    TimestampRegEx
+                                   TimestampRegEx200
                                    xAPIVersionRegEx
+                                   xAPIVersionRegEx200
                                    DurationRegEx
+                                   DurationRegEx200
                                    Sha1RegEx
                                    Sha2RegEx]]
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]
@@ -21,6 +24,10 @@
 (def ^:dynamic *xapi-0-95-compat?*
   "When true, coerce 0.95 context activities to conform."
   true)
+
+(def ^:dynamic *xapi-version*
+  "xAPI Statement Version to Conform"
+  "1.0.3")
 
 ;; Utils
 
@@ -234,7 +241,11 @@
   [timestamp]
   (letfn [(parse-int [s] #?(:clj (Integer/parseInt s) :cljs (js/parseInt s)))]
     (let [[ts year month day _hour _min _sec _sec-frac _offset]
-          (re-matches TimestampRegEx timestamp)
+          (re-matches
+           (case *xapi-version*
+             "1.0.3" TimestampRegEx
+             "2.0.0" TimestampRegEx200)
+           timestamp)
           month-int (when month (parse-int month))
           year-int  (when year (parse-int year))
           day-int   (when day (parse-int day))]
@@ -269,7 +280,11 @@
 (s/def ::duration
   (s/with-gen
     (s/and string?
-           (partial re-matches DurationRegEx))
+           #(re-matches
+             (case *xapi-version*
+               "1.0.3" DurationRegEx
+               "2.0.0" DurationRegEx200)
+             %))
     #(sgen/fmap (fn [[h m s]]
                   (#?(:clj format
                       :cljs gstring/format) "PT%dH%sM%dS" h m s))
@@ -280,8 +295,12 @@
 (s/def ::version
   (s/with-gen
     (s/and string?
-           (partial re-matches xAPIVersionRegEx))
-    #(sgen/return "2.0.0")))
+           #(re-matches
+             (case *xapi-version*
+               "1.0.3" xAPIVersionRegEx
+               "2.0.0" xAPIVersionRegEx200)
+             %))
+    #(sgen/return *xapi-version*)))
 
 (s/def ::sha2
   (s/with-gen
@@ -1015,31 +1034,62 @@
   (s/every ::context-group
            :into []))
 
+;; multispec for dynamic params
+(defmulti context-version (fn [_] *xapi-version*))
+
+(defmethod context-version "1.0.3" [_]
+  (conform-ns
+   "context"
+   (s/and
+    (s/keys :opt [:context/registration
+                  :context/instructor
+                  :context/team
+                  :context/contextActivities
+                  :context/revision
+                  :context/platform
+                  :context/language
+                  :context/statement
+                  :context/extensions])
+    (restrict-keys :context/registration
+                   :context/instructor
+                   :context/team
+                   :context/contextActivities
+                   :context/revision
+                   :context/platform
+                   :context/language
+                   :context/statement
+                   :context/extensions))))
+
+(defmethod context-version "2.0.0" [_]
+  (conform-ns
+   "context"
+   (s/and
+    (s/keys :opt [:context/registration
+                  :context/instructor
+                  :context/team
+                  :context/contextActivities
+                  :context/revision
+                  :context/platform
+                  :context/language
+                  :context/statement
+                  :context/extensions
+                  :context/contextAgents
+                  :context/contextGroups])
+    (restrict-keys :context/registration
+                   :context/instructor
+                   :context/team
+                   :context/contextActivities
+                   :context/revision
+                   :context/platform
+                   :context/language
+                   :context/statement
+                   :context/extensions
+                   :context/contextAgents
+                   :context/contextGroups))))
+
 (s/def ::context
-  (conform-ns "context"
-              (s/and
-               (s/keys :opt [:context/registration
-                             :context/instructor
-                             :context/team
-                             :context/contextActivities
-                             :context/revision
-                             :context/platform
-                             :context/language
-                             :context/statement
-                             :context/extensions
-                             :context/contextAgents
-                             :context/contextGroups])
-               (restrict-keys :context/registration
-                              :context/instructor
-                              :context/team
-                              :context/contextActivities
-                              :context/revision
-                              :context/platform
-                              :context/language
-                              :context/statement
-                              :context/extensions
-                              :context/contextAgents
-                              :context/contextGroups))))
+  (s/multi-spec context-version (fn [gen-val _]
+                                  gen-val) ))
 
 ;; Attachments
 

@@ -389,7 +389,37 @@
                        :bad
                        {"team" {"mbox" "mailto:a@b.com"}}
                        {"team" {"mbox" "mailto:a@b.com"
-                                "objectType" "Agent"}}))))
+                                "objectType" "Agent"}})))
+  (testing "xAPI 2.0.0"
+    (binding [xs/*xapi-version* "2.0.0"]
+      (testing "contextAgents"
+        (should-satisfy+
+         ::xs/context
+         {"contextAgents"
+          [{:objectType "contextAgent"
+            :agent {"mbox" "mailto:a@b.com"
+                    "objectType" "Agent"}}]}
+         :bad
+         {"contextAgents" [{"mbox" "mailto:a@b.com"
+                            "objectType" "Agent"}]}
+         {"contextAgents"
+          [{:objectType "contextGroup"
+            :group {"mbox" "mailto:a@b.com"
+                    "objectType" "Group"}}]}))
+      (testing "contextGroups"
+        (should-satisfy+
+         ::xs/context
+         {"contextGroups"
+          [{:objectType "contextGroup"
+            :group {"mbox" "mailto:a@b.com"
+                    "objectType" "Group"}}]}
+         :bad
+         {"contextGroups" [{"mbox" "mailto:a@b.com"
+                            "objectType" "Group"}]}
+         {"contextGroups"
+          [{:objectType "contextAgent"
+            :agent {"mbox" "mailto:a@b.com"
+                    "objectType" "Agent"}}]})))))
 
 (deftest attachment-test
   (testing
