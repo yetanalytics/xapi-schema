@@ -7,8 +7,11 @@
                                    MailToIRIRegEx
                                    UuidRegEx
                                    TimestampRegEx
+                                   TimestampRegEx200
                                    xAPIVersionRegEx
+                                   xAPIVersionRegEx200
                                    DurationRegEx
+                                   DurationRegEx200
                                    Sha1RegEx
                                    Sha2RegEx]]
    [clojure.spec.alpha :as s #?@(:cljs [:include-macros true])]
@@ -21,6 +24,10 @@
 (def ^:dynamic *xapi-0-95-compat?*
   "When true, coerce 0.95 context activities to conform."
   true)
+
+(def ^:dynamic *xapi-version*
+  "xAPI Statement Version to Conform"
+  "1.0.3")
 
 ;; Utils
 
@@ -234,7 +241,11 @@
   [timestamp]
   (letfn [(parse-int [s] #?(:clj (Integer/parseInt s) :cljs (js/parseInt s)))]
     (let [[ts year month day _hour _min _sec _sec-frac _offset]
-          (re-matches TimestampRegEx timestamp)
+          (re-matches
+           (case *xapi-version*
+             "1.0.3" TimestampRegEx
+             "2.0.0" TimestampRegEx200)
+           timestamp)
           month-int (when month (parse-int month))
           year-int  (when year (parse-int year))
           day-int   (when day (parse-int day))]
@@ -269,7 +280,11 @@
 (s/def ::duration
   (s/with-gen
     (s/and string?
-           (partial re-matches DurationRegEx))
+           #(re-matches
+             (case *xapi-version*
+               "1.0.3" DurationRegEx
+               "2.0.0" DurationRegEx200)
+             %))
     #(sgen/fmap (fn [[h m s]]
                   (#?(:clj format
                       :cljs gstring/format) "PT%dH%sM%dS" h m s))
@@ -280,11 +295,12 @@
 (s/def ::version
   (s/with-gen
     (s/and string?
-           (partial re-matches xAPIVersionRegEx))
-    #(sgen/fmap (fn [i]
-                  (#?(:clj format
-                      :cljs gstring/format) "1.0.%d" i))
-                (sgen/int))))
+           #(re-matches
+             (case *xapi-version*
+               "1.0.3" xAPIVersionRegEx
+               "2.0.0" xAPIVersionRegEx200)
+             %))
+    #(sgen/return *xapi-version*)))
 
 (s/def ::sha2
   (s/with-gen
@@ -815,17 +831,17 @@
     (-> scores
         (assoc :score/min raw)
         (assoc :score/raw min))
-    
+
     (and min max (< max min))
     (-> scores
         (assoc :score/min max)
         (assoc :score/max min))
-    
+
     (and raw max (< max raw))
     (-> scores
         (assoc :score/raw max)
         (assoc :score/max raw))
-    
+
     :else
     scores))
 
@@ -973,27 +989,107 @@
 (s/def :context/extensions
   ::extensions)
 
-(s/def ::context
-  (conform-ns "context"
+;; 2.0.x compat
+
+;; contextAgents
+(s/def :contextAgent/objectType #{"contextAgent"})
+(s/def :contextAgent/agent ::agent)
+(s/def :contextAgent/relevantTypes
+  (s/every ::iri
+           :into []
+           :min-count 1))
+
+(s/def ::context-agent
+  (conform-ns "contextAgent"
               (s/and
-               (s/keys :opt [:context/registration
-                             :context/instructor
-                             :context/team
-                             :context/contextActivities
-                             :context/revision
-                             :context/platform
-                             :context/language
-                             :context/statement
-                             :context/extensions])
-               (restrict-keys :context/registration
-                              :context/instructor
-                              :context/team
-                              :context/contextActivities
-                              :context/revision
-                              :context/platform
-                              :context/language
-                              :context/statement
-                              :context/extensions))))
+               (s/keys :req [:contextAgent/objectType
+                             :contextAgent/agent]
+                       :opt [:contextAgent/relevantTypes])
+               (restrict-keys :contextAgent/objectType
+                              :contextAgent/agent
+                              :contextAgent/relevantTypes))))
+(s/def :context/contextAgents
+  (s/every ::context-agent
+           :into []))
+
+;; contextGroups
+
+(s/def :contextGroup/objectType #{"contextGroup"})
+(s/def :contextGroup/group ::group)
+(s/def :contextGroup/relevantTypes
+  (s/every ::iri
+           :into []
+           :min-count 1))
+
+(s/def ::context-group
+  (conform-ns "contextGroup"
+              (s/and
+               (s/keys :req [:contextGroup/objectType
+                             :contextGroup/group]
+                       :opt [:contextGroup/relevantTypes])
+               (restrict-keys :contextGroup/objectType
+                              :contextGroup/group
+                              :contextGroup/relevantTypes))))
+(s/def :context/contextGroups
+  (s/every ::context-group
+           :into []))
+
+;; multispec for dynamic params
+(defmulti context-version (fn [_] *xapi-version*))
+
+(defmethod context-version "1.0.3" [_]
+  (conform-ns
+   "context"
+   (s/and
+    (s/keys :opt [:context/registration
+                  :context/instructor
+                  :context/team
+                  :context/contextActivities
+                  :context/revision
+                  :context/platform
+                  :context/language
+                  :context/statement
+                  :context/extensions])
+    (restrict-keys :context/registration
+                   :context/instructor
+                   :context/team
+                   :context/contextActivities
+                   :context/revision
+                   :context/platform
+                   :context/language
+                   :context/statement
+                   :context/extensions))))
+
+(defmethod context-version "2.0.0" [_]
+  (conform-ns
+   "context"
+   (s/and
+    (s/keys :opt [:context/registration
+                  :context/instructor
+                  :context/team
+                  :context/contextActivities
+                  :context/revision
+                  :context/platform
+                  :context/language
+                  :context/statement
+                  :context/extensions
+                  :context/contextAgents
+                  :context/contextGroups])
+    (restrict-keys :context/registration
+                   :context/instructor
+                   :context/team
+                   :context/contextActivities
+                   :context/revision
+                   :context/platform
+                   :context/language
+                   :context/statement
+                   :context/extensions
+                   :context/contextAgents
+                   :context/contextGroups))))
+
+(s/def ::context
+  (s/multi-spec context-version (fn [gen-val _]
+                                  gen-val) ))
 
 ;; Attachments
 
@@ -1326,8 +1422,19 @@
                    (some-> s :statement/object :statement-ref/objectType)
                    true)))))
 
+(defn unique-statement-ids?
+  "Spec predicate to ensure that the IDs of a list of statements are unique."
+  [statements]
+  (let [ids (keep #(get % "id") statements)]
+    (or
+     (empty? ids)
+     (reduce distinct? ids)
+     ::s/invalid)))
+
 (s/def ::statements
-  (s/coll-of ::statement :into []))
+  (s/and
+   (s/coll-of ::statement :into [])
+   unique-statement-ids?))
 
 (s/def ::lrs-statements
   (s/coll-of ::lrs-statement :into []))
