@@ -9,3 +9,8 @@ test-cljs:
 	clojure -A:dev -m cljs.main -co build.test.edn -c
 	node out/main.js
 ci:	test-clj test-cljs
+
+.PHONY: pom.xml
+
+pom.xml:
+	clojure -X:deps mvn-pom :user nil

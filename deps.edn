@@ -1,6 +1,11 @@
 {:paths ["src" "resources"]
  :deps
- {org.clojure/clojure {:mvn/version "1.9.0"}
+ {org.clojure/clojure {:mvn/version "1.11.4"}
+  com.fasterxml.jackson.core/jackson-core {:mvn/version "2.18.11"}
+  com.google.guava/guava {:mvn/version "32.1.3-jre"}
+  com.google.protobuf/protobuf-java {:mvn/version "3.25.5"}
+  com.google.code.gson/gson {:mvn/version "2.8.9"}
+  org.mozilla/rhino {:mvn/version "1.7.14.1"}
   org.clojure/clojurescript {:mvn/version "1.10.339" #_"1.9.946"}
   org.clojure/data.json {:mvn/version "0.2.6"}}
  :aliases
